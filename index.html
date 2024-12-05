@@ -33,12 +33,24 @@
       <div class="name_description">Установка температуры</div>
       <div class="set_form">
         <button class="but_setpoint" onclick="decrement()">-</button>
-        <input type="number" id="set_now" size="2" min="0" max="30" step="0.5" class="set_fild" name="setpoint"
-          value="">
+        <input type="number" id="set_now" size="2" min="0" max="30" step="0.5" class="set_fild" name="setpoint" value=""
+          required>
         <button class="but_setpoint" onclick="increment()">+</button>
         <br>
         <input type="button" id="save_but" class="set_but" value="Сохранить">
       </div>
+
+      <div class="name_description">Установка гистерезиса</div>
+      <div class="set_form">
+        <button class="but_setpoint" onclick="decr_hyst()">-</button>
+        <input type="number" id="set_hyst" size="2" min="0" max="3" step="0.1" class="set_fild" name="hysteresis"
+          value="" required>
+        <button class="but_setpoint" onclick="incr_hyst()">+</button>
+        <br>
+        <input type="button" id="save_hyst" class="set_but" value="Сохранить">
+      </div>
+
+
       <div class="name_description">Выбор датчика</div>
       <table class="table" cellspacing="10" border="0">
         <tr>

@@ -14,11 +14,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 var setpoint = "25";
+var hyst_now = "0.1";
 
 function openNav() {
   document.getElementById("mySidenav")
     .style.width = "250px";
   document.getElementById('set_now').value = `${setpoint}`;
+  document.getElementById('set_hyst').value = `${hyst_now}`;
 }
 function closeNav() {
   document.getElementById("mySidenav")
@@ -43,6 +45,24 @@ function decrement() {
   }
 }
 
+var counterHyst = document.getElementById('set_hyst');
+
+// Функция для увеличения значения на 0.1
+function incr_hyst() {
+  var currentValue = parseFloat(counterHyst.value);
+  if (currentValue < 3) { // Устанавливаем максимальное значение (например, 10)
+    counterHyst.value = (currentValue + 0.1).toFixed(1);
+  }
+}
+
+// Функция для уменьшения значения на 0.1
+function decr_hyst() {
+  var currentValue = parseFloat(counterHyst.value);
+  if (currentValue >= 0.1) {
+    counterHyst.value = (currentValue - 0.1).toFixed(1);
+  }
+}
+
 $(document).ready(function () {
   let database = firebase.database();
   let Leavingroomlamp;
@@ -61,6 +81,7 @@ $(document).ready(function () {
   let Kitchensecurstat;
 
   let HeaterSetpoint;
+  let Hysteresis;
   let Boiler_status;
 
   let Dev_temp;
@@ -86,6 +107,8 @@ $(document).ready(function () {
 
     HeaterSetpoint = snap.val().HeaterSetpoint;
     setpoint = HeaterSetpoint;
+    Hysteresis = snap.val().Hysteresis;
+    hyst_now = Hysteresis;
 
     Dev_temp = snap.val().Dev_temp;
     Living_temp = snap.val().Living_temp;
@@ -271,6 +294,8 @@ $(document).ready(function () {
       responsiveVoice.speak(texton, "Russian Female");
     }
   })
+
+  // установка температуры
   $("#save_but").click(function () {
     const set_value = document.getElementById("set_now").value;
     let firebaseRef = firebase.database().ref().child("HeaterSetpoint");
@@ -299,6 +324,36 @@ $(document).ready(function () {
       }, 3000); // Скрыть информер через 3 секунды
     }
   })
+
+// Гистерезис
+  $("#save_hyst").click(function () {
+    const set_hyst = document.getElementById("set_hyst").value;
+    let firebaseRef = firebase.database().ref().child("Hysteresis");
+    firebaseRef.set(set_hyst)
+      .then(() => {
+        showInfoMessage("Настройки сохранены успешно");
+        const texton = "Установка гистерезиса, сохранена успешно";
+        responsiveVoice.speak(texton, "Russian Female");
+      })
+      .catch((error) => {
+        showInfoMessage("Ошибка при сохранении" + error, true);
+      });
+    function showInfoMessage(message, isError = false) {
+      const infoContainer = document.getElementById("infoContainer");
+      infoContainer.innerHTML = message;
+
+      if (isError) {
+        infoContainer.style.backgroundColor = "red";
+      } else {
+        infoContainer.style.backgroundColor = "#4CAF50";
+      }
+      infoContainer.style.display = "block";
+
+      setTimeout(() => {
+        infoContainer.style.display = "none";
+      }, 3000); // Скрыть информер через 3 секунды
+    }
+  });
 
   $("#dev_temp").click(function () {
     let firebaseRef1 = firebase.database().ref().child("Dev_temp");

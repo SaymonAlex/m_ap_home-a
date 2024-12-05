@@ -33,15 +33,15 @@ var counterInput = document.getElementById('set_now');
 function increment() {
   var currentValue = parseFloat(counterInput.value);
   if (currentValue < 30) { // Устанавливаем максимальное значение (например, 10)
-    counterInput.value = (currentValue + 0.5).toFixed(1);
+    counterInput.value = (currentValue + 0.2).toFixed(1);
   }
 }
 
 // Функция для уменьшения значения на 0.5
 function decrement() {
   var currentValue = parseFloat(counterInput.value);
-  if (currentValue >= 0.5) {
-    counterInput.value = (currentValue - 0.5).toFixed(1);
+  if (currentValue >= 0.2) {
+    counterInput.value = (currentValue - 0.2).toFixed(1);
   }
 }
 

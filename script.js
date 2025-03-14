@@ -123,9 +123,11 @@ $(document).ready(function () {
       document.getElementById('relay1').checked = 0;
     }
     if (Leavroomlampstat == "1") {
-      document.getElementById('now_relay1').checked = 1;
+      document.getElementById("lamp_leavroom").classList.remove('lamp_off');
+      document.getElementById("lamp_leavroom").classList.add('lamp_on');
     } else {
-      document.getElementById('now_relay1').checked = 0;
+      document.getElementById("lamp_leavroom").classList.remove('lamp_on');
+      document.getElementById("lamp_leavroom").classList.add('lamp_off');
     }
     if (Leavingroomsecur == "1") {
       document.getElementById('secur1').checked = 1;
@@ -144,9 +146,11 @@ $(document).ready(function () {
       document.getElementById('relay2').checked = 0;
     }
     if (Bedroomlampstat == "1") {
-      document.getElementById('now_relay2').checked = 1;
+      document.getElementById("lamp_bedroom").classList.remove('lamp_off');
+      document.getElementById("lamp_bedroom").classList.add('lamp_on');
     } else {
-      document.getElementById('now_relay2').checked = 0;
+      document.getElementById("lamp_bedroom").classList.remove('lamp_on');
+      document.getElementById("lamp_bedroom").classList.add('lamp_off');
     }
     if (Bedroomsecur == "1") {
       document.getElementById('secur2').checked = 1;
@@ -165,9 +169,11 @@ $(document).ready(function () {
       document.getElementById('relay3').checked = 0;
     }
     if (Kitchenlampstat == "1") {
-      document.getElementById('now_relay3').checked = 1;
+      document.getElementById("lamp_kitchen").classList.remove('lamp_off');
+      document.getElementById("lamp_kitchen").classList.add('lamp_on');
     } else {
-      document.getElementById('now_relay3').checked = 0;
+      document.getElementById("lamp_kitchen").classList.remove('lamp_on');
+      document.getElementById("lamp_kitchen").classList.add('lamp_off');
     }
     if (Kitchensecur == "1") {
       document.getElementById('secur3').checked = 1;

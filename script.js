@@ -16,6 +16,11 @@ firebase.initializeApp(firebaseConfig);
 var setpoint = "25";
 var hyst_now = "0.1";
 
+const container = document.querySelector('.progress');
+container.addEventListener("click", () => {
+  closeNav();
+});
+
 function openNav() {
   document.getElementById("mySidenav")
     .style.width = "250px";
@@ -219,13 +224,13 @@ $(document).ready(function () {
     if (Leavingroomlamp == "1") {
       firebaseRef.set("0");
       Leavingroomlamp = "0";
-      const textoff = "Лампа в зале выключена";
+      const textoff = "Лампа в спальне выключена";
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
     } else {
       firebaseRef.set("1");
       Leavingroomlamp = "1";
-      const texton = "Лампа в зале включена";
+      const texton = "Лампа в спальне включена";
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
     }
@@ -235,13 +240,13 @@ $(document).ready(function () {
     if (Leavingroomsecur == "1") {
       firebaseRef.set("0");
       Leavingroomsecur = "0";
-      const textoff = "Охрана в зале, выключена";
+      const textoff = "Охрана в спальне, выключена";
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
     } else {
       firebaseRef.set("1");
       Leavingroomsecur = "1";
-      const texton = "Охрана в зале, включена";
+      const texton = "Охрана в спальне, включена";
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
     }
@@ -252,13 +257,13 @@ $(document).ready(function () {
     if (Bedroomlamp == "1") {
       firebaseRef.set("0");
       Bedroomlamp = "0";
-      const textoff = "Лампа в спальне, выключена";
+      const textoff = "Лампа у Насти, выключена";
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
     } else {
       firebaseRef.set("1");
       Bedroomlamp = "1";
-      const texton = "Лампа в спальне, включена";
+      const texton = "Лампа у Насти, включена";
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
     }
@@ -268,13 +273,13 @@ $(document).ready(function () {
     if (Bedroomsecur == "1") {
       firebaseRef.set("0");
       Bedroomsecur = "0";
-      const textoff = "Охрана в спальне, выключена";
+      const textoff = "Охрана у Насти, выключена";
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
     } else {
       firebaseRef.set("1");
       Bedroomsecur = "1";
-      const texton = "Охрана в спальне, включена";
+      const texton = "Охрана у Насти, включена";
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
     }
@@ -415,7 +420,7 @@ $(document).ready(function () {
       Bedroom_temp = "0";
       firebaseRef4.set("0");
       Kitchen_temp = "0";
-      const texton = "Выбран датчик, температуры в зале";
+      const texton = "Выбран датчик, температуры в спальне";
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
     }
@@ -438,7 +443,7 @@ $(document).ready(function () {
       Living_temp = "0";
       firebaseRef4.set("0");
       Kitchen_temp = "0";
-      const texton = "Выбран датчик, температуры в спальне";
+      const texton = "Выбран датчик, температуры у Насти";
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
     }
@@ -516,21 +521,21 @@ talk_heart.addEventListener("click", () => {
 
 const talk_templeavroom = document.querySelector("#tempC_1");
 talk_templeavroom.addEventListener("click", () => {
-  const text = " Температура в зале, " + Leavingroom_temp + " градусов";
+  const text = " Температура в спальне, " + Leavingroom_temp + " градусов";
   var utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
 });
 
 const talk_tempbedroom = document.querySelector("#tempC_2");
 talk_tempbedroom.addEventListener("click", () => {
-  const text = " температура в спальне," + Bedroom_temp + "градусов";
+  const text = " температура у Насти," + Bedroom_temp + "градусов";
   var utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
 });
 
 const talk_tempkitchen = document.querySelector("#tempC_3");
 talk_tempkitchen.addEventListener("click", () => {
-  const text = " температура на кухне," + Kitchen_temp + "градусов";
+  const text = " температура в Гостинной," + Kitchen_temp + "градусов";
   var utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
 });

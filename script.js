@@ -15,6 +15,8 @@ firebase.initializeApp(firebaseConfig);
 
 var setpoint = "25";
 var hyst_now = "0.1";
+let utterance = null;
+var sound_voice = true;
 
 const container = document.querySelector('.progress');
 container.addEventListener("click", () => {
@@ -224,15 +226,21 @@ $(document).ready(function () {
     if (Leavingroomlamp == "1") {
       firebaseRef.set("0");
       Leavingroomlamp = "0";
+      if (sound_voice == true) {
       const textoff = "Лампа в спальне выключена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
+      }
     } else {
       firebaseRef.set("1");
       Leavingroomlamp = "1";
+      if (sound_voice == true) {
       const texton = "Лампа в спальне включена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
   $("#secur1").click(function () {
@@ -240,15 +248,21 @@ $(document).ready(function () {
     if (Leavingroomsecur == "1") {
       firebaseRef.set("0");
       Leavingroomsecur = "0";
+      if (sound_voice == true) {
       const textoff = "Охрана в спальне, выключена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
+      }
     } else {
       firebaseRef.set("1");
       Leavingroomsecur = "1";
+      if (sound_voice == true) {
       const texton = "Охрана в спальне, включена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
 
@@ -257,15 +271,21 @@ $(document).ready(function () {
     if (Bedroomlamp == "1") {
       firebaseRef.set("0");
       Bedroomlamp = "0";
+      if (sound_voice == true) {
       const textoff = "Лампа у Насти, выключена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
+      }
     } else {
       firebaseRef.set("1");
       Bedroomlamp = "1";
+      if (sound_voice == true) {
       const texton = "Лампа у Насти, включена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
   $("#secur2").click(function () {
@@ -273,15 +293,21 @@ $(document).ready(function () {
     if (Bedroomsecur == "1") {
       firebaseRef.set("0");
       Bedroomsecur = "0";
+      if (sound_voice == true) {
       const textoff = "Охрана у Насти, выключена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
+      }
     } else {
       firebaseRef.set("1");
       Bedroomsecur = "1";
+      if (sound_voice == true) {
       const texton = "Охрана у Насти, включена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
 
@@ -290,15 +316,21 @@ $(document).ready(function () {
     if (Kitchenlamp == "1") {
       firebaseRef.set("0");
       Kitchenlamp = "0";
+      if (sound_voice == true) {
       const textoff = "Лампа на кухне, выключена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
+      }
     } else {
       firebaseRef.set("1");
       Kitchenlamp = "1";
+      if (sound_voice == true) {
       const texton = "Лампа на кухне, включена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
   $("#secur3").click(function () {
@@ -306,15 +338,21 @@ $(document).ready(function () {
     if (Kitchensecur == "1") {
       firebaseRef.set("0");
       Kitchensecur = "0";
+      if (sound_voice == true) {
       const textoff = "Охрана на кухне, выключена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(textoff);
       speechSynthesis.speak(utterance);
+      }
     } else {
       firebaseRef.set("1");
       Kitchensecur = "1";
+      if (sound_voice == true) {
       const texton = "Охрана на кухне, включена";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
 
@@ -325,9 +363,12 @@ $(document).ready(function () {
     firebaseRef.set(set_value)
       .then(() => {
         showInfoMessage("Настройки сохранены успешно");
+        if (sound_voice == true) {
         const texton = "Установка температуры, сохранена успешно";
+        speechSynthesis.cancel();
         var utterance = new SpeechSynthesisUtterance(texton);
         speechSynthesis.speak(utterance);
+        }
       })
       .catch((error) => {
         showInfoMessage("Ошибка при сохранении" + error, true);
@@ -349,16 +390,19 @@ $(document).ready(function () {
     }
   })
 
-// Гистерезис
+  // Гистерезис
   $("#save_hyst").click(function () {
     const set_hyst = document.getElementById("set_hyst").value;
     let firebaseRef = firebase.database().ref().child("Hysteresis");
     firebaseRef.set(set_hyst)
       .then(() => {
         showInfoMessage("Настройки сохранены успешно");
+        if (sound_voice == true) {
         const texton = "Установка гистерезиса, сохранена успешно";
+        speechSynthesis.cancel();
         var utterance = new SpeechSynthesisUtterance(texton);
         speechSynthesis.speak(utterance);
+        }
       })
       .catch((error) => {
         showInfoMessage("Ошибка при сохранении" + error, true);
@@ -397,9 +441,12 @@ $(document).ready(function () {
       Bedroom_temp = "0";
       firebaseRef4.set("0");
       Kitchen_temp = "0";
+      if (sound_voice == true) {
       const texton = "Выбрано управление, средней температурой";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
 
@@ -420,9 +467,12 @@ $(document).ready(function () {
       Bedroom_temp = "0";
       firebaseRef4.set("0");
       Kitchen_temp = "0";
+      if (sound_voice == true) {
       const texton = "Выбран датчик, температуры в спальне";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
 
@@ -443,9 +493,12 @@ $(document).ready(function () {
       Living_temp = "0";
       firebaseRef4.set("0");
       Kitchen_temp = "0";
+      if (sound_voice == true) {
       const texton = "Выбран датчик, температуры у Насти";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
 
@@ -466,9 +519,12 @@ $(document).ready(function () {
       Living_temp = "0";
       firebaseRef3.set("0");
       Bedroom_temp = "0";
+      if (sound_voice == true) {
       const texton = ">>Выбран датчик, температуры на кухне";
+      speechSynthesis.cancel();
       var utterance = new SpeechSynthesisUtterance(texton);
       speechSynthesis.speak(utterance);
+      }
     }
   })
 });
@@ -514,44 +570,62 @@ wifilevels.ref().on("value", function (snap) {
 // Озвучка температуры
 const talk_heart = document.getElementById("heart");
 talk_heart.addEventListener("click", () => {
-  const text = "Привет! Люблю Тебя, Кошечка моя";
-  var utterance = new SpeechSynthesisUtterance(text);
-  speechSynthesis.speak(utterance);
-})
+  if (sound_voice == true) {
+    const text = "Привет! Люблю Тебя, Кошечка моя";
+    speechSynthesis.cancel();
+    var utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesis.speak(utterance);
+  }
+});
 
 const talk_templeavroom = document.querySelector("#tempC_1");
 talk_templeavroom.addEventListener("click", () => {
+  if (sound_voice == true) {
   const text = " Температура в спальне, " + Leavingroom_temp + " градусов";
+  speechSynthesis.cancel();
   var utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
+  }
 });
 
 const talk_tempbedroom = document.querySelector("#tempC_2");
 talk_tempbedroom.addEventListener("click", () => {
+  if (sound_voice == true) {
   const text = " температура у Насти," + Bedroom_temp + "градусов";
+  speechSynthesis.cancel();
   var utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
+  }
 });
 
 const talk_tempkitchen = document.querySelector("#tempC_3");
 talk_tempkitchen.addEventListener("click", () => {
+  if (sound_voice == true) {
   const text = " температура в Гостинной," + Kitchen_temp + "градусов";
+  speechSynthesis.cancel();
   var utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
+  }
 });
 
 const talk_outside = document.querySelector("#outside_temp");
 talk_outside.addEventListener("click", () => {
+  if (sound_voice == true) {
   const text = " температура на улице," + Outside_temp + "градусов";
+  speechSynthesis.cancel();
   var utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
+  }
 });
 
 const talk_tempdev = document.querySelector("#devhome_temp");
 talk_tempdev.addEventListener("click", () => {
+  if (sound_voice == true) {
   const text = " средняя температура в доме," + Deviation_temp + "градусов";
+  speechSynthesis.cancel();
   var utterance = new SpeechSynthesisUtterance(text);
   speechSynthesis.speak(utterance);
+  }
 });
 
 const full_screen = document.querySelector('.progress');
@@ -626,12 +700,12 @@ function createSnowflake() {
 (async () => {
   let snow = document.getElementById('snow_animate');
   let anim_snow = document.getElementById('anim_icon');
-  if (localStorage.getItem('theme') == "true"){
+  if (localStorage.getItem('theme') == "true") {
     snow.classList.remove('nosnowflakes');
     snow.classList.add('snowflakes');
     anim_snow.classList.remove('snow_picture');
     anim_snow.classList.add('animsnow_picture');
-  }else {
+  } else {
     snow.classList.remove('snowflakes');
     snow.classList.add('nosnowflakes');
     anim_snow.classList.remove('animsnow_picture');
@@ -648,20 +722,56 @@ function togglesnow() {
     snow.classList.add('nosnowflakes');
     anim_snow.classList.remove('animsnow_picture');
     anim_snow.classList.add('snow_picture');
+    if (sound_voice == true) {
     const text = "Анимация снежинок выключена";
+    speechSynthesis.cancel();
     var utterance = new SpeechSynthesisUtterance(text);
     speechSynthesis.speak(utterance);
+    }
   } else {
     localStorage.setItem('theme', true);
     snow.classList.remove('nosnowflakes');
     snow.classList.add('snowflakes');
     anim_snow.classList.remove('snow_picture');
     anim_snow.classList.add('animsnow_picture');
+    if (sound_voice == true) {
     const text = "Анимация снежинок включена";
+    speechSynthesis.cancel();
     var utterance = new SpeechSynthesisUtterance(text);
     speechSynthesis.speak(utterance);
+    }
   }
-}
+};
+
+// Управление звуковым сопровождением
+const sound_but = document.getElementById('sound');
+const sound_icon = document.getElementById('sound_icon');
+
+function togglesound(state) {
+  if (state === "on") {
+    sound_icon.src = "Sound_on.png"; // Путь к включённой иконке
+    sound_voice = true;
+  } else {
+    sound_icon.src = "Sound_off.png"; // Путь к выключенной иконке
+    sound_voice = false;
+  }
+};
+
+let sound_State = localStorage.getItem("sound_State") || "off";
+togglesound(sound_State);
+
+sound_but.addEventListener("click", () => {
+  sound_State = sound_State === "off" ? "on" : "off";
+  localStorage.setItem("sound_State", sound_State);
+  togglesound(sound_State);
+
+  if (sound_State === "on") {
+    const text = "Голосовое сопровождение включено";
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesis.speak(utterance);
+  }
+});
 
 
 var units_status = firebase.database();

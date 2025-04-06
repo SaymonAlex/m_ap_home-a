@@ -70,9 +70,12 @@ function decr_hyst() {
   }
 }
 
-// Функция для клика при нажатии на чекбокс
+// Функция для клика при нажатии на чекбокс и кнопки
 const checkboxes = document.querySelectorAll('.checkboxGreen');
 const but_setpoint = document.querySelectorAll('.but_setpoint');
+const menu_top_but = document.querySelector('.menu_top_but');
+const closebtn = document.querySelector('.closebtn');
+const set_but = document.querySelectorAll('.set_but');
 const clickSound = document.getElementById('clickSound');
 const clickButton = document.getElementById('clickButton');
 
@@ -82,9 +85,22 @@ checkboxes.forEach(checkbox => {
     clickSound.play();
   });
 });
-
 but_setpoint.forEach(button => {
   button.addEventListener('click', () => {
+    clickButton.currentTime = 0;
+    clickButton.play();
+  });
+});
+menu_top_but.addEventListener('click', () => {
+    clickButton.currentTime = 0;
+    clickButton.play();
+  });
+closebtn.addEventListener('click', () => {
+  clickButton.currentTime = 0;
+  clickButton.play();
+});
+set_but.forEach(checkbox => {
+  checkbox.addEventListener('click', () => {
     clickButton.currentTime = 0;
     clickButton.play();
   });

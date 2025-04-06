@@ -70,6 +70,26 @@ function decr_hyst() {
   }
 }
 
+// Функция для клика при нажатии на чекбокс
+const checkboxes = document.querySelectorAll('.checkboxGreen');
+const but_setpoint = document.querySelectorAll('.but_setpoint');
+const clickSound = document.getElementById('clickSound');
+const clickButton = document.getElementById('clickButton');
+
+checkboxes.forEach(checkbox => {
+  checkbox.addEventListener('change', () => {
+    clickSound.currentTime = 0;
+    clickSound.play();
+  });
+});
+
+but_setpoint.forEach(button => {
+  button.addEventListener('click', () => {
+    clickButton.currentTime = 0;
+    clickButton.play();
+  });
+});
+
 $(document).ready(function () {
   let database = firebase.database();
   let Leavingroomlamp;

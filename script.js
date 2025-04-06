@@ -76,6 +76,8 @@ const but_setpoint = document.querySelectorAll('.but_setpoint');
 const menu_top_but = document.querySelector('.menu_top_but');
 const closebtn = document.querySelector('.closebtn');
 const set_but = document.querySelectorAll('.set_but');
+const snow_animation = document.querySelector('.snow_animation');
+const sound_animation = document.querySelector('.sound_animation');
 const clickSound = document.getElementById('clickSound');
 const clickButton = document.getElementById('clickButton');
 
@@ -104,6 +106,14 @@ set_but.forEach(checkbox => {
     clickButton.currentTime = 0;
     clickButton.play();
   });
+});
+snow_animation.addEventListener('click', () => {
+  clickButton.currentTime = 0;
+  clickButton.play();
+});
+sound_animation.addEventListener('click', () => {
+  clickButton.currentTime = 0;
+  clickButton.play();
 });
 
 $(document).ready(function () {

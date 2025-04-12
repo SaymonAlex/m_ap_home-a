@@ -17,6 +17,7 @@ var setpoint = "25";
 var hyst_now = "0.1";
 let utterance = null;
 var sound_voice = true;
+var tick_sound = true;
 
 const container = document.querySelector('.progress');
 container.addEventListener("click", () => {
@@ -77,44 +78,61 @@ const menu_top_but = document.querySelector('.menu_top_but');
 const closebtn = document.querySelector('.closebtn');
 const set_but = document.querySelectorAll('.set_but');
 const snow_animation = document.querySelector('.snow_animation');
-const sound_animation = document.querySelector('.sound_animation');
+const sound_pictures = document.querySelectorAll('.sound_picture');
 const clickSound = document.getElementById('clickSound');
 const clickButton = document.getElementById('clickButton');
 
 checkboxes.forEach(checkbox => {
   checkbox.addEventListener('change', () => {
+    if (tick_sound == true) {
     clickSound.currentTime = 0;
     clickSound.play();
+  }
   });
 });
 but_setpoint.forEach(button => {
   button.addEventListener('click', () => {
-    clickButton.currentTime = 0;
-    clickButton.play();
+    if (tick_sound == true) {
+      clickSound.currentTime = 0;
+      clickButton.play();
+    }
   });
 });
 menu_top_but.addEventListener('click', () => {
-    clickButton.currentTime = 0;
+  if (tick_sound == true) {
+    clickSound.currentTime = 0;
     clickButton.play();
+  }
   });
 closebtn.addEventListener('click', () => {
-  clickButton.currentTime = 0;
-  clickButton.play();
+  if (tick_sound == true) {
+    clickSound.currentTime = 0;
+    clickButton.play();
+  }
 });
 set_but.forEach(checkbox => {
   checkbox.addEventListener('click', () => {
-    clickButton.currentTime = 0;
-    clickButton.play();
+    if (tick_sound == true) {
+      clickSound.currentTime = 0;
+      clickButton.play();
+    }
   });
 });
 snow_animation.addEventListener('click', () => {
-  clickButton.currentTime = 0;
-  clickButton.play();
+  if (tick_sound == true) {
+    clickSound.currentTime = 0;
+    clickButton.play();
+  }
 });
-sound_animation.addEventListener('click', () => {
-  clickButton.currentTime = 0;
-  clickButton.play();
+sound_pictures.forEach(button => {
+  button.addEventListener('click', () => {
+    if (tick_sound == true) {
+      clickSound.currentTime = 0;
+      clickButton.play();
+    }
+  });
 });
+
 
 $(document).ready(function () {
   let database = firebase.database();
@@ -790,7 +808,6 @@ function togglesnow() {
 };
 
 // Управление звуковым сопровождением
-const sound_but = document.getElementById('sound');
 const sound_icon = document.getElementById('sound_icon');
 
 function togglesound(state) {
@@ -806,19 +823,46 @@ function togglesound(state) {
 let sound_State = localStorage.getItem("sound_State") || "off";
 togglesound(sound_State);
 
-sound_but.addEventListener("click", () => {
+sound_icon.addEventListener("click", () => {
   sound_State = sound_State === "off" ? "on" : "off";
   localStorage.setItem("sound_State", sound_State);
   togglesound(sound_State);
 
   if (sound_State === "on") {
-    const text = "Голосовое сопровождение включено";
+    const text = "Голосовое сопровождение, включено";
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     speechSynthesis.speak(utterance);
   }
 });
 
+// Управление звуками при нажатии
+const ticksnd_icon = document.getElementById('tick_icon');
+function toggleticksound(state) {
+  if (state === "on") {
+    ticksnd_icon.src = "Sound_on.png"; // Путь к включённой иконке
+    tick_sound = true;
+  } else {
+    ticksnd_icon.src = "Sound_off.png"; // Путь к выключенной иконке
+    tick_sound = false;
+  }
+};
+
+let tick_State = localStorage.getItem("tick_State") || "off";
+toggleticksound(tick_State);
+
+ticksnd_icon.addEventListener("click", () => {
+  tick_State = tick_State === "off" ? "on" : "off";
+  localStorage.setItem("tick_State", tick_State);
+  toggleticksound(tick_State);
+
+  if (tick_State === "on") {
+    const text = "Звуки при нажатии, включены";
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesis.speak(utterance);
+  }
+});
 
 var units_status = firebase.database();
 var stat_boiler;

@@ -81,6 +81,7 @@ const snow_animation = document.querySelector('.snow_animation');
 const sound_pictures = document.querySelectorAll('.sound_picture');
 const clickSound = document.getElementById('clickSound');
 const clickButton = document.getElementById('clickButton');
+const mic_but = document.getElementById('mic_icon');
 
 checkboxes.forEach(checkbox => {
   checkbox.addEventListener('change', () => {
@@ -131,6 +132,12 @@ sound_pictures.forEach(button => {
       clickButton.play();
     }
   });
+});
+mic_but.addEventListener('click', () => {
+  if (tick_sound == true) {
+    clickSound.currentTime = 0;
+    clickButton.play();
+  }
 });
 
 
@@ -806,6 +813,207 @@ function togglesnow() {
     }
   }
 };
+
+// Управление с помощью микрофона
+let isListening = false;
+let recognition;
+let waitingForCommand = false;
+
+// Асинхронная функция для озвучивания
+async function speak(text) {
+  return new Promise((resolve) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    const voices = speechSynthesis.getVoices();
+    const russianMaleVoice = voices.find(v =>
+      v.lang === 'ru-RU' && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('иван'))
+    );
+    if (russianMaleVoice) utterance.voice = russianMaleVoice;
+
+    utterance.pitch = 1;
+    utterance.rate = 0.95;
+    utterance.onend = resolve;
+    speechSynthesis.speak(utterance);
+  });
+}
+
+// === Основные команды ===
+const voiceCommands = [
+  {
+    match: (text) => /(установи(ть)?|поставь|задай|измени|поставить)\s+(температуру\s*)?(\d+[.,]?\d*)/.test(text),
+    action: async (text) => {
+      const match = text.match(/(установи(ть)?|поставь|задай|измени|поставить)\s+(температуру\s*)?(\d+[.,]?\d*)/);
+      if (!match) return;
+
+      let temp = match[4].replace(",", ".");
+      temp = parseFloat(temp);
+
+      // === Ограничения температуры ===
+      if (temp < 18) {
+        await speak("Температура не может быть ниже 18 градусов.");
+        return;
+      }
+
+      if (temp > 30) {
+        await speak("Температура не может быть выше 30 градусов.");
+        return;
+      }
+
+      const roundedTemp = temp.toFixed(1);
+      firebase.database().ref().child("HeaterSetpoint").set(roundedTemp);
+      await speak(`Температура установлена на ${roundedTemp} градусов.`);
+    }
+    
+  },
+  {
+    match: (text) => text.includes("как дела"),
+    action: async () => {
+      await speak("Отлично, жду ваших указаний.");
+    }
+  },
+  {
+    match: (text) => text.includes("включи лампу в спальне"),
+    action: async () => {
+      firebase.database().ref().child("Leavingroomlamp").set("1");
+      await speak("Окей, включаю.");
+    }
+  },
+  {
+    match: (text) => text.includes("выключи лампу в спальне"),
+    action: async () => {
+      firebase.database().ref().child("Leavingroomlamp").set("0");
+      await speak("Окей, выключаю.");
+    }
+  },
+  {
+    match: (text) => text.includes("включи гирлянду"),
+    action: async () => {
+      firebase.database().ref().child("Bedroomlamp").set("1");
+      await speak("Окей, включаю.");
+    }
+  },
+  {
+    match: (text) => text.includes("выключи гирлянду"),
+    action: async () => {
+      firebase.database().ref().child("Bedroomlamp").set("0");
+      await speak("Окей, выключаю.");
+    }
+  },
+{
+  match: (text) => text.includes("какая температура в доме"),
+    action: async () => {
+      await speak("средняя температура в доме," + Deviation_temp + "градусов");
+    }
+},
+  {
+    match: (text) => text.includes("выключи микрофон"),
+    action: async () => {
+      await speak("Окей, выключаю микрофон.");
+      isListening = false;
+      recognition.stop();
+      mic_State = "off";
+      localStorage.setItem("mic_State", mic_State);
+      togglemic(mic_State);
+    }
+  }
+];
+
+// Инициализация распознавания речи
+function initRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'ru-RU';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = async function (event) {
+    const transcript = event.results[0][0].transcript.trim().toLowerCase();
+
+    if (!waitingForCommand) {
+      if (transcript.includes("алиса")) {
+        await speak("Слушаю вас.");
+        waitingForCommand = true;
+        restartRecognition();
+      } else {
+        restartRecognition();
+      }
+      return;
+    }
+
+    let handled = false;
+    for (const command of voiceCommands) {
+      if (command.match(transcript)) {
+        await command.action(transcript);
+        handled = true;
+        break;
+      }
+    }
+
+    if (!handled) {
+      await speak("Извините, я не поняла ваш запрос.");
+    }
+
+    waitingForCommand = false;
+    restartRecognition();
+  };
+
+  recognition.onend = function () {
+    if (isListening) {
+      recognition.start();
+    }
+  };
+}
+
+// Перезапуск распознавания
+function restartRecognition() {
+  if (!recognition) return;
+  recognition.abort();
+  setTimeout(() => {
+    if (isListening) recognition.start();
+  }, 300);
+}
+
+
+// Кнопка управления
+const mic_icon = document.getElementById('mic_icon');
+function togglemic(state) {
+  if (state === "on") {
+    mic_icon.src = "mic_on.png"; // Путь к включённой иконке
+    if (!recognition) initRecognition();
+    isListening = true;
+    waitingForCommand = false;
+    recognition.start();
+  } else {
+    mic_icon.src = "mic_off.png"; // Путь к выключенной иконке
+    isListening = false;
+    if (recognition) recognition.stop(); // <-- Только если уже инициализирован
+  }
+};
+
+let mic_State = localStorage.getItem("mic_State") || "off";
+togglemic(mic_State);
+
+mic_icon.addEventListener("click", () => {
+  mic_State = mic_State === "off" ? "on" : "off";
+  localStorage.setItem("mic_State", mic_State);
+  togglemic(mic_State);
+
+  if (mic_State === "on") {
+    if (sound_voice == true) {
+  const text = "Управление с микрофона включено";
+  speechSynthesis.cancel();
+  var utterance = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(utterance);
+    }
+  } else {
+    if (sound_voice == true) {
+    const text = "Управление с микрофона выключено";
+    speechSynthesis.cancel();
+    var utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesis.speak(utterance);
+    }
+  }
+});
 
 // Управление звуковым сопровождением
 const sound_icon = document.getElementById('sound_icon');

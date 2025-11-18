@@ -611,7 +611,7 @@ datacheck.ref().on("value", function (snap) {
   Leavingroom_temp = snap.val().Templeavingroom;
   Bedroom_temp = snap.val().Tempbedroom;
   Kitchen_temp = snap.val().Tempkitchen;
-  Outside_temp = parseFloat(snap.val().Outside_temp) + out_side_offset;
+  Outside_temp = (parseFloat(snap.val().Outside_temp) + out_side_offset).toFixed(1);
   Deviation_temp = snap.val().Deviation_temp;
   document.getElementById("tempC_1").innerHTML = `${Leavingroom_temp}`;
   document.getElementById("tempC_2").innerHTML = `${Bedroom_temp}`;

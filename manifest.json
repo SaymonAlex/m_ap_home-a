@@ -1,11 +1,19 @@
 {
+  "id": "/esp-smart-home",
   "name": "ESP Smart Home",
   "short_name": "Квартира",
+  "description": "Веб-интерфейс управления ESP Smart Home",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#031321",
   "theme_color": "#113156",
+  "lang": "ru",
+  "categories": [
+    "smart-home",
+    "iot"
+  ],
   "icons": [
     {
       "src": "./icons/icon-192.png",

@@ -98,6 +98,51 @@ const MIN_SET = 15;
 const MAX_SET = 30;
 const STEP_SET = 0.2;
 
+// Вентиляция помещения
+const turbine = document.getElementById("turbine");
+const ring = document.getElementById("ring");
+
+firebase.database().ref("VentAppartament").on("value", (snapshot) => {
+  let state_vent = snapshot.val();
+  turbine.classList.toggle("spin", state_vent);
+  turbine.classList.toggle("glow-active", state_vent);
+  ring.classList.toggle("ring-active", state_vent);
+
+});
+
+const btn = document.getElementById("fanContainer");
+let prev_set_value = 21.5;
+const vent_value = 15.1;
+let currentSetTemp = 21.5;
+btn.addEventListener("click", () => {
+  const ventRef = firebase.database().ref("VentAppartament");
+  const tempRef = firebase.database().ref("HeaterSetpoint");
+  ventRef.once("value").then((snap) => {
+    let state = snap.val();
+    if (!state) {
+      // включаем вентиляцию
+      prev_set_value = currentSetTemp;
+      tempRef.set(vent_value);
+      ventRef.set(true);
+    } else {
+      // выключаем вентиляцию
+      tempRef.set(prev_set_value);
+      ventRef.set(false);
+    }
+  });
+
+});
+firebase.database().ref("HeaterSetpoint").on("value", (snap) => {
+  currentSetTemp = snap.val();
+});
+/* ===== ФУНКЦИЯ СМЕНЫ РАЗМЕРА ===== */
+function setFanSize(size) {
+  document.documentElement.style.setProperty('--fan-size', size + 'px');
+}
+/* пример */
+setFanSize(35);   // можешь поставить 50, 80, 120 и т.д.
+
+
 // Функция для увеличения значения на 0.5
 function increment() {
   let v = parseFloat(counterInput.value);

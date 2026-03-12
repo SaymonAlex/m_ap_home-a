@@ -1,4 +1,4 @@
-const CACHE_NAME = 'esp-ui-v5';
+const CACHE_NAME = 'esp-ui-v6';
 
 const FILES_TO_CACHE = [
   './',
@@ -37,3 +37,4 @@ self.addEventListener('fetch', e => {
     })
   );
 });
+

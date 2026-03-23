@@ -75,50 +75,18 @@ input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-
 .offcanvas a:focus,.sidenav a:hover{color:#f1f1f1}
 .sidenav .closebtn{position:absolute;top:0;right:25px;padding:0;font-size:2rem}
 .sidenav .closebtn:active{transform:translateX(-20px)}
-#infoContainer{position:fixed;top:0;left:0;width:100%;background-color:#4caf50;color:#fff;font-size:1.2rem;font-weight:600;text-align:center;padding:10px;display:none;box-shadow:5px 5px 7px rgba(0,0,0,.25),inset 2px 2px 5px rgba(255,255,255,.35),inset -3px -3px 5px rgba(0,0,0,.5)}
-.vent-wrapper {
-  position: absolute;
-  display: flex;
-  cursor: pointer;
-  align-items: center;
-  top: 180px;
-}
-
-.fan-container {
-  width: var(--fan-size);
-  height: var(--fan-size);
-}
-
-svg {
-  width: 100%;
-  height: 100%;
-}
-
-#turbine {
-  transform-origin: 50% 50%;
-  transform-box: fill-box;
-}
-
-.spin {
-  animation: spin 0.7s linear infinite;
-}
-
-.glow-active {
-  filter: url(#glow);
-}
-
-.ring-active {
-  stroke: #00e5ff;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+#infoContainer{position:fixed;top:0;left:0;width:100%;opacity:0;transform:scale(0);background-color:#4caf50;color:#fff;font-size:1.2rem;font-weight:600;text-align:center;padding:10px;box-shadow:5px 5px 7px rgba(0,0,0,.25),inset 2px 2px 5px rgba(255,255,255,.35),inset -3px -3px 5px rgba(0,0,0,.5);transition: all 0.4s ease-in-out}
+#infoContainer.show{opacity:1;transform:scale(1)}
+.vent-wrapper{position:absolute;display:flex;cursor:pointer;align-items:center;top:180px}
+.fan-container{width:var(--fan-size);height:var(--fan-size)}
+svg{width:100%;height:100%}
+#turbine{transform-origin:50% 50%;transform-box:fill-box}
+.spin{animation:spin .7s linear infinite}
+.glow-active{filter:url(#glow)}
+.ring-active{stroke:#00e5ff}
+@keyframes spin{
+from{transform:rotate(0)}
+to{transform:rotate(360deg)}
 }
 .snowflakes{display:block;position:absolute;width:100%;height:100%;pointer-events:none}
 .nosnowflakes{display:none;position:absolute;width:100%;height:100%;pointer-events:none}

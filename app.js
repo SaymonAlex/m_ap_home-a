@@ -543,6 +543,7 @@ $(document).ready(function () {
       });
     function showInfoMessage(message, isError = false) {
       const infoContainer = document.getElementById("infoContainer");
+
       infoContainer.innerHTML = message;
 
       if (isError) {
@@ -550,11 +551,10 @@ $(document).ready(function () {
       } else {
         infoContainer.style.backgroundColor = "#4CAF50";
       }
-      infoContainer.style.display = "block";
-
+      infoContainer.classList.add("show");
       setTimeout(() => {
-        infoContainer.style.display = "none";
-      }, 3000); // Скрыть информер через 3 секунды
+        infoContainer.classList.remove("show");
+      }, 3000);
     }
   })
 
@@ -574,6 +574,7 @@ $(document).ready(function () {
       });
     function showInfoMessage(message, isError = false) {
       const infoContainer = document.getElementById("infoContainer");
+
       infoContainer.innerHTML = message;
 
       if (isError) {
@@ -581,11 +582,10 @@ $(document).ready(function () {
       } else {
         infoContainer.style.backgroundColor = "#4CAF50";
       }
-      infoContainer.style.display = "block";
-
+      infoContainer.classList.add("show");
       setTimeout(() => {
-        infoContainer.style.display = "none";
-      }, 3000); // Скрыть информер через 3 секунды
+        infoContainer.classList.remove("show");
+      }, 3000);
     }
   });
 
@@ -925,7 +925,7 @@ const voiceCommands = [
       firebase.database().ref().child("HeaterSetpoint").set(roundedTemp);
       await speak(`Температура установлена на ${roundedTemp} градусов.`);
     }
-    
+
   },
   {
     match: (text) => text.includes("как дела"),

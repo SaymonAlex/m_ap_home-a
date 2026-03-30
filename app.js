@@ -709,17 +709,23 @@ let wifilevels = firebase.database();
 let wifi_boiler;
 let wifi_leavingroom;
 let wifi_bedroom;
-let wifi_kitchen;
+// let wifi_kitchen;
 wifilevels.ref().on("value", function (snap) {
   wifi_boiler = snap.val().WifiBoiler;
   wifi_leavingroom = snap.val().WifiLeavingroom;
   wifi_bedroom = snap.val().WifiBedroom;
-  wifi_kitchen = snap.val().WifiKitchen;
+  // wifi_kitchen = snap.val().WifiKitchen;
   document.getElementById("boiler_wifi_value").innerHTML = `${wifi_boiler} %`;
   document.getElementById("leaving_wifi_value").innerHTML = `${wifi_leavingroom} %`;
   document.getElementById("bedroom_wifi_value").innerHTML = `${wifi_bedroom} %`;
-  document.getElementById("kitchen_wifi_value").innerHTML = `${wifi_kitchen} %`;
+  // document.getElementById("kitchen_wifi_value").innerHTML = `${wifi_kitchen} %`;
 });
+
+firebase.database().ref("Kitchen/Temp/Wifi_level")
+  .on("value", (snap) => {
+    let wifi = snap.val();
+    document.getElementById("kitchen_wifi_value").innerHTML = `${wifi} %`;
+  });
 
 
 // Правильное произношение температуры
@@ -1132,7 +1138,7 @@ units_status.ref().on("value", snap => {
   stat.boiler = v.StatusBoiler;
   stat.leaving = v.StatusLeavingroom;
   stat.bedroom = v.StatusBedroom;
-  stat.kitchen = v.StatusKitchen;
+  stat.kitchen = v.Kitchen?.Temp?.Online_stat;
 });
 
 const devices = {

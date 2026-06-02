@@ -1,24 +1,29 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" dir="ltr">
 
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="utf-8">
   <title>Браила квартира</title>
-  <link rel="icon" href="house-repair.png" type="image/png">
+  <link rel="icon" href="/house-repair.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> -->
   <script src="https://www.gstatic.com/firebasejs/7.9.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.7.0/firebase-database.js"></script>
   <link href="https://use.fontawesome.com/releases/v5.0.4/css/all.css" rel="stylesheet">
-  <!-- <script src="https://code.responsivevoice.org/responsivevoice.js"></script> -->
+  <link rel="stylesheet" href="all.min.css">
+
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"> -->
+  <!-- CSS -->
   <link rel="stylesheet" href="loader.css">
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.json">
 </head>
 
 <body>
+
   <div id="loader">
     <div class="main-container">
       <div class="loader">
@@ -102,266 +107,618 @@
       </div>
     </div>
   </div>
+
+  <!-- audiofiles -->
+  <audio id="clickSound" src="/click.mp3"></audio>
+  <audio id="clickButton" src="/click_button.mp3"></audio>
+  <div id="infoContainer"></div>
+
   <div id="content">
-    <audio id="clickSound" src="click.mp3"></audio>
-    <audio id="clickButton" src="click_button.mp3"></audio>
-    <div id="snow_animate" class="snowflakes"></div>
-    <div class="wrapper">
-      <div class="name">БРАИЛА КВАРТИРА</div>
-      <div class="update_app" id="update_app">
-        <div class="text_update">Доступно обновление</div>
-        <div class="but_update"></div>
-      </div>
-      <div class="current_dt">
-        <div class="dt_text">Сегодня:</div>
-        <div class="current_d" id="date">мм/дд/гггг</div>
-        <div class="text_t">Время:</div>
-        <div class="current_t" id="time">00:00:00</div>
-      </div>
-
-      <div id="mySidenav" class="sidenav">
-        <a class="closebtn" onclick="closeNav()">⬅</a>
-        <div class="but_nav">НАСТРОЙКИ</div>
-        <div class="name_description">Установка температуры</div>
-        <div class="set_form">
-          <div class="number-control">
-            <button class="but_setpoint minus" onclick="decrement()"><span>-</span></button>
-            <input type="number" id="set_now" size="2" min="17" max="30" step="0.2" class="set_fild" name="setpoint"
-              value="17" required>
-            <button class="but_setpoint plus" onclick="increment()"><span>+</span></button>
-          </div>
-          <input type="button" id="save_but" class="set_but" value="Сохранить">
+    <section id="home" class="hero">
+      <div class="hero-inner">
+        <!-- Update -->
+        <div class="update_app" id="update_app">
+          <div class="text_update">Доступно обновление</div>
+          <div class="but_update"></div>
         </div>
 
-        <div class="name_description">Установка гистерезиса</div>
-        <div class="set_form">
-          <div class="number-control">
-            <button class="but_setpoint minus" onclick="decr_hyst()"><span>-</span></button>
-            <input type="number" id="set_hyst" size="2" min="0" max="3" step="0.1" class="set_fild" name="hysteresis"
-              value="0" required>
-            <button class="but_setpoint plus" onclick="incr_hyst()"><span>+</span></button>
+        <button class="menu-btn" id="menu_btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav>
+          <div class="links">
+            <a href="#home" class="active">Главная</a>
+            <a href="#heater">Отопление</a>
+            <a href="#sun_bedroom">Спальня</a>
+            <a href="#dot_bedroom">Доця спальня</a>
+            <a href="#leavingroom">Гостинная</a>
           </div>
-          <input type="button" id="save_hyst" class="set_but" value="Сохранить">
-        </div>
+        </nav>
 
-        <div class="name_description">Выбор датчика</div>
-        <table class="table" cellspacing="10" border="0">
-          <tr>
-            <th class="column-1" id="nameswt1">Средняя</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="dev_temp">
-              <label for="dev_temp"></label>
-            </td>
-          </tr>
-          <tr>
-            <th class="column-1" id="namesecur1">Спальня</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="living_temp">
-              <label for="living_temp"></label>
-            </td>
-          </tr>
-          <tr>
-            <th class="column-1" id="namesecur1">Настя</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="bedroom_temp">
-              <label for="bedroom_temp"></label>
-            </td>
-          </tr>
-          <tr>
-            <th class="column-1" id="namesecur1">Кухня</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="kitchen_temp">
-              <label for="kitchen_temp"></label>
-            </td>
-          </tr>
-        </table>
-
-        <div class="set_form"></div>
-        <div class="sound_voice">
-          <div class="snd_txt">Оповещение</div>
-          <div class="sound_animation">
-            <div class="snd_txt">Голос</div>
-            <img class="sound_picture" id="sound_icon" src="sound_on.png" alt="sound">
-          </div>
-          <div class="sound_animation">
-            <div class="snd_txt">Звуки</div>
-            <img class="sound_picture" id="tick_icon" src="sound_on.png" alt="sound">
+        <div class="earth">
+          <div class="earth__sphere">
+            <div class="earth__mapWrap">
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+            </div>
           </div>
         </div>
-        <div id="infoContainer"></div>
-      </div>
+        <div class="brand">Умный Дом</div>
+        <div class="title">
+          <h1>
+            БРАИЛА КВАРТИРА
+          </h1>
+          <div class="login">
+            <div class="current_dt">
+              <div class="dt_text">Сегодня:</div>
+              <div class="current_d" id="date">мм/дд/гггг</div>
+              <div class="text_t">Время:</div>
+              <div class="current_t" id="time">00:00:00</div>
+            </div>
 
-      <span class="menu_top_but" onclick="openNav()">&#9776;</span>
+            <div class="main_sec_temp">
+              <svg viewBox="0 0 100 100" width="160">
+                <circle cx="50" cy="50" r="40" stroke="#00c6ff" stroke-width="2" fill="none" />
+                <circle cx="50" cy="50" r="30" stroke="#00c6ff" stroke-width="1" opacity="0.4" />
+                <text id="outside_temp" x="50" y="50" text-anchor="middle" dominant-baseline="middle" fill="#00c6ff"
+                  font-size="16">---°</text>
+                <text x="50" y="68" text-anchor="middle" fill="#a3f321" font-size="8" font-weight="600">УЛИЦА</text>
+              </svg>
+              <svg viewBox="0 0 100 100" width="160">
+                <circle cx="50" cy="50" r="40" stroke="#00c6ff" stroke-width="2" fill="none" />
+                <circle cx="50" cy="50" r="30" stroke="#00c6ff" stroke-width="1" opacity="0.4" />
+                <text id="home_dev_temp" x="50" y="50" text-anchor="middle" dominant-baseline="middle" fill="#00c6ff"
+                  font-size="16">---°</text>
+                <text x="50" y="68" text-anchor="middle" fill="#a3f321" font-size="8" font-weight="600">В ДОМЕ</text>
+              </svg>
+            </div>
 
-      <div class="vent-wrapper">
-        <div class="fan-container" id="fanContainer">
-          <svg viewBox="0 0 100 100">
-            <defs>
-              <linearGradient id="bladeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#dfe6e9" />
-                <stop offset="100%" stop-color="#636e72" />
-              </linearGradient>
-              <radialGradient id="hubGrad">
-                <stop offset="0%" stop-color="#ffffff" />
-                <stop offset="100%" stop-color="#b2bec3" />
-              </radialGradient>
-              <radialGradient id="ringGrad">
-                <stop offset="0%" stop-color="#2d3436" />
-                <stop offset="100%" stop-color="#000000" />
-              </radialGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-              <!-- форма лопасти -->
-              <path id="bladeShape" d="M50 50
-                 C82 28, 98 50, 82 72
-                 C72 65, 65 58, 50 50 Z" fill="url(#bladeGrad)" />
-            </defs>
-            <!-- корпус -->
-            <circle id="ring" cx="50" cy="50" r="48" fill="url(#ringGrad)" stroke="#555" stroke-width="3" />
-            <!-- турбина -->
-            <g id="turbine">
-              <use href="#bladeShape" />
-              <use href="#bladeShape" transform="rotate(120 50 50)" />
-              <use href="#bladeShape" transform="rotate(240 50 50)" />
-            </g>
-            <!-- центр -->
-            <circle cx="50" cy="50" r="8" fill="url(#hubGrad)" stroke="#444" stroke-width="1.5" />
-          </svg>
-        </div>
-      </div>
+            <div class="sec_info_inner">
+              <div class="main_sec_info">
+                <div class="info_bar">
+                  <div class="lux-box">
+                    <div class="lux-value-inner">
+                      <div class="lux-value" id="luxValue">0 lux</div>
+                      <div class="lux-state" id="luxState">Day</div>
+                    </div>
+                    <div class="lux-bar">
+                      <div class="lux-fill" id="luxFill"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="info_bar">
+                  <div class="info_heater_stat">
+                    <img class="heater_picture" src="heater.png" alt="heater">
+                    <div id="fire" class="fire_inner">
+                      <div class="red flame"></div>
+                      <div class="orange flame"></div>
+                      <div class="yellow flame"></div>
+                      <div class="white flame"></div>
+                      <div class="blue circle"></div>
+                      <div class="black circle"></div>
+                    </div>
+                  </div>
+                  <div class="boiler_stat" id="boiler_stat">состояние</div>
+                </div>
+              </div>
+            </div>
 
-      <div class="snow_animation" id="snow" onclick="togglesnow()">
-        <img class="animsnow_picture" id="anim_icon" src="snowflake.png" alt="snowflake">
-      </div>
-      <img class="mic_picture" id="mic_icon" src="mic_off.png" alt="mic"></img>
 
-      <div class="progress">
-        <h1 class="main_text">Газовый Котел</h1>
-        <div class="signal_wifi">
-          <p class="wifi_signal">Статус WI-FI:</p>
-          <div class="wifi_value_on" id="boiler_wifi_value">---</div>
-          <div class="wifi_on" id="boiler_wifi_status"></div>
-        </div>
-        <div class="boiler_name">
-          <p class="boiler_temp">Температура на улице: <span id="outside_temp" class="tempheater_color">---</span>
-            &deg;C
-          </p>
-          <p class="home_temp">Средняя темп в доме: <span id="devhome_temp" class="tempheater_color">---</span> &deg;C
-          </p>
-          <p class="boiler_temp">Состояние Котла: <span id="boiler_stat" class="boiler_status">---</span></p>
-        </div>
-      </div>
 
-      <div class="progress">
-        <h1 class="main_text">НАША <span id="heart">♡</span> СПАЛЬНЯ</h1>
-        <div class="signal_wifi">
-          <p class="wifi_signal">Статус WI-FI:</p>
-          <div class="wifi_value_on" id="leaving_wifi_value">---</div>
-          <div class="wifi_on" id="leaving_wifi_status"></div>
-        </div>
-        <div>
-          <p class="temperature">Температура: <span id="tempC_1" class="temp_color">---</span> &deg;C</p>
-        </div>
-        <table class="table" cellspacing="10" border="0">
-          <tr>
-            <th class="column-1" id="nameswt1">Лампа</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="relay1">
-              <label for="relay1"></label>
-            </td>
-            <td class="column-4">
-              <div class="lamp_off" id="lamp_leavroom"></div>
-            </td>
-          </tr>
-          <tr>
-            <th class="column-1" id="namesecur1">Охрана</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="secur1">
-              <label for="secur1"></label>
-            </td>
-            <td class="column-3">
-              <input type="checkbox" class="LevelPinGreen" id="now_secur1" checked="checked">
-              <label for="now_secur1"></label>
-            </td>
-          </tr>
-        </table>
-      </div>
 
-      <div class="progress">
-        <h1 class="main_text">СПАЛЬНЯ ДОЦЯ</h1>
-        <div class="signal_wifi">
-          <p class="wifi_signal">Статус WI-FI:</p>
-          <div class="wifi_value_on" id="bedroom_wifi_value">---</div>
-          <div class="wifi_on" id="bedroom_wifi_status"></div>
-        </div>
-        <div>
-          <p class="temperature">Температура: <span id="tempC_2" class="temp_color">---</span> &deg;C</p>
-        </div>
-        <table class="table" cellspacing="10" border="0">
-          <tr>
-            <th class="column-1" id="nameswt2">Лампа</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="relay2">
-              <label for="relay2"></label>
-            </td>
-            <td class="column-4">
-              <div class="lamp_off" id="lamp_bedroom"></div>
-            </td>
-          </tr>
-          <tr>
-            <th class="column-1" id="namesecur2">Охрана</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="secur2">
-              <label for="secur2"></label>
-            </td>
-            <td class="column-3">
-              <input type="checkbox" class="LevelPinGreen" id="now_secur2" checked="checked">
-              <label for="now_secur2"></label>
-            </td>
-          </tr>
-        </table>
-      </div>
 
-      <div class="progress">
-        <h1 class="main_text">КУХНЯ ГОСТИННАЯ</h1>
-        <div class="signal_wifi">
-          <p class="wifi_signal">Статус WI-FI:</p>
-          <div class="wifi_value_on" id="kitchen_wifi_value">---</div>
-          <div class="wifi_on" id="kitchen_wifi_status"></div>
+            <div class="sec_info_inner">
+              <div class="main_sec_info">
+                <div class="info_bar">
+                  <div id="voltage" class="voltage_val">226 В</div>
+                  <div class="voltage_name">Напряжение</div>
+                </div>
+
+                <div class="info_bar">
+                  <div class="fan-container" id="fanContainer">
+                    <svg viewBox="0 0 100 100">
+                      <defs>
+                        <linearGradient id="bladeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#dfe6e9" />
+                          <stop offset="100%" stop-color="#636e72" />
+                        </linearGradient>
+                        <radialGradient id="hubGrad">
+                          <stop offset="0%" stop-color="#ffffff" />
+                          <stop offset="100%" stop-color="#b2bec3" />
+                        </radialGradient>
+                        <radialGradient id="ringGrad">
+                          <stop offset="0%" stop-color="#2d3436" />
+                          <stop offset="100%" stop-color="#000000" />
+                        </radialGradient>
+                        <filter id="glow">
+                          <feGaussianBlur stdDeviation="3" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                        <!-- форма лопасти -->
+                        <path id="bladeShape" d="M50 50
+                                         C82 28, 98 50, 82 72
+                                         C72 65, 65 58, 50 50 Z" fill="url(#bladeGrad)" />
+                      </defs>
+                      <!-- корпус -->
+                      <circle id="ring" cx="50" cy="50" r="48" fill="url(#ringGrad)" stroke="#555" stroke-width="3" />
+                      <!-- турбина -->
+                      <g id="turbine">
+                        <use href="#bladeShape" />
+                        <use href="#bladeShape" transform="rotate(120 50 50)" />
+                        <use href="#bladeShape" transform="rotate(240 50 50)" />
+                      </g>
+                      <!-- центр -->
+                      <circle cx="50" cy="50" r="8" fill="url(#hubGrad)" stroke="#444" stroke-width="1.5" />
+                    </svg>
+                  </div>
+                  <div class="vent_name">Вентиляция</div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="sec_info_inner">
+              <div class="main_sec_info">
+                <div class="info_bar">
+
+                  <div id="power" class="power_val">8 кВт</div>
+                  <div class="power_name">Мощность</div>
+
+                </div>
+                <div class="info_bar">
+                  <i class="fas fa-stairs"></i>
+                  <div class="stairs_name">Лестница</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec_info_inner">
+              <div class="main_sec_info">
+                <div class="info_bar">
+
+                </div>
+                <div class="info_bar">
+
+                </div>
+              </div>
+            </div>
+
+            <img id="qr_code" src="qr.png">
+            <div class="section_but">
+              <div class="btn-group">
+                <button class="btn" id="stair_but">
+                  <i class="fa-solid fa-sliders"></i>
+                </button>
+                <button class="btn">
+                  <i class="fa-solid fa-user-astronaut"></i>
+                </button>
+                <button class="btn">
+                  <i class="fa-regular fa-user"></i>
+                </button>
+                <button class="btn">
+                  <i class="fa-solid fa-user"></i>
+                </button>
+                <button class="btn" id="qr_but">
+                  <i class="fa-solid fa-qrcode"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="section_but">
+              <div class="btn-group">
+                <button class="btn" id="sound_but">
+                  <i class="fas fa-volume-xmark" id="sound_icon"></i>
+                </button>
+                <button class="btn" id="tick_but">
+                  <i class="fas fa-music"></i>
+                </button>
+                <button class="btn" id="mic_but">
+                  <i class="fas fa-microphone-slash" id="mic_icon"></i>
+                </button>
+                <button class="btn">
+                  <i class="fas fa-lightbulb"></i>
+                </button>
+                <button class="btn" id="vent_but">
+                  <!-- <i class="fa-solid fa-sliders"></i> -->
+                  <i class="fas fa-fan"></i>
+                </button>
+              </div>
+            </div>
+
+
+          </div>
         </div>
-        <div>
-          <p class="temperature">Температура: <span id="tempC_3" class="temp_color">---</span> &deg;C</p>
+        <footer>
+          <small>ESP Smart Control © 2026</small>
+        </footer>
+        <div class="trapezoid t-left"></div>
+        <div class="trapezoid t-right"></div>
+        <div class="trapezoid t-top"></div>
+    </section>
+
+    <section id="heater" class="hero">
+      <div class="hero-inner">
+        <button class="menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav>
+          <div class="links">
+            <a href="#home" class="active">Главная</a>
+            <a href="#heater">Отопление</a>
+            <a href="#sun_bedroom">Спальня</a>
+            <a href="#dot_bedroom">Доця спальня</a>
+            <a href="#leavingroom">Гостинная</a>
+          </div>
+        </nav>
+
+        <div class="earth">
+          <div class="earth__sphere">
+            <div class="earth__mapWrap">
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+            </div>
+          </div>
         </div>
-        <table class="table" cellspacing="10" border="0">
-          <tr>
-            <th class="column-1" id="nameswt3">Лампа</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="relay3">
-              <label for="relay3"></label>
-            </td>
-            <td class="column-4">
-              <div class="lamp_off" id="lamp_kitchen"></div>
-            </td>
-          </tr>
-          <tr>
-            <th class="column-1" id="namesecur3">Охрана</th>
-            <td class="column-2">
-              <input type="checkbox" class="checkboxGreen" id="secur3">
-              <label for="secur3"></label>
-            </td>
-            <td class="column-3">
-              <input type="checkbox" class="LevelPinGreen" id="now_secur3" checked="checked">
-              <label for="now_secur3"></label>
-            </td>
-          </tr>
-        </table>
+        <div class="brand">Умный Дом</div>
+        <div class="title">
+          <h1>
+            ОТОПЛЕНИЕ
+          </h1>
+          <div class="login">
+            <div class="signal_wifi">
+              <p class="wifi_signal">Статус WI-FI:</p>
+              <div class="wifi_value_on" id="boiler_wifi_value">---</div>
+              <i id="boiler_wifi_status" class="fa-solid fa-wifi wifi_on"></i>
+            </div>
+
+            <div class="name_description">Установка температуры</div>
+            <div class="set_form">
+              <div class="number-control">
+                <button class="but_setpoint minus" onclick="decrement()"><span>-</span></button>
+                <input type="number" id="set_now" size="2" min="17" max="30" step="0.2" class="set_fild" name="setpoint"
+                  value="17" required>
+                <button class="but_setpoint plus" onclick="increment()"><span>+</span></button>
+              </div>
+              <input type="button" id="save_but" class="set_but" value="Сохранить">
+            </div>
+
+            <div class="name_description">Установка гистерезиса</div>
+            <div class="set_form">
+              <div class="number-control">
+                <button class="but_setpoint minus" onclick="decr_hyst()"><span>-</span></button>
+                <input type="number" id="set_hyst" size="2" min="0" max="3" step="0.1" class="set_fild"
+                  name="hysteresis" value="0" required>
+                <button class="but_setpoint plus" onclick="incr_hyst()"><span>+</span></button>
+              </div>
+              <input type="button" id="save_hyst" class="set_but" value="Сохранить">
+            </div>
+
+            <div class="name_description">Выбор датчика</div>
+            <table class="table" cellspacing="10" border="0">
+              <tr>
+                <th class="column-1" id="nameswt1">Средняя</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="dev_temp">
+                  <label for="dev_temp"></label>
+                </td>
+              </tr>
+              <tr>
+                <th class="column-1" id="namesecur1">Спальня</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="living_temp">
+                  <label for="living_temp"></label>
+                </td>
+              </tr>
+              <tr>
+                <th class="column-1" id="namesecur1">Настя</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="bedroom_temp">
+                  <label for="bedroom_temp"></label>
+                </td>
+              </tr>
+              <tr>
+                <th class="column-1" id="namesecur1">Кухня</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="kitchen_temp">
+                  <label for="kitchen_temp"></label>
+                </td>
+              </tr>
+            </table>
+
+          </div>
+        </div>
+        <footer>
+          <small>ESP Smart Control © 2026</small>
+        </footer>
       </div>
-    </div>
+      <div class="trapezoid t-left"></div>
+      <div class="trapezoid t-right"></div>
+      <div class="trapezoid t-top"></div>
+    </section>
+
+    <section id="sun_bedroom" class="hero">
+      <div class="hero-inner">
+        <button class="menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav>
+          <div class="links">
+            <a href="#home" class="active">Главная</a>
+            <a href="#heater">Отопление</a>
+            <a href="#sun_bedroom">Спальня</a>
+            <a href="#dot_bedroom">Доця спальня</a>
+            <a href="#leavingroom">Гостинная</a>
+          </div>
+        </nav>
+
+        <div class="earth">
+          <div class="earth__sphere">
+            <div class="earth__mapWrap">
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="brand">Умный Дом</div>
+        <div class="title">
+          <h1 class="main_text">НАША <span id="heart">♡</span> СПАЛЬНЯ</h1>
+          <div class="login">
+            <div class="signal_wifi">
+              <p class="wifi_signal">Статус WI-FI:</p>
+              <div class="wifi_value_on" id="leaving_wifi_value">---</div>
+              <i id="leaving_wifi_status" class="fa-solid fa-wifi wifi_on"></i>
+            </div>
+
+            <div class="our_bedroom_temp">
+              <svg viewBox="0 0 100 100" width="130">
+                <circle cx="50" cy="50" r="40" stroke="#00c6ff" stroke-width="2" fill="none" />
+                <circle cx="50" cy="50" r="30" stroke="#00c6ff" stroke-width="1" opacity="0.4" />
+                <text id="tempC_1" x="50" y="50" text-anchor="middle" dominant-baseline="middle" fill="#00c6ff"
+                  font-size="16">---°</text>
+                <!-- <text x="50" y="70" text-anchor="middle" fill="#a3f321" font-size="8" font-weight="600">В ДОМЕ</text> -->
+              </svg>
+            </div>
+            <table class="table" cellspacing="10" border="0">
+              <tr>
+                <th class="column-1" id="nameswt1">Лампа</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="relay1">
+                  <label for="relay1"></label>
+                </td>
+                <td class="column-4">
+                  <div class="lamp_off" id="lamp_leavroom"></div>
+                </td>
+              </tr>
+              <tr>
+                <th class="column-1" id="namesecur1">Охрана</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="secur1">
+                  <label for="secur1"></label>
+                </td>
+                <td class="column-3">
+                  <input type="checkbox" class="LevelPinGreen" id="now_secur1" checked="checked">
+                  <label for="now_secur1"></label>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <footer>
+          <small>ESP Smart Control © 2026</small>
+        </footer>
+      </div>
+      <div class="trapezoid t-left"></div>
+      <div class="trapezoid t-right"></div>
+      <div class="trapezoid t-top"></div>
+    </section>
+
+    <section id="dot_bedroom" class="hero">
+      <div class="hero-inner">
+        <button class="menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav>
+          <div class="links">
+            <a href="#home" class="active">Главная</a>
+            <a href="#heater">Отопление</a>
+            <a href="#sun_bedroom">Спальня</a>
+            <a href="#dot_bedroom">Доця спальня</a>
+            <a href="#leavingroom">Гостинная</a>
+          </div>
+        </nav>
+
+        <div class="earth">
+          <div class="earth__sphere">
+            <div class="earth__mapWrap">
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="brand">Умный Дом</div>
+        <div class="title">
+          <h1>
+            ДОЦЯ СПАЛЬНЯ
+          </h1>
+          <div class="login">
+            <div class="signal_wifi">
+              <p class="wifi_signal">Статус WI-FI:</p>
+              <div class="wifi_value_on" id="bedroom_wifi_value">---</div>
+              <i id="bedroom_wifi_status" class="fa-solid fa-wifi wifi_on"></i>
+            </div>
+            <div class="bedroom_temp">
+              <svg viewBox="0 0 100 100" width="130">
+                <circle cx="50" cy="50" r="40" stroke="#00c6ff" stroke-width="2" fill="none" />
+                <circle cx="50" cy="50" r="30" stroke="#00c6ff" stroke-width="1" opacity="0.4" />
+                <text id="tempC_2" x="50" y="50" text-anchor="middle" dominant-baseline="middle" fill="#00c6ff"
+                  font-size="16">---°</text>
+                <!-- <text x="50" y="70" text-anchor="middle" fill="#a3f321" font-size="8" font-weight="600">В ДОМЕ</text> -->
+              </svg>
+            </div>
+            <table class="table" cellspacing="10" border="0">
+              <tr>
+                <th class="column-1" id="nameswt2">Лампа</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="relay2">
+                  <label for="relay2"></label>
+                </td>
+                <td class="column-4">
+                  <div class="lamp_off" id="lamp_bedroom"></div>
+                </td>
+              </tr>
+              <tr>
+                <th class="column-1" id="namesecur2">Охрана</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="secur2">
+                  <label for="secur2"></label>
+                </td>
+                <td class="column-3">
+                  <input type="checkbox" class="LevelPinGreen" id="now_secur2" checked="checked">
+                  <label for="now_secur2"></label>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <footer>
+          <small>ESP Smart Control © 2026</small>
+        </footer>
+      </div>
+      <div class="trapezoid t-left"></div>
+      <div class="trapezoid t-right"></div>
+      <div class="trapezoid t-top"></div>
+    </section>
+
+    <section id="leavingroom" class="hero">
+      <div class="hero-inner">
+        <button class="menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav>
+          <div class="links">
+            <a href="#home" class="active">Главная</a>
+            <a href="#heater">Отопление</a>
+            <a href="#sun_bedroom">Спальня</a>
+            <a href="#dot_bedroom">Доця спальня</a>
+            <a href="#leavingroom">Гостинная</a>
+          </div>
+        </nav>
+
+        <div class="earth">
+          <div class="earth__sphere">
+            <div class="earth__mapWrap">
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="brand">Умный Дом</div>
+        <div class="title">
+          <h1>
+            КУХНЯ ГОСТИННАЯ
+          </h1>
+          <div class="login">
+            <div class="signal_wifi">
+              <p class="wifi_signal">Статус WI-FI:</p>
+              <div class="wifi_value_on" id="kitchen_wifi_value">---</div>
+              <i id="kitchen_wifi_status" class="fa-solid fa-wifi wifi_on"></i>
+            </div>
+
+            <div class="kitchen_temp">
+              <svg viewBox="0 0 100 100" width="130">
+                <circle cx="50" cy="50" r="40" stroke="#00c6ff" stroke-width="2" fill="none" />
+                <circle cx="50" cy="50" r="30" stroke="#00c6ff" stroke-width="1" opacity="0.4" />
+                <text id="tempC_3" x="50" y="50" text-anchor="middle" dominant-baseline="middle" fill="#00c6ff"
+                  font-size="16">---°</text>
+              </svg>
+            </div>
+
+            <table class="table" cellspacing="10" border="0">
+              <tr>
+                <th class="column-1" id="nameswt3">Лампа</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="relay3">
+                  <label for="relay3"></label>
+                </td>
+                <td class="column-4">
+                  <div class="lamp_off" id="lamp_kitchen"></div>
+                </td>
+              </tr>
+              <tr>
+                <th class="column-1" id="namesecur3">Охрана</th>
+                <td class="column-2">
+                  <input type="checkbox" class="checkboxGreen" id="secur3">
+                  <label for="secur3"></label>
+                </td>
+                <td class="column-3">
+                  <input type="checkbox" class="LevelPinGreen" id="now_secur3" checked="checked">
+                  <label for="now_secur3"></label>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <footer>
+          <small>ESP Smart Control © 2026</small>
+        </footer>
+      </div>
+      <div class="trapezoid t-left"></div>
+      <div class="trapezoid t-right"></div>
+      <div class="trapezoid t-top"></div>
+    </section>
   </div>
   <script src="app.js" defer></script>
   <script>

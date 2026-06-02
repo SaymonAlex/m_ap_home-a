@@ -703,7 +703,7 @@ nav > div {
 .lamp_off {
   width: 32px;
   height: 32px;
-  background: url(/lamp_off.png);
+  background: url(lamp_off.png);
   background-size: 32px;
   padding: 0;
   margin: 0;
@@ -713,7 +713,7 @@ nav > div {
 .lamp_on {
   width: 32px;
   height: 32px;
-  background: url(/lamp_on.png);
+  background: url(lamp_on.png);
   background-size: 32px;
   padding: 0;
   margin: 0;

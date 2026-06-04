@@ -1186,3 +1186,58 @@ function hideQR() {
   clearTimeout(qrTimer);
 }
 //---------------------------------------
+
+// --------------All LIGHTS BUTTON---------------
+const all_lights = document.getElementById("all_lights");
+const all_lights_icon = document.getElementById("all_lights_icon");
+function updateAllLightsButton(isOn) {
+  if (isOn) {
+    all_lights.classList.add("btn-press_light");
+  } else {
+    all_lights.classList.remove("btn-press_light");
+  }
+}
+
+let firstLoad = true;
+let lastLightState = null;
+
+firebase.database().ref().on("value", (snap) => {
+  const data = snap.val() || {};
+  const bedroom = data.Bedroomlamp == "1";
+  const leaving = data.Leavingroomlamp == "1";
+  const kitchen = data.Kitchenlamp == "1";
+  const anyLightOn = bedroom || leaving || kitchen;
+  updateAllLightsButton(anyLightOn);
+  if (!firstLoad && lastLightState !== anyLightOn) {
+    if (anyLightOn) {
+      speak("Освещение включено");
+    } else {
+      speak("Освещение выключено");
+    }
+  }
+  lastLightState = anyLightOn;
+  firstLoad = false;
+});
+
+all_lights.addEventListener("click", async () => {
+  const snap = await firebase.database().ref().once("value");
+  const data = snap.val() || {};
+  const bedroom = data.Bedroomlamp == "1";
+  const leaving = data.Leavingroomlamp == "1";
+  const kitchen = data.Kitchenlamp == "1";
+  const anyLightOn = bedroom || leaving || kitchen;
+  if (anyLightOn) {
+    firebase.database().ref().update({
+      Bedroomlamp: "0",
+      Leavingroomlamp: "0",
+      Kitchenlamp: "0"
+    });
+  } else {
+    firebase.database().ref().update({
+      Bedroomlamp: "1",
+      Leavingroomlamp: "1",
+      Kitchenlamp: "1"
+    });
+  }
+});
+//-----------------------------------------------------

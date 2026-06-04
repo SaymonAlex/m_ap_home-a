@@ -1081,6 +1081,17 @@ a {
   height: 106%;
 }
 
+.btn-press_light {
+  background: #333;
+  box-shadow: inset 0px 1px 1px #696969;
+}
+
+.btn-press_light::before {
+  box-shadow: 0px 1px 1px #696969;
+  width: 106%;
+  height: 106%;
+}
+
 .btn-circle {
   border-radius: 50%;
 }
@@ -1099,6 +1110,12 @@ a {
 .btn-pressed,
 .btn-pressed .text-inset {
   color: var(--primary-but);
+  text-shadow: 0px 0px 10px var(--glow-but);
+}
+
+.btn-press_light,
+.btn-press_light .text-inset {
+  color: var(--primary-color);
   text-shadow: 0px 0px 10px var(--glow-but);
 }
 

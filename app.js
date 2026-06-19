@@ -206,7 +206,7 @@ const vent_value = 15.1;
 let currentSetTemp = 21.5;
 vent_but.addEventListener("click", () => {
   const ventRef = firebase.database().ref("VentAppartament");
-  const tempRef = firebase.database().ref("HeaterSetpoint");
+  const tempRef = firebase.database().ref("Boiler/Temp/Setpoint");
   ventRef.once("value").then((snap) => {
     let state = snap.val();
     if (!state) {
@@ -223,7 +223,7 @@ vent_but.addEventListener("click", () => {
     }
   });
 });
-firebase.database().ref("HeaterSetpoint").on("value", (snap) => {
+firebase.database().ref("Boiler/Temp/Setpoint").on("value", (snap) => {
   currentSetTemp = snap.val();
 });
 /* ===== ФУНКЦИЯ СМЕНЫ РАЗМЕРА ===== */
@@ -316,7 +316,7 @@ const voiceCommands = [
       }
 
       const roundedTemp = temp.toFixed(1);
-      firebase.database().ref().child("HeaterSetpoint").set(roundedTemp);
+      firebase.database().ref().child("Boiler/Temp/Setpoint").set(roundedTemp);
       await speak(`Температура установлена на ${roundedTemp} градусов.`);
     }
 
@@ -597,20 +597,25 @@ function updateTemp(el, value, hot = 26) {
 // =====================================================
 // FIREBASE TEMP LISTENER
 // =====================================================
-firebase.database().ref().on("value", (snap) => {
-  const data = snap.val();
-  // средняя температура
-  temp_at_home = parseFloat(data.Deviation_temp);
-  updateTemp(tempElements.home, temp_at_home);
-  // спальня
-  temp_our_bedroom = parseFloat(data.Templeavingroom);
-  updateTemp(tempElements.room1, temp_our_bedroom);
-  // детская
-  temp_in_bedroom = parseFloat(data.Tempbedroom);
-  updateTemp(tempElements.room2, temp_in_bedroom);
-  // кухня
-  temp_in_kitchen = parseFloat(data.Tempkitchen);
-  updateTemp(tempElements.room3, temp_in_kitchen);
+// средняя температура
+firebase.database().ref("Boiler/Temp/Deviation").on("value", snap => {
+  const val = parseFloat(snap.val());
+  updateTemp(tempElements.home, val);
+});
+// спальня-1
+firebase.database().ref("Bedroom_One/Temperature").on("value", snap => {
+  const val = parseFloat(snap.val());
+  updateTemp(tempElements.room1, val);
+});
+// спальня-2
+firebase.database().ref("Bedroom_Two/Temp/Temperature").on("value", snap => {
+  const val = parseFloat(snap.val());
+  updateTemp(tempElements.room2, val);
+});
+// кухня
+firebase.database().ref("Kitchen/Temp/Temperature").on("value", snap => {
+  const val = parseFloat(snap.val());
+  updateTemp(tempElements.room3, val);
 });
 // =====================================================
 // OUTSIDE TEMP
@@ -618,9 +623,7 @@ firebase.database().ref().on("value", (snap) => {
 firebase.database()
   .ref("Outside/temp")
   .on("value", (snap) => {
-
     out_temp = parseFloat(snap.val());
-
     updateTemp(tempElements.outside, out_temp, 32);
   });
 // =====================================================
@@ -738,7 +741,7 @@ let boiler_status = null;
 let initialized = false;
 
 firebase.database()
-  .ref("Boiler_status")
+  .ref("Boiler/Status/Power_stat")
   .on("value", (snap) => {
 
     const newStatus = String(snap.val() ?? "0");
@@ -819,8 +822,8 @@ $(document).ready(function () {
     lamp3: document.getElementById("lamp_kitchen"),
 
     dev_temp: document.getElementById('dev_temp'),
-    living_temp: document.getElementById('living_temp'),
-    bedroom_temp: document.getElementById('bedroom_temp'),
+    bedroomOne_temp: document.getElementById('bedroomOne_temp'),
+    bedroomTwo_temp: document.getElementById('bedroomTwo_temp'),
     kitchen_temp: document.getElementById('kitchen_temp'),
 
     loader: document.getElementById("loader"),
@@ -883,38 +886,38 @@ $(document).ready(function () {
   // FIREBASE LISTENER
   // -----------------------------
   db.ref().on("value", (snap) => {
-    const data = snap.val();
+    const data = snap.val() || {};
     Object.assign(state, data);
 
-    // relay
-    setChecked(el.relay1, data.Leavingroomlamp);
-    setChecked(el.relay2, data.Bedroomlamp);
-    setChecked(el.relay3, data.Kitchenlamp);
+    // ---------------- LAMPS ----------------
+    setChecked(el.relay1, data.Bedroom_One?.Lamp_power);
+    setLamp(el.lamp1, data.Bedroom_One?.Lamp_stat);
 
-    // security
-    setChecked(el.secur1, data.Leavingroomsecur);
-    setChecked(el.secur2, data.Bedroomsecur);
-    setChecked(el.secur3, data.Kitchensecur);
+    setChecked(el.relay2, data.Bedroom_Two?.Lamp?.Lamp_power);
+    setLamp(el.lamp2, data.Bedroom_Two?.Lamp?.Lamp_stat);
 
-    // security status
-    setChecked(el.now_secur1, data.Leavroomsecurstat);
-    setChecked(el.now_secur2, data.Bedroomsecurstat);
-    setChecked(el.now_secur3, data.Kitchensecurstat);
+    setChecked(el.relay3, data.Kitchen?.Lamp?.power);
+    setLamp(el.lamp3, data.Kitchen?.Lamp?.status);
 
-    // lamps
-    setLamp(el.lamp1, data.Leavroomlampstat);
-    setLamp(el.lamp2, data.Bedroomlampstat);
-    setLamp(el.lamp3, data.Kitchenlampstat);
+    // ---------------- SECURITY ----------------
+    setChecked(el.secur1, data.Bedroom_One?.Secur?.Secur_power);
+    setChecked(el.secur2, data.Bedroom_Two?.Secur?.power);
+    setChecked(el.secur3, data.Kitchen?.Secur?.power);
 
-    // temp sensors
-    setChecked(el.dev_temp, data.Dev_temp);
-    setChecked(el.living_temp, data.Living_temp);
-    setChecked(el.bedroom_temp, data.Bedroom_temp);
-    setChecked(el.kitchen_temp, data.Kitchen_temp);
+    // ---------------- STATUS (если есть отдельные поля) ----------------
+    setChecked(el.now_secur1, data.Bedroom_One?.Secur_stat);
+    setChecked(el.now_secur2, data.Bedroom_Two?.Secur_stat);
+    setChecked(el.now_secur3, data.Kitchen?.status);
 
-    // setpoints
-    setpoint = data.HeaterSetpoint;
-    hyst_now = data.Hysteresis;
+    // ---------------- TEMPERATURE ----------------
+    setChecked(el.dev_temp, data.Boiler?.Sensor?.Dev_temp);
+    setChecked(el.bedroomOne_temp, data.Boiler?.Sensor?.Bedroom_One_temp);
+    setChecked(el.bedroomTwo_temp, data.Boiler?.Sensor?.Bedroom_Two_temp);
+    setChecked(el.kitchen_temp, data.Boiler?.Sensor?.Kitchen_temp);
+
+       // ----------------setpoints----------------
+    setpoint = data.Boiler?.Temp?.Setpoint;
+    hyst_now = data.Boiler?.Temp?.Hysteresis;
 
     if (!firstLoadDone) {
       firstLoadDone = true;
@@ -927,17 +930,17 @@ $(document).ready(function () {
   // -----------------------------
   $("#relay1").click(() => {
     toggleFirebase(
-      "Leavingroomlamp",
-      state.Leavingroomlamp,
-      "Лампа в спальне включена",
-      "Лампа в спальне выключена"
+      "Bedroom_One/Lamp_power",
+      state.Bedroom_One?.Lamp_power,
+      "Лампа включена",
+      "Лампа выключена"
     );
   });
 
   $("#relay2").click(() => {
     toggleFirebase(
-      "Bedroomlamp",
-      state.Bedroomlamp,
+      "Bedroom_Two/Lamp/Lamp_power",
+      state.Bedroom_Two?.Lamp?.Lamp_power,
       "Лампа у Насти включена",
       "Лампа у Насти выключена"
     );
@@ -945,20 +948,20 @@ $(document).ready(function () {
 
   $("#relay3").click(() => {
     toggleFirebase(
-      "Kitchenlamp",
-      state.Kitchenlamp,
+      "Kitchen/Lamp/power",
+      state.Kitchen?.Lamp?.power,
       "Лампа на кухне включена",
       "Лампа на кухне выключена"
     );
   });
-
   // -----------------------------
   // SECURITY
   // -----------------------------
+
   $("#secur1").click(() => {
     toggleFirebase(
-      "Leavingroomsecur",
-      state.Leavingroomsecur,
+      "Bedroom_One/Secur_power",
+      state.Bedroom_One?.Secur_power,
       "Охрана в спальне включена",
       "Охрана в спальне выключена"
     );
@@ -966,8 +969,8 @@ $(document).ready(function () {
 
   $("#secur2").click(() => {
     toggleFirebase(
-      "Bedroomsecur",
-      state.Bedroomsecur,
+      "Bedroom_Two/Secur_stat",
+      state.Bedroom_Two?.Secur_stat,
       "Охрана у Насти включена",
       "Охрана у Насти выключена"
     );
@@ -975,8 +978,8 @@ $(document).ready(function () {
 
   $("#secur3").click(() => {
     toggleFirebase(
-      "Kitchensecur",
-      state.Kitchensecur,
+      "Kitchen/Secur/power",
+      state.Kitchen?.Secur?.power,
       "Охрана на кухне включена",
       "Охрана на кухне выключена"
     );
@@ -987,7 +990,7 @@ $(document).ready(function () {
   // -----------------------------
   $("#save_but").click(() => {
     const value = document.getElementById("set_now").value;
-    firebaseSet("HeaterSetpoint", value)
+    firebaseSet("Boiler/Temp/Setpoint", value)
       .then(() => {
         showInfoMessage("Настройки сохранены успешно");
         if (sound_voice) {
@@ -1004,7 +1007,7 @@ $(document).ready(function () {
   // -----------------------------
   $("#save_hyst").click(() => {
     const value = document.getElementById("set_hyst").value;
-    firebaseSet("Hysteresis", value)
+    firebaseSet("Boiler/Temp/Hysteresis", value)
       .then(() => {
         showInfoMessage("Настройки сохранены успешно");
         if (sound_voice) {
@@ -1020,39 +1023,54 @@ $(document).ready(function () {
   // ВЫБОР ДАТЧИКА
   // -----------------------------
   function selectTempSensor(activeKey, voiceText) {
+
     const sensors = [
       "Dev_temp",
-      "Living_temp",
-      "Bedroom_temp",
+      "Bedroom_One_temp",
+      "Bedroom_Two_temp",
       "Kitchen_temp"
     ];
+
     sensors.forEach(sensor => {
-      const value = sensor === activeKey ? "1" : "0";
-      firebaseSet(sensor, value);
+
+      const value = (sensor === activeKey) ? "1" : "0";
+
+      firebase.database()
+        .ref(`Boiler/Sensor/${sensor}`)
+        .set(value, err => {
+          if (err) console.log("Firebase error:", err);
+        });
+
       state[sensor] = value;
     });
+
     if (sound_voice) {
       speak(voiceText);
     }
   }
+
+
   $("#dev_temp").click(() => {
     selectTempSensor(
       "Dev_temp",
       "Выбрано управление средней температурой"
     );
   });
-  $("#living_temp").click(() => {
+
+  $("#bedroomOne_temp").click(() => {
     selectTempSensor(
-      "Living_temp",
+      "Bedroom_One_temp",
       "Выбран датчик температуры в спальне"
     );
   });
-  $("#bedroom_temp").click(() => {
+
+  $("#bedroomTwo_temp").click(() => {
     selectTempSensor(
-      "Bedroom_temp",
+      "Bedroom_Two_temp",
       "Выбран датчик температуры у Насти"
     );
   });
+
   $("#kitchen_temp").click(() => {
     selectTempSensor(
       "Kitchen_temp",
@@ -1062,37 +1080,36 @@ $(document).ready(function () {
 });
 // ------------------------------------
 
+// ----------- WIFI SIGNALS -------------
 
-// -----------WIFI SIGNALS-------------
-let wifilevels = firebase.database();
-let wifi_boiler;
-let wifi_leavingroom;
-let wifi_bedroom;
-wifilevels.ref().on("value", function (snap) {
-  wifi_boiler = snap.val().WifiBoiler;
-  wifi_leavingroom = snap.val().WifiLeavingroom;
-  wifi_bedroom = snap.val().WifiBedroom;
-  document.getElementById("boiler_wifi_value").innerHTML = `${wifi_boiler} %`;
-  document.getElementById("leaving_wifi_value").innerHTML = `${wifi_leavingroom} %`;
-  document.getElementById("bedroom_wifi_value").innerHTML = `${wifi_bedroom} %`;
-});
+firebase.database().ref("Boiler/Status/Wifi_level")
+  .on("value", (snap) => {
+    const wifi = snap.val();
+    document.getElementById("boiler_wifi_value").innerHTML = `${wifi} %`;
+  });
+
+firebase.database().ref("Bedroom_One/Wifi_level")
+  .on("value", (snap) => {
+    const wifi = snap.val();
+    document.getElementById("bedroomone_wifi_value").innerHTML = `${wifi} %`;
+  });
+
+firebase.database().ref("Bedroom_Two/Temp/Wifi_level")
+  .on("value", (snap) => {
+    const wifi = snap.val();
+    document.getElementById("bedroomtwo_wifi_value").innerHTML = `${wifi} %`;
+  });
 
 firebase.database().ref("Kitchen/Temp/Wifi_level")
   .on("value", (snap) => {
-    let wifi = snap.val();
+    const wifi = snap.val();
     document.getElementById("kitchen_wifi_value").innerHTML = `${wifi} %`;
   });
 
-const units_status = firebase.database();
+
+// ----------- ONLINE CHECK -------------
 const stat = {};
 const prev = {};
-units_status.ref().on("value", snap => {
-  const v = snap.val();
-  stat.boiler = v.StatusBoiler;
-  stat.leaving = v.StatusLeavingroom;
-  stat.bedroom = v.StatusBedroom;
-  stat.kitchen = v.Kitchen?.Temp?.Online_stat;
-});
 
 const devices = {
   boiler: {
@@ -1113,22 +1130,48 @@ const devices = {
   }
 };
 
+// Получаем текущие счетчики от ESP
+firebase.database().ref().on("value", snap => {
+  const v = snap.val() || {};
+
+  stat.boiler = v.Boiler?.Status?.Online_stat;
+  stat.leaving = v.Bedroom_One?.Online_stat;
+  stat.bedroom = v.Bedroom_Two?.Temp?.Online_stat;
+  stat.kitchen = v.Kitchen?.Temp?.Online_stat;
+});
+
+// Проверка изменения счетчиков
 function updateDevice(name) {
-  const isOnline = stat[name] !== prev[name];
-  const { value, status } = devices[name];
-  // текст
-  value.classList.toggle('wifi_value_on', isOnline);
-  value.classList.toggle('wifi_value_off', !isOnline);
-  // цвет
-  status.classList.toggle('wifi_on', isOnline);
-  status.classList.toggle('wifi_off', !isOnline);
-  prev[name] = stat[name];
+
+  const current = stat[name];
+  const previous = prev[name];
+
+  const { status } = devices[name];
+
+  if (!status) return;
+
+  // Первое чтение
+  if (previous === undefined) {
+    prev[name] = current;
+    return;
+  }
+
+  // Если значение изменилось → устройство онлайн
+  if (current != previous) {
+    status.classList.add('wifi_on');
+    status.classList.remove('wifi_off');
+  } else {
+    status.classList.add('wifi_off');
+    status.classList.remove('wifi_on');
+  }
+
+  prev[name] = current;
 }
 
-function status_device() {
+// Проверять каждые 6 секунд
+setInterval(() => {
   Object.keys(devices).forEach(updateDevice);
-}
-setInterval(status_device, 6000);
+}, 6000);
 //-------------------------------------------
 
 // ------------TIME--------------
@@ -1190,6 +1233,7 @@ function hideQR() {
 // --------------All LIGHTS BUTTON---------------
 const all_lights = document.getElementById("all_lights");
 const all_lights_icon = document.getElementById("all_lights_icon");
+
 function updateAllLightsButton(isOn) {
   if (isOn) {
     all_lights.classList.add("btn-press_light");
@@ -1202,12 +1246,17 @@ let firstLoad = true;
 let lastLightState = null;
 
 firebase.database().ref().on("value", (snap) => {
+
   const data = snap.val() || {};
-  const bedroom = data.Bedroomlamp == "1";
-  const leaving = data.Leavingroomlamp == "1";
-  const kitchen = data.Kitchenlamp == "1";
+
+  const bedroom = data.Bedroom_One?.Lamp_power == "1";
+  const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
+  const kitchen = data.Kitchen?.Lamp?.power == "1";
+
   const anyLightOn = bedroom || leaving || kitchen;
+
   updateAllLightsButton(anyLightOn);
+
   if (!firstLoad && lastLightState !== anyLightOn) {
     if (anyLightOn) {
       speak("Освещение включено");
@@ -1215,29 +1264,38 @@ firebase.database().ref().on("value", (snap) => {
       speak("Освещение выключено");
     }
   }
+
   lastLightState = anyLightOn;
   firstLoad = false;
 });
 
 all_lights.addEventListener("click", async () => {
+
   const snap = await firebase.database().ref().once("value");
   const data = snap.val() || {};
-  const bedroom = data.Bedroomlamp == "1";
-  const leaving = data.Leavingroomlamp == "1";
-  const kitchen = data.Kitchenlamp == "1";
+
+  const bedroom = data.Bedroom_One?.Lamp_power == "1";
+  const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
+  const kitchen = data.Kitchen?.Lamp?.status == "1";
+
   const anyLightOn = bedroom || leaving || kitchen;
+
   if (anyLightOn) {
+
     firebase.database().ref().update({
-      Bedroomlamp: "0",
-      Leavingroomlamp: "0",
-      Kitchenlamp: "0"
+      "Bedroom_One/Lamp_power": "0",
+      "Bedroom_Two/Lamp/Lamp_power": "0",
+      "Kitchen/Lamp/power": "0"
     });
+
   } else {
+
     firebase.database().ref().update({
-      Bedroomlamp: "1",
-      Leavingroomlamp: "1",
-      Kitchenlamp: "1"
+      "Bedroom_One/Lamp_power": "1",
+      "Bedroom_Two/Lamp/Lamp_power": "1",
+      "Kitchen/Lamp/power": "1"
     });
+
   }
 });
 //-----------------------------------------------------

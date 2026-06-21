@@ -969,8 +969,8 @@ $(document).ready(function () {
 
   $("#secur2").click(() => {
     toggleFirebase(
-      "Bedroom_Two/Secur_stat",
-      state.Bedroom_Two?.Secur_stat,
+      "Bedroom_Two/Secur_power",
+      state.Bedroom_Two?.Secur_power,
       "Охрана у Насти включена",
       "Охрана у Насти выключена"
     );

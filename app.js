@@ -1135,7 +1135,7 @@ firebase.database().ref().on("value", snap => {
   const v = snap.val() || {};
 
   stat.boiler = v.Boiler?.Status?.Online_stat;
-  stat.leaving = v.Bedroom_One?.Online_stat;
+  stat.leaving = v.Bedroom_One?.Temp?.Online_stat;
   stat.bedroom = v.Bedroom_Two?.Temp?.Online_stat;
   stat.kitchen = v.Kitchen?.Temp?.Online_stat;
 });

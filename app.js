@@ -603,7 +603,7 @@ firebase.database().ref("Boiler/Temp/Deviation").on("value", snap => {
   updateTemp(tempElements.home, val);
 });
 // спальня-1
-firebase.database().ref("Bedroom_One/Temperature").on("value", snap => {
+firebase.database().ref("Bedroom_One/Temp/Temperature").on("value", snap => {
   const val = parseFloat(snap.val());
   updateTemp(tempElements.room1, val);
 });
@@ -890,8 +890,8 @@ $(document).ready(function () {
     Object.assign(state, data);
 
     // ---------------- LAMPS ----------------
-    setChecked(el.relay1, data.Bedroom_One?.Lamp_power);
-    setLamp(el.lamp1, data.Bedroom_One?.Lamp_stat);
+    setChecked(el.relay1, data.Bedroom_One?.Lamp?.Lamp_power);
+    setLamp(el.lamp1, data.Bedroom_One?.Lamp?.Lamp_stat);
 
     setChecked(el.relay2, data.Bedroom_Two?.Lamp?.Lamp_power);
     setLamp(el.lamp2, data.Bedroom_Two?.Lamp?.Lamp_stat);
@@ -930,8 +930,8 @@ $(document).ready(function () {
   // -----------------------------
   $("#relay1").click(() => {
     toggleFirebase(
-      "Bedroom_One/Lamp_power",
-      state.Bedroom_One?.Lamp_power,
+      "Bedroom_One/Lamp/Lamp_power",
+      state.Bedroom_One?.Lamp?.Lamp_power,
       "Лампа включена",
       "Лампа выключена"
     );

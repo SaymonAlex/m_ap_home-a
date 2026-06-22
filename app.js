@@ -960,8 +960,8 @@ $(document).ready(function () {
 
   $("#secur1").click(() => {
     toggleFirebase(
-      "Bedroom_One/Secur_power",
-      state.Bedroom_One?.Secur_power,
+      "Bedroom_One/Secur/Secur_power",
+      state.Bedroom_One?.Secur?.Secur_power,
       "Охрана в спальне включена",
       "Охрана в спальне выключена"
     );

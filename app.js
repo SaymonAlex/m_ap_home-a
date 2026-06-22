@@ -901,13 +901,13 @@ $(document).ready(function () {
 
     // ---------------- SECURITY ----------------
     setChecked(el.secur1, data.Bedroom_One?.Secur?.Secur_power);
-    setChecked(el.secur2, data.Bedroom_Two?.Secur?.power);
-    setChecked(el.secur3, data.Kitchen?.Secur?.power);
+    setChecked(el.secur2, data.Bedroom_Two?.Secur?.Secur_power);
+    setChecked(el.secur3, data.Kitchen?.Secur?.Secur_power);
 
     // ---------------- STATUS (если есть отдельные поля) ----------------
-    setChecked(el.now_secur1, data.Bedroom_One?.Secur_stat);
-    setChecked(el.now_secur2, data.Bedroom_Two?.Secur_stat);
-    setChecked(el.now_secur3, data.Kitchen?.status);
+    setChecked(el.now_secur1, data.Bedroom_One?.Secur?.Secur_stat);
+    setChecked(el.now_secur2, data.Bedroom_Two?.Secur?.Secur_stat);
+    setChecked(el.now_secur3, data.Kitchen?.Secur?.Secur_stat);
 
     // ---------------- TEMPERATURE ----------------
     setChecked(el.dev_temp, data.Boiler?.Sensor?.Dev_temp);
@@ -969,8 +969,8 @@ $(document).ready(function () {
 
   $("#secur2").click(() => {
     toggleFirebase(
-      "Bedroom_Two/Secur_power",
-      state.Bedroom_Two?.Secur_power,
+      "Bedroom_Two/Secur/Secur_power",
+      state.Bedroom_Two?.Secur?.Secur_power,
       "Охрана у Насти включена",
       "Охрана у Насти выключена"
     );
@@ -978,8 +978,8 @@ $(document).ready(function () {
 
   $("#secur3").click(() => {
     toggleFirebase(
-      "Kitchen/Secur/power",
-      state.Kitchen?.Secur?.power,
+      "Kitchen/Secur/Secur_power",
+      state.Kitchen?.Secur?.Secur_power,
       "Охрана на кухне включена",
       "Охрана на кухне выключена"
     );

@@ -1088,7 +1088,7 @@ firebase.database().ref("Boiler/Status/Wifi_level")
     document.getElementById("boiler_wifi_value").innerHTML = `${wifi} %`;
   });
 
-firebase.database().ref("Bedroom_One/Wifi_level")
+firebase.database().ref("Bedroom_One/Temp/Wifi_level")
   .on("value", (snap) => {
     const wifi = snap.val();
     document.getElementById("bedroomone_wifi_value").innerHTML = `${wifi} %`;

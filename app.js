@@ -1274,7 +1274,7 @@ all_lights.addEventListener("click", async () => {
   const snap = await firebase.database().ref().once("value");
   const data = snap.val() || {};
 
-  const bedroom = data.Bedroom_One?.Lamp_power == "1";
+  const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
   const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
   const kitchen = data.Kitchen?.Lamp?.status == "1";
 

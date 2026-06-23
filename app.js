@@ -1283,7 +1283,7 @@ all_lights.addEventListener("click", async () => {
   if (anyLightOn) {
 
     firebase.database().ref().update({
-      "Bedroom_One/Lamp_power": "0",
+      "Bedroom_One/Lamp/Lamp_power": "0",
       "Bedroom_Two/Lamp/Lamp_power": "0",
       "Kitchen/Lamp/power": "0"
     });
@@ -1291,7 +1291,7 @@ all_lights.addEventListener("click", async () => {
   } else {
 
     firebase.database().ref().update({
-      "Bedroom_One/Lamp_power": "1",
+      "Bedroom_One/Lamp/Lamp_power": "1",
       "Bedroom_Two/Lamp/Lamp_power": "1",
       "Kitchen/Lamp/power": "1"
     });

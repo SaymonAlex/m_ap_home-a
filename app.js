@@ -1249,7 +1249,7 @@ firebase.database().ref().on("value", (snap) => {
 
   const data = snap.val() || {};
 
-  const bedroom = data.Bedroom_One?.Lamp_power == "1";
+  const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
   const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
   const kitchen = data.Kitchen?.Lamp?.power == "1";
 

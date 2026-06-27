@@ -1233,24 +1233,30 @@ function hideQR() {
 //------------Local Display Control----------
 // Kitchen display
 const kitchen_display = document.getElementById("kitchen_screen");
+let waiting = false;
+
 kitchen_display.addEventListener("click", () => {
-  firebase.database()
-    .ref("Kitchen/Temp/Display_power")
-    .set("1");
-  kitchen_display.classList.add("loading");
+  if (waiting == false){
+    kitchen_display.classList.remove("active");
+    kitchen_display.classList.add("loading");
+    firebase.database().ref("Kitchen/Temp/Display_power").set("1");
+  }
 });
 
-firebase.database().ref("Kitchen/Temp/Display_stat").on("value", (snap) => {   // открыли callback
+firebase.database()
+  .ref("Kitchen/Temp/Display_stat").on("value", (snap) => {
     const state = snap.val();
     if (state === "1") {
+      waiting = true;
       kitchen_display.classList.remove("loading");
       kitchen_display.classList.add("active");
     }
-    else {
+    else if (state === "0") {
+      waiting = false;
       kitchen_display.classList.remove("loading");
       kitchen_display.classList.remove("active");
     }
-  }); 
+  });
 
 // --------------All LIGHTS BUTTON---------------
 const all_lights = document.getElementById("all_lights");

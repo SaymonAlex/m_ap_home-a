@@ -548,13 +548,10 @@ nav > div {
   padding: 0;
   width: 22px;
   height: 22px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 20px;
-
   transition:
     color 0.3s ease,
     text-shadow 0.3s ease,
@@ -564,7 +561,6 @@ nav > div {
 /* ONLINE */
 .wifi_on {
   color: #4ade80;
-
   text-shadow:
     0 0 5px rgba(74, 222, 128, 0.7),
     0 0 10px rgba(74, 222, 128, 0.4);
@@ -573,12 +569,35 @@ nav > div {
 /* OFFLINE */
 .wifi_off {
   color: #f87171;
-
   text-shadow:
     0 0 5px rgba(248, 113, 113, 0.7),
     0 0 10px rgba(248, 113, 113, 0.4);
 
   opacity: 0.85;
+}
+
+/* Local Display */
+.display_icon {
+  margin-left: 30px;
+  font-size: 24px;
+  color: gray;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.display_icon.active {
+  color: lime;
+}
+
+.display_icon.loading {
+  color: orange;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
 }
 
 /* CHECKBOXES  */

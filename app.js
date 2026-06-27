@@ -915,7 +915,7 @@ $(document).ready(function () {
     setChecked(el.bedroomTwo_temp, data.Boiler?.Sensor?.Bedroom_Two_temp);
     setChecked(el.kitchen_temp, data.Boiler?.Sensor?.Kitchen_temp);
 
-       // ----------------setpoints----------------
+    // ----------------setpoints----------------
     setpoint = data.Boiler?.Temp?.Setpoint;
     hyst_now = data.Boiler?.Temp?.Hysteresis;
 
@@ -1229,6 +1229,28 @@ function hideQR() {
   clearTimeout(qrTimer);
 }
 //---------------------------------------
+
+//------------Local Display Control----------
+// Kitchen display
+const kitchen_display = document.getElementById("kitchen_screen");
+kitchen_display.addEventListener("click", () => {
+  firebase.database()
+    .ref("Kitchen/Temp/Display_power")
+    .set("1");
+  kitchen_display.classList.add("loading");
+});
+
+firebase.database().ref("Kitchen/Temp/Display_stat").on("value", (snap) => {   // открыли callback
+    const state = snap.val();
+    if (state === "1") {
+      kitchen_display.classList.remove("loading");
+      kitchen_display.classList.add("active");
+    }
+    else {
+      kitchen_display.classList.remove("loading");
+      kitchen_display.classList.remove("active");
+    }
+  }); 
 
 // --------------All LIGHTS BUTTON---------------
 const all_lights = document.getElementById("all_lights");

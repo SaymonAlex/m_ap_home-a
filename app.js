@@ -1233,10 +1233,10 @@ function hideQR() {
 //------------Local Display Control----------
 // Kitchen display
 const kitchen_display = document.getElementById("kitchen_screen");
-let waiting = false;
+let kitchen_waiting = false;
 
 kitchen_display.addEventListener("click", () => {
-  if (waiting == false){
+  if (kitchen_waiting == false){
     kitchen_display.classList.remove("active");
     kitchen_display.classList.add("loading");
     firebase.database().ref("Kitchen/Temp/Display_power").set("1");
@@ -1247,14 +1247,41 @@ firebase.database()
   .ref("Kitchen/Temp/Display_stat").on("value", (snap) => {
     const state = snap.val();
     if (state === "1") {
-      waiting = true;
+      kitchen_waiting = true;
       kitchen_display.classList.remove("loading");
       kitchen_display.classList.add("active");
     }
     else if (state === "0") {
-      waiting = false;
+      kitchen_waiting = false;
       kitchen_display.classList.remove("loading");
       kitchen_display.classList.remove("active");
+    }
+  });
+
+// Bedroom_two display
+const bedroom_two_display = document.getElementById("bedroom_two_screen");
+let bedroom_two_waiting = false;
+
+bedroom_two_display.addEventListener("click", () => {
+  if (bedroom_two_waiting == false) {
+    bedroom_two_display.classList.remove("active");
+    bedroom_two_display.classList.add("loading");
+    firebase.database().ref("Bedroom_Two/Temp/Display_power").set("1");
+  }
+});
+
+firebase.database()
+  .ref("Bedroom_Two/Temp/Display_stat").on("value", (snap) => {
+    const state = snap.val();
+    if (state === "1") {
+      bedroom_two_waiting = true;
+      bedroom_two_display.classList.remove("loading");
+      bedroom_two_display.classList.add("active");
+    }
+    else if (state === "0") {
+      bedroom_two_waiting = false;
+      bedroom_two_display.classList.remove("loading");
+      bedroom_two_display.classList.remove("active");
     }
   });
 

@@ -572,8 +572,8 @@ function setTempColor(el, temp, hot = 26) {
 // =====================================================
 let out_temp = 0;
 let temp_at_home = 0;
-let temp_our_bedroom = 0;
-let temp_in_bedroom = 0;
+let temp_bedroom_one = 0;
+let temp_bedroom_two = 0;
 let temp_in_kitchen = 0;
 // =====================================================
 // DOM CACHE
@@ -601,91 +601,63 @@ function updateTemp(el, value, hot = 26) {
 firebase.database().ref("Boiler/Temp/Deviation").on("value", snap => {
   const val = parseFloat(snap.val());
   updateTemp(tempElements.home, val);
+  temp_at_home = val;
 });
 // спальня-1
 firebase.database().ref("Bedroom_One/Temp/Temperature").on("value", snap => {
   const val = parseFloat(snap.val());
   updateTemp(tempElements.room1, val);
+  temp_bedroom_one = val;
 });
 // спальня-2
 firebase.database().ref("Bedroom_Two/Temp/Temperature").on("value", snap => {
   const val = parseFloat(snap.val());
   updateTemp(tempElements.room2, val);
+  temp_bedroom_two = val;
 });
 // кухня
 firebase.database().ref("Kitchen/Temp/Temperature").on("value", snap => {
   const val = parseFloat(snap.val());
   updateTemp(tempElements.room3, val);
+  temp_in_kitchen = val;
 });
 // =====================================================
 // OUTSIDE TEMP
 // =====================================================
-firebase.database()
-  .ref("Outside/temp")
-  .on("value", (snap) => {
+firebase.database().ref("Outside/temp").on("value", (snap) => {
     out_temp = parseFloat(snap.val());
     updateTemp(tempElements.outside, out_temp, 32);
   });
 // =====================================================
 // OUTSIDE BRIGHT
 // =====================================================
-firebase.database()
-  .ref("Outside/bright")
-  .on("value", (snap) => {
-
+firebase.database().ref("Outside/bright").on("value", (snap) => {
     const lux = Number(snap.val());
-
     if (isNaN(lux)) return;
-
-    // =========================
-    // TEXT %
-    // =========================
-    document.getElementById("luxValue").textContent =
-      lux + "%";
-
-    // =========================
-    // BAR
-    // =========================
-    document.getElementById("luxFill").style.width =
-      lux + "%";
-
-    // =========================
-    // BOX
-    // =========================
+    document.getElementById("luxValue").textContent = lux + "%";
+    document.getElementById("luxFill").style.width = lux + "%";
     const luxBox = document.querySelector(".lux-box");
-
     luxBox.className = "lux-box";
-
-    // =========================
-    // STATE TEXT
-    // =========================
     const stateText =
       document.getElementById("luxState");
-
     if (lux <= 10) {
-
       luxBox.classList.add("night");
       stateText.textContent = "🌙 Ночь";
-
     }
     else if (lux <= 40) {
-
       luxBox.classList.add("low");
       stateText.textContent = "🌥 Темно";
-
     }
     else if (lux <= 75) {
-
       luxBox.classList.add("day");
       stateText.textContent = "☀️ День";
-
     }
     else {
-
       luxBox.classList.add("bright");
       stateText.textContent = "🔆 Ярко";
     }
   });
+
 // =====================================================
 // VOICE
 // =====================================================
@@ -720,13 +692,13 @@ voiceTemperature(
 voiceTemperature(
   tempElements.room1,
   "Температура в спальне ",
-  () => temp_our_bedroom
+  () => temp_bedroom_one
 );
 
 voiceTemperature(
   tempElements.room2,
   "Температура у Насти ",
-  () => temp_in_bedroom
+  () => temp_bedroom_two
 );
 
 voiceTemperature(

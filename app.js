@@ -1073,7 +1073,6 @@ $(document).ready(function () {
 // ------------------------------------
 
 // ----------- WIFI SIGNALS -------------
-
 firebase.database().ref("Boiler/Status/Wifi_level")
   .on("value", (snap) => {
     const wifi = snap.val();
@@ -1096,6 +1095,21 @@ firebase.database().ref("Kitchen/Temp/Wifi_level")
   .on("value", (snap) => {
     const wifi = snap.val();
     document.getElementById("kitchen_wifi_value").innerHTML = `${wifi} %`;
+  });
+
+
+
+// --------------Energy_meter------------
+firebase.database().ref("Energy/PZEM/Voltage")
+  .on("value", (snap) => {
+    const voltage = snap.val();
+    document.getElementById("voltage").innerHTML = `${voltage} В`;
+  });
+
+firebase.database().ref("Energy/PZEM/Power")
+  .on("value", (snap) => {
+    const power = snap.val();
+    document.getElementById("power").innerHTML = `${power} кВт`;
   });
 
 

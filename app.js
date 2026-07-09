@@ -330,35 +330,49 @@ const voiceCommands = [
   {
     match: (text) => text.includes("включи лампу в спальне"),
     action: async () => {
-      firebase.database().ref().child("Leavingroomlamp").set("1");
+      firebase.database().ref().child("Bedroom_One/Lamp/Lamp_power").set("1");
       await speak("Окей, включаю.");
     }
   },
   {
     match: (text) => text.includes("выключи лампу в спальне"),
     action: async () => {
-      firebase.database().ref().child("Leavingroomlamp").set("0");
+      firebase.database().ref().child("Bedroom_One/Lamp/Lamp_power").set("0");
       await speak("Окей, выключаю.");
     }
   },
   {
-    match: (text) => text.includes("включи гирлянду"),
+    match: (text) => text.includes("включи лампу у насти"),
     action: async () => {
-      firebase.database().ref().child("Bedroomlamp").set("1");
+      firebase.database().ref().child("Bedroom_Two/Lamp/Lamp_power").set("1");
       await speak("Окей, включаю.");
     }
   },
   {
-    match: (text) => text.includes("выключи гирлянду"),
+    match: (text) => text.includes("выключи лампу у насти"),
     action: async () => {
-      firebase.database().ref().child("Bedroomlamp").set("0");
+      firebase.database().ref().child("Bedroom_Two/Lamp/Lamp_power").set("0");
+      await speak("Окей, выключаю.");
+    }
+  },
+  {
+    match: (text) => text.includes("включи лампу на кухне"),
+    action: async () => {
+      firebase.database().ref().child("Kitchen/Lamp/power").set("1");
+      await speak("Окей, включаю.");
+    }
+  },
+  {
+    match: (text) => text.includes("выключи лампу на кухне"),
+    action: async () => {
+      firebase.database().ref().child("Kitchen/Lamp/power").set("0");
       await speak("Окей, выключаю.");
     }
   },
   {
     match: (text) => text.includes("какая температура в доме"),
     action: async () => {
-      await speak("средняя температура в доме," + Deviation_temp + "градусов");
+      await speak("средняя температура в доме," + temp_at_home + "градусов");
     }
   },
   {

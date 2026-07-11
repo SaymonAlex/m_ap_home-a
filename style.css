@@ -601,60 +601,192 @@ nav > div {
 }
 
 /* CHECKBOXES  */
+/* CHECKBOXES */
+
+@property --automode-angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 1deg;
+}
+
+@property --automode-glow {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: transparent;
+}
+
+/* Скрытый настоящий checkbox */
 .checkboxGreen {
-  vertical-align: top;
-  margin: 0 3px 0 0;
-  width: 17px;
-  height: 17px
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
+/* Корпус переключателя */
 .checkboxGreen+label {
-  cursor: pointer
-}
+  /* Цвет по умолчанию */
+  --color: #00ff66;
+  --glow: rgb(0 255 102 / 30%);
 
-.checkboxGreen:not(checked) {
-  position: absolute;
-  opacity: 0
-}
+  --automode-angle: 3deg;
+  --automode-glow: var(--glow);
 
-.checkboxGreen:not(checked)+label {
   position: relative;
-  padding: 0 0 0 50px
-}
+  display: block;
 
-.checkboxGreen:not(checked)+label:before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 0;
   width: 50px;
   height: 26px;
-  border-radius: 13px;
-  background: #577d94;
-  box-shadow: 5px 5px 7px rgba(0, 0, 0, .25), inset 2px 2px 5px rgba(255, 255, 255, .35), inset -3px -3px 5px rgba(0, 0, 0, .5)
+  margin: 0 auto;
+
+  box-sizing: border-box;
+  border-radius: 50px;
+  cursor: pointer;
+
+  background:
+    linear-gradient(to bottom right, #0001, #0000),
+    #444143;
+
+  box-shadow:
+    inset 0 0 4px -4px #0008,
+    inset 1px 1px 4px #000811,
+    inset -1px -1px 3px 1px #ccc1,
+    0 0 8px 1px var(--glow);
+
+  filter: drop-shadow(0 0 3px var(--automode-glow));
+
+  transition:
+    --automode-angle 0.5s,
+    --automode-glow 0.5s,
+    box-shadow 0.5s;
 }
 
-.checkboxGreen:not(checked)+label:after {
-  content: '';
+/* ---------- Цвета переключателей ---------- */
+
+/* ОСВЕЩЕНИЕ */
+.checkboxGreen.light+label {
+  --color: #ffd000;
+  --glow: rgb(255 208 0 / 30%);
+}
+
+/* РОЗЕТКИ */
+.checkboxGreen.socket+label {
+  --color: #00bfff;
+  --glow: rgb(0 191 255 / 30%);
+}
+
+/* СИГНАЛИЗАЦИЯ */
+.checkboxGreen.security+label {
+  --color: #00ff66;
+  --glow: rgb(0 255 102 / 30%);
+}
+
+/* ОТОПЛЕНИЕ */
+.checkboxGreen.heater+label {
+  --color: #ff4040;
+  --glow: rgb(255 64 64 / 30%);
+}
+
+/* ВЕНТИЛЯЦИЯ */
+.checkboxGreen.fan+label {
+  --color: #00ffff;
+  --glow: rgb(0 255 255 / 30%);
+}
+
+/* Подвижная круглая кнопка */
+.checkboxGreen+label::before {
+  content: "";
+
   position: absolute;
-  top: -2px;
-  left: 2px;
-  width: 22px;
-  height: 22px;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 5px 5px 7px rgba(0, 0, 0, .25), inset 2px 2px 5px rgba(255, 255, 255, .35), inset -3px -3px 5px rgba(0, 0, 0, .5);
-  transition: all .3s
+  top: 3px;
+  left: 3px;
+
+  width: 20px;
+  height: 20px;
+
+  box-sizing: border-box;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(transparent 15%,
+      #343133 16%,
+      #545153 20%),
+    repeating-linear-gradient(transparent 0 10%,
+      #0002 0 20%) center / 25% 25% no-repeat,
+    repeating-linear-gradient(90deg,
+      transparent 0 10%,
+      #0002 0 20%) center / 25% 25% no-repeat,
+    radial-gradient(var(--automode-glow) 17%,
+      transparent 18%),
+    #545153;
+
+  box-shadow:
+    inset -1px -1px 2px #0008,
+    inset 1px 1px 2px #ffffff22,
+    inset 1px 0 2px -1px var(--automode-glow),
+    2px 2px 3px #000c;
+
+  transition:
+    left 0.5s,
+    box-shadow 0.2s;
 }
 
-.checkboxGreen:checked+label:before {
-  background: #41d233
+/* Анимированная неоновая рамка */
+.checkboxGreen+label::after {
+  content: "";
+
+  position: absolute;
+  inset: -4px;
+
+  box-sizing: border-box;
+  border: 2px solid var(--color);
+  border-radius: 50px;
+
+  -webkit-mask:
+    conic-gradient(from calc(270deg - var(--automode-angle)),
+      #000 calc(2 * var(--automode-angle)),
+      #0001 0);
+
+  mask:
+    conic-gradient(from calc(270deg - var(--automode-angle)),
+      #000 calc(2 * var(--automode-angle)),
+      #0001 0);
+
+  pointer-events: none;
 }
 
-.checkboxGreen:checked+label:after {
-  left: 26px
+/* Включенное состояние */
+.checkboxGreen:checked+label {
+  --automode-angle: 180deg;
+  --automode-glow: var(--color);
+
+  box-shadow:
+    inset 0 0 4px -4px #0008,
+    inset 1px 1px 4px #000811,
+    inset -1px -1px 3px 1px #ccc1,
+    0 0 10px 1px var(--color);
 }
 
+/* Положение кнопки справа */
+.checkboxGreen:checked+label::before {
+  left: 27px;
+
+  box-shadow:
+    inset -1px -1px 2px #0008,
+    inset 1px 1px 2px #ffffff22,
+    inset -1px 0 2px -1px var(--automode-glow),
+    2px 2px 3px #000c;
+}
+
+/* Фокус с клавиатуры */
+.checkboxGreen:focus-visible+label {
+  outline: 2px solid var(--color);
+  outline-offset: 5px;
+}
+
+
+/* Индикаор состояния */
 .LevelPinGreen {
   vertical-align: top;
   margin: 0 3px 0 0;

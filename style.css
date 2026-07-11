@@ -787,7 +787,106 @@ nav > div {
 
 
 /* Индикаор состояния */
+/* =========================================
+   ИНДИКАТОР СОСТОЯНИЯ
+========================================= */
+
 .LevelPinGreen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Цвет по умолчанию */
+.LevelPinGreen+label {
+  --indicator-color: #00ff66;
+  --indicator-glow: rgb(0 255 102 / 35%);
+
+  position: relative;
+  display: block;
+
+  width: 26px;
+  height: 26px;
+  margin: 0 auto;
+
+  border-radius: 50%;
+}
+
+/* Сам круглый индикатор */
+.LevelPinGreen+label::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  box-sizing: border-box;
+  border-radius: 50%;
+
+  background: #cdd1da;
+
+  box-shadow:
+    3px 3px 6px rgb(0 0 0 / 25%),
+    inset 2px 2px 5px rgb(255 255 255 / 35%),
+    inset -3px -3px 5px rgb(0 0 0 / 50%);
+
+  transition:
+    background 0.35s,
+    box-shadow 0.35s,
+    filter 0.35s;
+}
+
+/* Включённое состояние */
+.LevelPinGreen:checked+label::before {
+  background: var(--indicator-color);
+
+  box-shadow:
+    3px 3px 6px rgb(0 0 0 / 25%),
+    inset 2px 2px 5px rgb(255 255 255 / 35%),
+    inset -3px -3px 5px rgb(0 0 0 / 45%),
+    0 0 5px 1px var(--indicator-glow);
+}
+
+/* =========================================
+   ЦВЕТА ИНДИКАТОРОВ
+========================================= */
+
+/* ОСВЕЩЕНИЕ */
+.LevelPinGreen.light+label {
+  --indicator-color: #ffd000;
+  --indicator-glow: rgb(255 208 0 / 35%);
+}
+
+/* РОЗЕТКИ */
+.LevelPinGreen.socket+label {
+  --indicator-color: #00bfff;
+  --indicator-glow: rgb(0 191 255 / 35%);
+}
+
+/* СИГНАЛИЗАЦИЯ */
+.LevelPinGreen.security+label {
+  --indicator-color: #00ff66;
+  --indicator-glow: rgb(0 255 102 / 35%);
+}
+
+/* ОТОПЛЕНИЕ */
+.LevelPinGreen.heater+label {
+  --indicator-color: #ff4040;
+  --indicator-glow: rgb(255 64 64 / 35%);
+}
+
+/* ВЕНТИЛЯЦИЯ */
+.LevelPinGreen.fan+label {
+  --indicator-color: #00ffff;
+  --indicator-glow: rgb(0 255 255 / 35%);
+}
+
+/* Заблокированный индикатор */
+.LevelPinGreen:disabled+label {
+  opacity: 0.45;
+}
+/* .LevelPinGreen {
   vertical-align: top;
   margin: 0 3px 0 0;
   width: 17px;
@@ -823,7 +922,7 @@ nav > div {
 
 .LevelPinGreen:checked+label:after {
   left: 26px
-}
+} */
 
 .column-1 {
   text-align: left;

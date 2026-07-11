@@ -372,13 +372,13 @@ const voiceCommands = [
   {
     match: (text) => text.includes("какая температура на улице"),
     action: async () => {
-      await speak("на улице сейчас," + out_temp + "градусов");
+      await speak("На улице сейчас " + formatTemperature(out_temp));
     }
   },
   {
     match: (text) => text.includes("какая температура в доме"),
     action: async () => {
-      await speak("средняя температура в доме," + temp_at_home + "градусов");
+      await speak("средняя температура в доме," + formatTemperature(temp_at_home));
     }
   },
   {

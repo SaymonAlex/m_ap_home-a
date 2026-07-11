@@ -601,8 +601,6 @@ nav > div {
 }
 
 /* CHECKBOXES  */
-/* CHECKBOXES */
-
 @property --automode-angle {
   syntax: "<angle>";
   inherits: true;
@@ -663,7 +661,6 @@ nav > div {
 }
 
 /* ---------- Цвета переключателей ---------- */
-
 /* ОСВЕЩЕНИЕ */
 .checkboxGreen.light+label {
   --color: #ffd000;
@@ -697,17 +694,13 @@ nav > div {
 /* Подвижная круглая кнопка */
 .checkboxGreen+label::before {
   content: "";
-
   position: absolute;
   top: 3px;
   left: 3px;
-
   width: 20px;
   height: 20px;
-
   box-sizing: border-box;
   border-radius: 50%;
-
   background:
     radial-gradient(transparent 15%,
       #343133 16%,
@@ -720,13 +713,11 @@ nav > div {
     radial-gradient(var(--automode-glow) 17%,
       transparent 18%),
     #545153;
-
   box-shadow:
     inset -1px -1px 2px #0008,
     inset 1px 1px 2px #ffffff22,
     inset 1px 0 2px -1px var(--automode-glow),
     2px 2px 3px #000c;
-
   transition:
     left 0.5s,
     box-shadow 0.2s;
@@ -735,24 +726,19 @@ nav > div {
 /* Анимированная неоновая рамка */
 .checkboxGreen+label::after {
   content: "";
-
   position: absolute;
   inset: -4px;
-
   box-sizing: border-box;
   border: 2px solid var(--color);
   border-radius: 50px;
-
   -webkit-mask:
     conic-gradient(from calc(270deg - var(--automode-angle)),
       #000 calc(2 * var(--automode-angle)),
       #0001 0);
-
   mask:
     conic-gradient(from calc(270deg - var(--automode-angle)),
       #000 calc(2 * var(--automode-angle)),
       #0001 0);
-
   pointer-events: none;
 }
 
@@ -785,8 +771,6 @@ nav > div {
   outline-offset: 5px;
 }
 
-
-/* Индикаор состояния */
 /* =========================================
    ИНДИКАТОР СОСТОЯНИЯ
 ========================================= */
@@ -886,44 +870,8 @@ nav > div {
 .LevelPinGreen:disabled+label {
   opacity: 0.45;
 }
-/* .LevelPinGreen {
-  vertical-align: top;
-  margin: 0 3px 0 0;
-  width: 17px;
-  height: 17px
-}
 
-.LevelPinGreen:not(checked) {
-  position: absolute;
-  opacity: 0
-}
-
-.LevelPinGreen:not(checked)+label {
-  position: relative;
-  padding: 0 0 0 26px
-}
-
-.LevelPinGreen:not(checked)+label:before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 0;
-  width: 26px;
-  height: 26px;
-  border-radius: 13px;
-  background: #cdd1da;
-  box-shadow: 5px 5px 7px rgba(0, 0, 0, .25), inset 2px 2px 5px rgba(255, 255, 255, .35), inset -3px -3px 5px rgba(0, 0, 0, .5)
-}
-
-.LevelPinGreen:checked+label:before {
-  background: gold;
-  box-shadow: 5px 5px 7px rgba(0, 0, 0, .25), inset 2px 2px 5px rgba(255, 255, 255, .35), inset -3px -3px 5px rgba(0, 0, 0, .5)
-}
-
-.LevelPinGreen:checked+label:after {
-  left: 26px
-} */
-
+/* Таблица */
 .column-1 {
   text-align: left;
   color: #fff;

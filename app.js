@@ -1219,38 +1219,38 @@ firebase.database().ref("Kitchen/Temp/Temperature").on("value", snap => {
 // OUTSIDE TEMP
 // =====================================================
 firebase.database().ref("Outside/temp").on("value", (snap) => {
-    out_temp = parseFloat(snap.val());
-    updateTemp(tempElements.outside, out_temp, 32);
-  });
+  out_temp = parseFloat(snap.val());
+  updateTemp(tempElements.outside, out_temp, 32);
+});
 // =====================================================
 // OUTSIDE BRIGHT
 // =====================================================
 firebase.database().ref("Outside/bright").on("value", (snap) => {
-    const lux = Number(snap.val());
-    if (isNaN(lux)) return;
-    document.getElementById("luxValue").textContent = lux + "%";
-    document.getElementById("luxFill").style.width = lux + "%";
-    const luxBox = document.querySelector(".lux-box");
-    luxBox.className = "lux-box";
-    const stateText =
-      document.getElementById("luxState");
-    if (lux <= 10) {
-      luxBox.classList.add("night");
-      stateText.textContent = "🌙 Ночь";
-    }
-    else if (lux <= 40) {
-      luxBox.classList.add("low");
-      stateText.textContent = "🌥 Темно";
-    }
-    else if (lux <= 75) {
-      luxBox.classList.add("day");
-      stateText.textContent = "☀️ День";
-    }
-    else {
-      luxBox.classList.add("bright");
-      stateText.textContent = "🔆 Ярко";
-    }
-  });
+  const lux = Number(snap.val());
+  if (isNaN(lux)) return;
+  document.getElementById("luxValue").textContent = lux + "%";
+  document.getElementById("luxFill").style.width = lux + "%";
+  const luxBox = document.querySelector(".lux-box");
+  luxBox.className = "lux-box";
+  const stateText =
+    document.getElementById("luxState");
+  if (lux <= 10) {
+    luxBox.classList.add("night");
+    stateText.textContent = "🌙 Ночь";
+  }
+  else if (lux <= 40) {
+    luxBox.classList.add("low");
+    stateText.textContent = "🌥 Темно";
+  }
+  else if (lux <= 75) {
+    luxBox.classList.add("day");
+    stateText.textContent = "☀️ День";
+  }
+  else {
+    luxBox.classList.add("bright");
+    stateText.textContent = "🔆 Ярко";
+  }
+});
 
 // =====================================================
 // VOICE
@@ -1365,7 +1365,6 @@ function updateFire(withVoice = true) {
 $(document).ready(function () {
 
   const db = firebase.database();
-  const state = {};
 
   // -----------------------------
   // КЭШ DOM ЭЛЕМЕНТОВ
@@ -1417,15 +1416,6 @@ $(document).ready(function () {
     return db.ref(path).set(value);
   }
 
-  function toggleFirebase(path, currentValue, onText, offText) {
-    const newValue = currentValue === "1" ? "0" : "1";
-    firebaseSet(path, newValue);
-    state[path] = newValue;
-    if (sound_voice === true) {
-      speak(newValue === "1" ? onText : offText);
-    }
-  }
-
   function showInfoMessage(message, isError = false) {
     el.info.innerHTML = message;
     el.info.style.backgroundColor = isError ? "red" : "#4CAF50";
@@ -1453,7 +1443,6 @@ $(document).ready(function () {
   // -----------------------------
   db.ref().on("value", (snap) => {
     const data = snap.val() || {};
-    Object.assign(state, data);
 
     // ---------------- LAMPS ----------------
     setChecked(el.relay1, data.Bedroom_One?.Lamp?.Lamp_power);
@@ -1494,61 +1483,55 @@ $(document).ready(function () {
   // -----------------------------
   // RELAYS
   // -----------------------------
-  $("#relay1").click(() => {
-    toggleFirebase(
-      "Bedroom_One/Lamp/Lamp_power",
-      state.Bedroom_One?.Lamp?.Lamp_power,
-      "Лампа включена",
-      "Лампа выключена"
-    );
+  $("#relay1").change(function () {
+    const value = this.checked ? "1" : "0";
+    firebaseSet("Bedroom_One/Lamp/Lamp_power", value);
+    if (sound_voice) {
+      speak(value === "1" ? "Лампа включена" : "Лампа выключена");
+    }
   });
 
-  $("#relay2").click(() => {
-    toggleFirebase(
-      "Bedroom_Two/Lamp/Lamp_power",
-      state.Bedroom_Two?.Lamp?.Lamp_power,
-      "Лампа у Насти включена",
-      "Лампа у Насти выключена"
-    );
+  $("#relay2").change(function () {
+    const value = this.checked ? "1" : "0";
+    firebaseSet("Bedroom_Two/Lamp/Lamp_power", value);
+    if (sound_voice) {
+      speak(value === "1" ? "Лампа у Насти включена" : "Лампа у Насти выключена");
+    }
   });
 
-  $("#relay3").click(() => {
-    toggleFirebase(
-      "Kitchen/Lamp/Lamp_power",
-      state.Kitchen?.Lamp?.Lamp_power,
-      "Лампа на кухне включена",
-      "Лампа на кухне выключена"
-    );
+  $("#relay3").change(function () {
+    const value = this.checked ? "1" : "0";
+    firebaseSet("Kitchen/Lamp/Lamp_power", value);
+    if (sound_voice) {
+      speak(value === "1" ? "Лампа на кухне включена" : "Лампа на кухне выключена");
+    }
   });
   // -----------------------------
   // SECURITY
   // -----------------------------
 
-  $("#secur1").click(() => {
-    toggleFirebase(
-      "Bedroom_One/Secur/Secur_power",
-      state.Bedroom_One?.Secur?.Secur_power,
-      "Охрана в спальне включена",
-      "Охрана в спальне выключена"
-    );
+  $("#secur1").change(function () {
+    const value = this.checked ? "1" : "0";
+    firebaseSet("Bedroom_One/Secur/Secur_power", value);
+    if (sound_voice) {
+      speak(value === "1" ? "Охрана в спальне включена" : "Охрана в спальне выключена");
+    }
   });
 
-  $("#secur2").click(() => {
-    toggleFirebase(
-      "Bedroom_Two/Secur/Secur_power",
-      state.Bedroom_Two?.Secur?.Secur_power,
-      "Охрана у Насти включена",
-      "Охрана у Насти выключена"
-    );
+  $("#secur2").change(function () {
+    const value = this.checked ? "1" : "0";
+    firebaseSet("Bedroom_Two/Secur/Secur_power", value);
+    if (sound_voice) {
+      speak(value === "1" ? "Охрана у Насти включена" : "Охрана у Насти выключена");
+    }
   });
 
-  $("#secur3").click(() => {
-    toggleFirebase(
-      "Kitchen/Secur/Secur_power",
-      state.Kitchen?.Secur?.Secur_power,
-      "Охрана на кухне включена",
-      "Охрана на кухне выключена"
-    );
+  $("#secur3").change(function () {
+    const value = this.checked ? "1" : "0";
+    firebaseSet("Kitchen/Secur/Secur_power", value);
+    if (sound_voice) {
+      speak(value === "1" ? "Охрана на кухне включена" : "Охрана на кухне выключена");
+    }
   });
 
   // -----------------------------
@@ -1590,25 +1573,17 @@ $(document).ready(function () {
   // -----------------------------
   function selectTempSensor(activeKey, voiceText) {
 
-    const sensors = [
-      "Dev_temp",
-      "Bedroom_One_temp",
-      "Bedroom_Two_temp",
-      "Kitchen_temp"
-    ];
+    const values = {
+      Dev_temp: activeKey === "Dev_temp" ? "1" : "0",
+      Bedroom_One_temp: activeKey === "Bedroom_One_temp" ? "1" : "0",
+      Bedroom_Two_temp: activeKey === "Bedroom_Two_temp" ? "1" : "0",
+      Kitchen_temp: activeKey === "Kitchen_temp" ? "1" : "0"
+    };
 
-    sensors.forEach(sensor => {
-
-      const value = (sensor === activeKey) ? "1" : "0";
-
-      firebase.database()
-        .ref(`Boiler/Sensor/${sensor}`)
-        .set(value, err => {
-          if (err) console.log("Firebase error:", err);
-        });
-
-      state[sensor] = value;
-    });
+    firebase.database()
+      .ref("Boiler/Sensor")
+      .update(values)
+      .catch(err => console.log("Firebase error:", err));
 
     if (sound_voice) {
       speak(voiceText);
@@ -1816,7 +1791,7 @@ const kitchen_display = document.getElementById("kitchen_screen");
 let kitchen_waiting = false;
 
 kitchen_display.addEventListener("click", () => {
-  if (kitchen_waiting == false){
+  if (kitchen_waiting == false) {
     kitchen_display.classList.remove("active");
     kitchen_display.classList.add("loading");
     firebase.database().ref("Kitchen/Temp/Display_power").set("1");
@@ -1884,9 +1859,9 @@ firebase.database().ref().on("value", (snap) => {
 
   const data = snap.val() || {};
 
-  const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
-  const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
-  const kitchen = data.Kitchen?.Lamp?.Lamp_power == "1";
+  const bedroom = data.Bedroom_One?.Lamp?.Lamp_stat == "1";
+  const leaving = data.Bedroom_Two?.Lamp?.Lamp_stat == "1";
+  const kitchen = data.Kitchen?.Lamp?.Lamp_stat == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 
@@ -1909,9 +1884,9 @@ all_lights.addEventListener("click", async () => {
   const snap = await firebase.database().ref().once("value");
   const data = snap.val() || {};
 
-  const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
-  const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
-  const kitchen = data.Kitchen?.Lamp?.Lamp_power == "1";
+  const bedroom = data.Bedroom_One?.Lamp?.Lamp_stat == "1";
+  const leaving = data.Bedroom_Two?.Lamp?.Lamp_stat == "1";
+  const kitchen = data.Kitchen?.Lamp?.Lamp_stat == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 

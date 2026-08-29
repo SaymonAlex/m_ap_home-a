@@ -932,14 +932,14 @@ const voiceCommands = [
   {
     match: (text) => text.includes("включи лампу на кухне"),
     action: async () => {
-      firebase.database().ref().child("Kitchen/Lamp/power").set("1");
+      firebase.database().ref().child("Kitchen/Lamp/Lamp_power").set("1");
       await speak("Окей, включаю.");
     }
   },
   {
     match: (text) => text.includes("выключи лампу на кухне"),
     action: async () => {
-      firebase.database().ref().child("Kitchen/Lamp/power").set("0");
+      firebase.database().ref().child("Kitchen/Lamp/Lamp_power").set("0");
       await speak("Окей, выключаю.");
     }
   },
@@ -1514,7 +1514,7 @@ $(document).ready(function () {
 
   $("#relay3").click(() => {
     toggleFirebase(
-      "Kitchen/Lamp/power",
+      "Kitchen/Lamp/Lamp_power",
       state.Kitchen?.Lamp?.power,
       "Лампа на кухне включена",
       "Лампа на кухне выключена"
@@ -1920,7 +1920,7 @@ all_lights.addEventListener("click", async () => {
     firebase.database().ref().update({
       "Bedroom_One/Lamp/Lamp_power": "0",
       "Bedroom_Two/Lamp/Lamp_power": "0",
-      "Kitchen/Lamp/power": "0"
+      "Kitchen/Lamp/Lamp_power": "0"
     });
 
   } else {
@@ -1928,7 +1928,7 @@ all_lights.addEventListener("click", async () => {
     firebase.database().ref().update({
       "Bedroom_One/Lamp/Lamp_power": "1",
       "Bedroom_Two/Lamp/Lamp_power": "1",
-      "Kitchen/Lamp/power": "1"
+      "Kitchen/Lamp/Lamp_power": "1"
     });
 
   }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'esp-ui-v33';
+const CACHE_NAME = 'esp-ui-v34';
 
 const FILES_TO_CACHE = [
   './',

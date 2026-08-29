@@ -40,6 +40,580 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+// =====================================================
+// FIREBASE EMAIL / PASSWORD AUTHENTICATION
+// =====================================================
+// Весь блок авторизации находится в app.js.
+// Realtime Database остаётся OFFLINE до тех пор,
+// пока Firebase не подтвердит вошедшего пользователя.
+
+const firebaseDbConnection = firebase.database();
+firebaseDbConnection.goOffline();
+
+let firebaseAuth = null;
+let firebaseCurrentUser = null;
+let firebaseAuthSdkReady = false;
+
+// -----------------------------------------------------
+// Определяем URL Firebase Auth SDK той же версии,
+// что уже используется на странице. Это позволяет
+// не добавлять firebase-auth вручную в index.html.
+// -----------------------------------------------------
+function getFirebaseAuthSdkUrl() {
+  const scripts = Array.from(document.scripts);
+
+  for (const script of scripts) {
+    const src = script.src || "";
+    const match = src.match(/firebasejs\/([^/]+)\/firebase-app(-compat)?\.js/i);
+
+    if (match) {
+      const version = match[1];
+      const isCompat = !!match[2];
+      const fileName = isCompat ? "firebase-auth-compat.js" : "firebase-auth.js";
+      return `https://www.gstatic.com/firebasejs/${version}/${fileName}`;
+    }
+  }
+
+  // Запасной вариант, если URL firebase-app определить не удалось.
+  const version = firebase.SDK_VERSION || "8.10.1";
+  const majorVersion = parseInt(String(version).split(".")[0], 10);
+  const fileName = majorVersion >= 9
+    ? "firebase-auth-compat.js"
+    : "firebase-auth.js";
+
+  return `https://www.gstatic.com/firebasejs/${version}/${fileName}`;
+}
+
+// -----------------------------------------------------
+// Загружаем Firebase Auth SDK, только если он ещё
+// не подключён в index.html.
+// -----------------------------------------------------
+function loadFirebaseAuthSdk() {
+  if (typeof firebase.auth === "function") {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = getFirebaseAuthSdkUrl();
+    script.async = true;
+
+    script.onload = () => {
+      if (typeof firebase.auth === "function") {
+        resolve();
+      } else {
+        reject(new Error("Firebase Auth SDK загружен, но firebase.auth недоступен"));
+      }
+    };
+
+    script.onerror = () => {
+      reject(new Error("Не удалось загрузить Firebase Auth SDK"));
+    };
+
+    document.head.appendChild(script);
+  });
+}
+
+// -----------------------------------------------------
+// Текст ошибок авторизации
+// -----------------------------------------------------
+function firebaseAuthErrorText(error) {
+  const code = error?.code || "";
+
+  switch (code) {
+    case "auth/invalid-email":
+      return "Неверный формат электронной почты";
+
+    case "auth/user-disabled":
+      return "Эта учётная запись отключена";
+
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+    case "auth/invalid-login-credentials":
+    case "auth/invalid-credential":
+      return "Неверная почта или пароль";
+
+    case "auth/too-many-requests":
+      return "Слишком много попыток. Попробуйте позже";
+
+    case "auth/network-request-failed":
+      return "Ошибка сети. Проверьте подключение к интернету";
+
+    case "auth/missing-password":
+      return "Введите пароль";
+
+    default:
+      console.error("Firebase Auth error:", error);
+      return error?.message || "Ошибка авторизации";
+  }
+}
+
+function setFirebaseAuthMessage(message = "", type = "error") {
+  const messageEl = document.getElementById("firebaseAuthMessage");
+  if (!messageEl) return;
+
+  messageEl.textContent = message;
+  messageEl.classList.remove("auth-message-error", "auth-message-success");
+
+  if (message) {
+    messageEl.classList.add(
+      type === "success" ? "auth-message-success" : "auth-message-error"
+    );
+  }
+}
+
+function setFirebaseAuthFormEnabled(enabled) {
+  const email = document.getElementById("firebaseAuthEmail");
+  const password = document.getElementById("firebaseAuthPassword");
+  const login = document.getElementById("firebaseAuthLogin");
+  const reset = document.getElementById("firebaseAuthReset");
+
+  if (email) email.disabled = !enabled;
+  if (password) password.disabled = !enabled;
+  if (login) login.disabled = !enabled;
+  if (reset) reset.disabled = !enabled;
+}
+
+// -----------------------------------------------------
+// Вход по Email + Password
+// -----------------------------------------------------
+async function firebaseLogin() {
+  if (!firebaseAuth || !firebaseAuthSdkReady) {
+    setFirebaseAuthMessage("Сервис авторизации ещё загружается");
+    return;
+  }
+
+  const emailInput = document.getElementById("firebaseAuthEmail");
+  const passwordInput = document.getElementById("firebaseAuthPassword");
+  const loginButton = document.getElementById("firebaseAuthLogin");
+
+  const email = emailInput?.value.trim() || "";
+  const password = passwordInput?.value || "";
+
+  if (!email) {
+    setFirebaseAuthMessage("Введите электронную почту");
+    emailInput?.focus();
+    return;
+  }
+
+  if (!password) {
+    setFirebaseAuthMessage("Введите пароль");
+    passwordInput?.focus();
+    return;
+  }
+
+  try {
+    setFirebaseAuthMessage("");
+    setFirebaseAuthFormEnabled(false);
+
+    if (loginButton) {
+      loginButton.textContent = "ПОДКЛЮЧЕНИЕ...";
+    }
+
+    // Сохраняем вход на устройстве, чтобы после перезапуска PWA
+    // не вводить пароль заново.
+    if (firebase.auth?.Auth?.Persistence?.LOCAL) {
+      await firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    }
+
+    await firebaseAuth.signInWithEmailAndPassword(email, password);
+
+  } catch (error) {
+    setFirebaseAuthMessage(firebaseAuthErrorText(error));
+
+  } finally {
+    setFirebaseAuthFormEnabled(true);
+
+    if (loginButton) {
+      loginButton.textContent = "ВОЙТИ";
+    }
+  }
+}
+
+// -----------------------------------------------------
+// Восстановление пароля
+// -----------------------------------------------------
+async function firebaseResetPassword() {
+  if (!firebaseAuth || !firebaseAuthSdkReady) {
+    setFirebaseAuthMessage("Сервис авторизации ещё загружается");
+    return;
+  }
+
+  const emailInput = document.getElementById("firebaseAuthEmail");
+  const email = emailInput?.value.trim() || "";
+
+  if (!email) {
+    setFirebaseAuthMessage("Введите почту для восстановления пароля");
+    emailInput?.focus();
+    return;
+  }
+
+  try {
+    await firebaseAuth.sendPasswordResetEmail(email);
+    setFirebaseAuthMessage(
+      "Письмо для восстановления пароля отправлено",
+      "success"
+    );
+  } catch (error) {
+    setFirebaseAuthMessage(firebaseAuthErrorText(error));
+  }
+}
+
+// -----------------------------------------------------
+// Выход
+// -----------------------------------------------------
+async function firebaseLogout() {
+  if (!firebaseAuth) return;
+
+  try {
+    firebaseDbConnection.goOffline();
+    await firebaseAuth.signOut();
+  } catch (error) {
+    console.error("Firebase logout error:", error);
+  }
+}
+
+// -----------------------------------------------------
+// Окно авторизации. HTML и CSS создаются автоматически,
+// поэтому ничего добавлять в index.html не требуется.
+// -----------------------------------------------------
+function createFirebaseAuthUI() {
+  if (document.getElementById("firebaseAuthOverlay")) return;
+
+  const style = document.createElement("style");
+  style.id = "firebaseAuthStyles";
+  style.textContent = `
+    #firebaseAuthOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(0, 255, 213, 0.10), transparent 30%),
+        radial-gradient(circle at center, #081922 0%, #03090d 58%, #010305 100%);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .firebase-auth-box {
+      width: min(380px, 100%);
+      padding: 34px 28px 28px;
+      box-sizing: border-box;
+      border: 1px solid rgba(0, 255, 213, 0.35);
+      border-radius: 18px;
+      background: rgba(5, 15, 22, 0.96);
+      box-shadow:
+        0 0 45px rgba(0, 255, 213, 0.13),
+        inset 0 0 25px rgba(0, 255, 213, 0.035);
+      backdrop-filter: blur(15px);
+    }
+
+    .firebase-auth-logo {
+      width: 62px;
+      height: 62px;
+      margin: 0 auto 16px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(0, 255, 213, 0.45);
+      border-radius: 50%;
+      color: #00ffd5;
+      font-size: 30px;
+      box-shadow:
+        0 0 18px rgba(0, 255, 213, 0.18),
+        inset 0 0 18px rgba(0, 255, 213, 0.08);
+    }
+
+    .firebase-auth-title {
+      text-align: center;
+      color: #eaffff;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .firebase-auth-subtitle {
+      margin: 7px 0 25px;
+      text-align: center;
+      color: #5e8d94;
+      font-size: 10px;
+      letter-spacing: 3px;
+    }
+
+    .firebase-auth-input {
+      display: block;
+      width: 100%;
+      height: 48px;
+      margin-top: 12px;
+      padding: 0 15px;
+      box-sizing: border-box;
+      outline: none;
+      border: 1px solid #173a43;
+      border-radius: 9px;
+      background: #071219;
+      color: #eaffff;
+      font-size: 15px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .firebase-auth-input:focus {
+      border-color: #00ffd5;
+      box-shadow: 0 0 14px rgba(0, 255, 213, 0.14);
+    }
+
+    .firebase-auth-input:disabled {
+      opacity: .55;
+    }
+
+    #firebaseAuthLogin {
+      width: 100%;
+      height: 48px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      color: #001712;
+      background: linear-gradient(90deg, #00cfae, #00ffd5);
+      font-weight: 800;
+      letter-spacing: 2px;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+    }
+
+    #firebaseAuthLogin:not(:disabled):active {
+      transform: scale(.98);
+    }
+
+    #firebaseAuthLogin:not(:disabled):hover {
+      box-shadow: 0 0 22px rgba(0, 255, 213, .28);
+    }
+
+    #firebaseAuthLogin:disabled,
+    #firebaseAuthReset:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    #firebaseAuthReset {
+      display: block;
+      margin: 17px auto 0;
+      padding: 5px;
+      border: none;
+      background: transparent;
+      color: #6d9ca5;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    #firebaseAuthReset:not(:disabled):hover {
+      color: #00ffd5;
+    }
+
+    #firebaseAuthMessage {
+      min-height: 18px;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .auth-message-error { color: #ff6464; }
+    .auth-message-success { color: #00eeb0; }
+
+    #firebaseUserPanel {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 99990;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      max-width: calc(100vw - 20px);
+      padding: 6px 7px 6px 11px;
+      box-sizing: border-box;
+      border: 1px solid rgba(0, 255, 213, .25);
+      border-radius: 10px;
+      background: rgba(4, 15, 20, .90);
+      color: #7bd8c9;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    #firebaseUserEmail {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+
+    #firebaseLogoutButton {
+      border: 1px solid #254950;
+      border-radius: 7px;
+      padding: 5px 9px;
+      background: #09191e;
+      color: #8cc6c0;
+      cursor: pointer;
+      font-size: 10px;
+    }
+
+    #firebaseLogoutButton:hover {
+      color: #ff7070;
+      border-color: #ff7070;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  const overlay = document.createElement("div");
+  overlay.id = "firebaseAuthOverlay";
+  overlay.innerHTML = `
+    <div class="firebase-auth-box">
+      <div class="firebase-auth-logo">◈</div>
+      <div class="firebase-auth-title">HOME CONTROL</div>
+      <div class="firebase-auth-subtitle">SECURE ACCESS</div>
+
+      <input
+        id="firebaseAuthEmail"
+        class="firebase-auth-input"
+        type="email"
+        placeholder="E-MAIL"
+        autocomplete="email"
+      >
+
+      <input
+        id="firebaseAuthPassword"
+        class="firebase-auth-input"
+        type="password"
+        placeholder="PASSWORD"
+        autocomplete="current-password"
+      >
+
+      <button id="firebaseAuthLogin" type="button">ЗАГРУЗКА...</button>
+      <button id="firebaseAuthReset" type="button">Забыли пароль?</button>
+      <div id="firebaseAuthMessage">Подключение к Firebase Authentication...</div>
+    </div>
+  `;
+
+  const userPanel = document.createElement("div");
+  userPanel.id = "firebaseUserPanel";
+  userPanel.innerHTML = `
+    <span id="firebaseUserEmail"></span>
+    <button id="firebaseLogoutButton" type="button">ВЫХОД</button>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(userPanel);
+
+  document.getElementById("firebaseAuthLogin")
+    .addEventListener("click", firebaseLogin);
+
+  document.getElementById("firebaseAuthReset")
+    .addEventListener("click", firebaseResetPassword);
+
+  document.getElementById("firebaseLogoutButton")
+    .addEventListener("click", firebaseLogout);
+
+  document.getElementById("firebaseAuthPassword")
+    .addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        firebaseLogin();
+      }
+    });
+
+  setFirebaseAuthFormEnabled(false);
+}
+
+function showFirebaseLogin() {
+  const overlay = document.getElementById("firebaseAuthOverlay");
+  const userPanel = document.getElementById("firebaseUserPanel");
+
+  if (overlay) overlay.style.display = "flex";
+  if (userPanel) userPanel.style.display = "none";
+}
+
+function showFirebaseApplication(user) {
+  const overlay = document.getElementById("firebaseAuthOverlay");
+  const userPanel = document.getElementById("firebaseUserPanel");
+  const email = document.getElementById("firebaseUserEmail");
+
+  if (overlay) overlay.style.display = "none";
+  if (userPanel) userPanel.style.display = "flex";
+  if (email) email.textContent = user?.email || "USER";
+}
+
+// -----------------------------------------------------
+// Инициализация Firebase Authentication
+// -----------------------------------------------------
+function initFirebaseEmailAuth() {
+  firebaseAuth = firebase.auth();
+  firebaseAuth.languageCode = "ru";
+  firebaseAuthSdkReady = true;
+
+  setFirebaseAuthFormEnabled(true);
+  setFirebaseAuthMessage("");
+
+  const loginButton = document.getElementById("firebaseAuthLogin");
+  if (loginButton) loginButton.textContent = "ВОЙТИ";
+
+  firebaseAuth.onAuthStateChanged(
+    (user) => {
+      firebaseCurrentUser = user;
+
+      if (user) {
+        console.log("Firebase authenticated:", user.email, user.uid);
+
+        // Только после подтверждения пользователя разрешаем
+        // Realtime Database подключиться к серверу.
+        firebaseDbConnection.goOnline();
+        showFirebaseApplication(user);
+      } else {
+        console.log("Firebase: user is not authenticated");
+        firebaseDbConnection.goOffline();
+        showFirebaseLogin();
+      }
+    },
+    (error) => {
+      console.error("Firebase Auth observer error:", error);
+      firebaseDbConnection.goOffline();
+      showFirebaseLogin();
+      setFirebaseAuthMessage(firebaseAuthErrorText(error));
+    }
+  );
+}
+
+function startFirebaseAuthentication() {
+  createFirebaseAuthUI();
+
+  loadFirebaseAuthSdk()
+    .then(() => {
+      initFirebaseEmailAuth();
+    })
+    .catch((error) => {
+      console.error(error);
+      firebaseDbConnection.goOffline();
+      showFirebaseLogin();
+      setFirebaseAuthFormEnabled(false);
+      setFirebaseAuthMessage(
+        "Не удалось загрузить Firebase Authentication. Проверьте интернет и подключение Firebase SDK."
+      );
+
+      const loginButton = document.getElementById("firebaseAuthLogin");
+      if (loginButton) loginButton.textContent = "AUTH ERROR";
+    });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startFirebaseAuthentication);
+} else {
+  startFirebaseAuthentication();
+}
+
+// =====================================================
+// END FIREBASE AUTHENTICATION
+// =====================================================
+
 var setpoint = "25";
 var hyst_now = "0.1";
 let firstLoadDone = false;
@@ -1337,7 +1911,7 @@ all_lights.addEventListener("click", async () => {
 
   const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
   const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
-  const kitchen = data.Kitchen?.Lamp?.status == "1";
+  const kitchen = data.Kitchen?.Lamp?.power == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 

@@ -1886,7 +1886,7 @@ firebase.database().ref().on("value", (snap) => {
 
   const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
   const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
-  const kitchen = data.Kitchen?.Lamp?.power == "1";
+  const kitchen = data.Kitchen?.Lamp?.Lamp_power == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 
@@ -1911,7 +1911,7 @@ all_lights.addEventListener("click", async () => {
 
   const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
   const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
-  const kitchen = data.Kitchen?.Lamp?.power == "1";
+  const kitchen = data.Kitchen?.Lamp?.Lamp_power == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 

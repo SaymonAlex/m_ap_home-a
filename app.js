@@ -1462,8 +1462,8 @@ $(document).ready(function () {
     setChecked(el.relay2, data.Bedroom_Two?.Lamp?.Lamp_power);
     setLamp(el.lamp2, data.Bedroom_Two?.Lamp?.Lamp_stat);
 
-    setChecked(el.relay3, data.Kitchen?.Lamp?.power);
-    setLamp(el.lamp3, data.Kitchen?.Lamp?.status);
+    setChecked(el.relay3, data.Kitchen?.Lamp?.Lamp_power);
+    setLamp(el.lamp3, data.Kitchen?.Lamp?.Lamp_stat);
 
     // ---------------- SECURITY ----------------
     setChecked(el.secur1, data.Bedroom_One?.Secur?.Secur_power);

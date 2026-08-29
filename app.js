@@ -1515,7 +1515,7 @@ $(document).ready(function () {
   $("#relay3").click(() => {
     toggleFirebase(
       "Kitchen/Lamp/Lamp_power",
-      state.Kitchen?.Lamp?.power,
+      state.Kitchen?.Lamp?.Lamp_power,
       "Лампа на кухне включена",
       "Лампа на кухне выключена"
     );

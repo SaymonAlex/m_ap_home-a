@@ -43,6 +43,10 @@ firebase.initializeApp(firebaseConfig);
 // =====================================================
 // FIREBASE EMAIL / PASSWORD AUTHENTICATION
 // =====================================================
+// HTML формы находится в index.html.
+// Стили находятся в style.css.
+// Realtime Database остаётся OFFLINE до подтверждения пользователя.
+
 const firebaseDbConnection = firebase.database();
 firebaseDbConnection.goOffline();
 
@@ -52,16 +56,23 @@ let firebaseAuthSdkReady = false;
 
 function firebaseAuthErrorText(error) {
   const code = error?.code || "";
+
   switch (code) {
-    case "auth/invalid-email": return "Неверный формат электронной почты";
-    case "auth/user-disabled": return "Эта учётная запись отключена";
+    case "auth/invalid-email":
+      return "Неверный формат электронной почты";
+    case "auth/user-disabled":
+      return "Эта учётная запись отключена";
     case "auth/user-not-found":
     case "auth/wrong-password":
     case "auth/invalid-login-credentials":
-    case "auth/invalid-credential": return "Неверная почта или пароль";
-    case "auth/too-many-requests": return "Слишком много попыток. Попробуйте позже";
-    case "auth/network-request-failed": return "Ошибка сети. Проверьте подключение к интернету";
-    case "auth/missing-password": return "Введите пароль";
+    case "auth/invalid-credential":
+      return "Неверная почта или пароль";
+    case "auth/too-many-requests":
+      return "Слишком много попыток. Попробуйте позже";
+    case "auth/network-request-failed":
+      return "Ошибка сети. Проверьте подключение к интернету";
+    case "auth/missing-password":
+      return "Введите пароль";
     default:
       console.error("Firebase Auth error:", error);
       return error?.message || "Ошибка авторизации";
@@ -71,9 +82,20 @@ function firebaseAuthErrorText(error) {
 function setFirebaseAuthMessage(message = "", type = "error") {
   const messageEl = document.getElementById("firebaseAuthMessage");
   if (!messageEl) return;
+
   messageEl.textContent = message;
-  messageEl.classList.remove("auth-message-error", "auth-message-success");
-  if (message) messageEl.classList.add(type === "success" ? "auth-message-success" : "auth-message-error");
+  messageEl.classList.remove(
+    "auth-message-error",
+    "auth-message-success"
+  );
+
+  if (message) {
+    messageEl.classList.add(
+      type === "success"
+        ? "auth-message-success"
+        : "auth-message-error"
+    );
+  }
 }
 
 function setFirebaseAuthFormEnabled(enabled) {
@@ -81,84 +103,135 @@ function setFirebaseAuthFormEnabled(enabled) {
   const password = document.getElementById("firebaseAuthPassword");
   const login = document.getElementById("firebaseAuthLogin");
   const reset = document.getElementById("firebaseAuthReset");
+
   if (email) email.disabled = !enabled;
   if (password) password.disabled = !enabled;
   if (login) login.disabled = !enabled;
   if (reset) reset.disabled = !enabled;
 }
 
+// -----------------------------------------------------
+// Вход
+// -----------------------------------------------------
 async function firebaseLogin() {
   if (!firebaseAuth || !firebaseAuthSdkReady) {
     setFirebaseAuthMessage("Сервис авторизации ещё загружается");
     return;
   }
+
   const emailInput = document.getElementById("firebaseAuthEmail");
   const passwordInput = document.getElementById("firebaseAuthPassword");
   const loginButton = document.getElementById("firebaseAuthLogin");
+
   const email = emailInput?.value.trim() || "";
   const password = passwordInput?.value || "";
+
   if (!email) {
     setFirebaseAuthMessage("Введите электронную почту");
     emailInput?.focus();
     return;
   }
+
   if (!password) {
     setFirebaseAuthMessage("Введите пароль");
     passwordInput?.focus();
     return;
   }
+
   try {
     setFirebaseAuthMessage("");
     setFirebaseAuthFormEnabled(false);
-    if (loginButton) loginButton.textContent = "ПОДКЛЮЧЕНИЕ...";
-    await firebaseAuth.signInWithEmailAndPassword(email, password);
+
+    if (loginButton) {
+      loginButton.textContent = "ПОДКЛЮЧЕНИЕ...";
+    }
+
+    await firebaseAuth.signInWithEmailAndPassword(
+      email,
+      password
+    );
+
   } catch (error) {
-    setFirebaseAuthMessage(firebaseAuthErrorText(error));
+    setFirebaseAuthMessage(
+      firebaseAuthErrorText(error)
+    );
+
   } finally {
     setFirebaseAuthFormEnabled(true);
-    if (loginButton) loginButton.textContent = "ВОЙТИ";
+
+    if (loginButton) {
+      loginButton.textContent = "ВОЙТИ";
+    }
   }
 }
 
+// -----------------------------------------------------
+// Восстановление пароля
+// -----------------------------------------------------
 async function firebaseResetPassword() {
   if (!firebaseAuth || !firebaseAuthSdkReady) {
     setFirebaseAuthMessage("Сервис авторизации ещё загружается");
     return;
   }
+
   const emailInput = document.getElementById("firebaseAuthEmail");
   const email = emailInput?.value.trim() || "";
+
   if (!email) {
-    setFirebaseAuthMessage("Введите почту для восстановления пароля");
+    setFirebaseAuthMessage(
+      "Введите почту для восстановления пароля"
+    );
     emailInput?.focus();
     return;
   }
+
   try {
     await firebaseAuth.sendPasswordResetEmail(email);
-    setFirebaseAuthMessage("Письмо для восстановления пароля отправлено", "success");
+
+    setFirebaseAuthMessage(
+      "Письмо для восстановления пароля отправлено",
+      "success"
+    );
+
   } catch (error) {
-    setFirebaseAuthMessage(firebaseAuthErrorText(error));
+    setFirebaseAuthMessage(
+      firebaseAuthErrorText(error)
+    );
   }
 }
 
+// -----------------------------------------------------
+// Выход
+// -----------------------------------------------------
 async function firebaseLogout() {
   if (!firebaseAuth) return;
+
   try {
     firebaseDbConnection.goOffline();
     await firebaseAuth.signOut();
+
   } catch (error) {
     console.error("Firebase logout error:", error);
+
+    setFirebaseAuthMessage(
+      firebaseAuthErrorText(error)
+    );
   }
 }
 
 // -----------------------------------------------------
-// Показать окно входа
+// Показать форму входа
 // -----------------------------------------------------
 function showFirebaseLogin() {
-  const overlay = document.getElementById("firebaseAuthOverlay");
-  const userPanels = document.querySelectorAll(".menu-auth");
+  const overlay =
+    document.getElementById("firebaseAuthOverlay");
+
+  const userPanels =
+    document.querySelectorAll(".menu-auth");
 
   if (overlay) {
     overlay.classList.remove("auth-hidden");
+    overlay.style.display = "flex";
   }
 
   userPanels.forEach(panel => {
@@ -170,12 +243,18 @@ function showFirebaseLogin() {
 // Показать приложение
 // -----------------------------------------------------
 function showFirebaseApplication(user) {
-  const overlay = document.getElementById("firebaseAuthOverlay");
-  const userPanels = document.querySelectorAll(".menu-auth");
-  const emails = document.querySelectorAll(".firebaseUserEmail");
+  const overlay =
+    document.getElementById("firebaseAuthOverlay");
+
+  const userPanels =
+    document.querySelectorAll(".menu-auth");
+
+  const emails =
+    document.querySelectorAll(".firebaseUserEmail");
 
   if (overlay) {
     overlay.classList.add("auth-hidden");
+    overlay.style.display = "none";
   }
 
   userPanels.forEach(panel => {
@@ -191,68 +270,137 @@ function showFirebaseApplication(user) {
 // События кнопок авторизации
 // -----------------------------------------------------
 function bindFirebaseAuthEvents() {
-
   document.getElementById("firebaseAuthLogin")
-    ?.addEventListener("click", firebaseLogin);
+    ?.addEventListener(
+      "click",
+      firebaseLogin
+    );
 
   document.getElementById("firebaseAuthReset")
-    ?.addEventListener("click", firebaseResetPassword);
+    ?.addEventListener(
+      "click",
+      firebaseResetPassword
+    );
 
   document.querySelectorAll(".firebaseLogoutButton")
     .forEach(button => {
-      button.addEventListener("click", firebaseLogout);
+      button.addEventListener(
+        "click",
+        event => {
+          event.preventDefault();
+          event.stopPropagation();
+          firebaseLogout();
+        }
+      );
     });
 
   document.getElementById("firebaseAuthPassword")
-    ?.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        firebaseLogin();
+    ?.addEventListener(
+      "keydown",
+      event => {
+        if (event.key === "Enter") {
+          firebaseLogin();
+        }
       }
-    });
+    );
 }
 
-async function initFirebaseAuth() {
+// -----------------------------------------------------
+// Инициализация Firebase Authentication
+// -----------------------------------------------------
+function initFirebaseAuth() {
   bindFirebaseAuthEvents();
+
   setFirebaseAuthFormEnabled(false);
+
   if (typeof firebase.auth !== "function") {
-    setFirebaseAuthMessage("Firebase Auth SDK не подключён в index.html");
-    return;
-  }
-  firebaseAuth = firebase.auth();
-  firebaseAuth.languageCode = "ru";
-  try {
-    await firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-  } catch (error) {
-    console.warn("Firebase persistence error:", error);
-  }
-  firebaseAuthSdkReady = true;
-  setFirebaseAuthFormEnabled(true);
-  const loginButton = document.getElementById("firebaseAuthLogin");
-  if (loginButton) loginButton.textContent = "ВОЙТИ";
-  firebaseAuth.onAuthStateChanged(user => {
-    firebaseCurrentUser = user;
-    if (user) {
-      firebaseDbConnection.goOnline();
-      setFirebaseAuthMessage("");
-      showFirebaseApplication(user);
-    } else {
-      firebaseDbConnection.goOffline();
-      showFirebaseLogin();
-    }
-  }, error => {
     firebaseDbConnection.goOffline();
     showFirebaseLogin();
-    setFirebaseAuthMessage(firebaseAuthErrorText(error));
+
+    setFirebaseAuthMessage(
+      "Firebase Auth SDK не подключён в index.html"
+    );
+
+    return;
+  }
+
+  firebaseAuth = firebase.auth();
+  firebaseAuth.languageCode = "ru";
+
+  firebaseAuth.setPersistence(
+    firebase.auth.Auth.Persistence.LOCAL
+  ).catch(error => {
+    console.warn(
+      "Firebase persistence error:",
+      error
+    );
   });
+
+  firebaseAuthSdkReady = true;
+  setFirebaseAuthFormEnabled(true);
+
+  const loginButton =
+    document.getElementById("firebaseAuthLogin");
+
+  if (loginButton) {
+    loginButton.textContent = "ВОЙТИ";
+  }
+
+  firebaseAuth.onAuthStateChanged(
+    user => {
+      firebaseCurrentUser = user;
+
+      if (user) {
+        console.log(
+          "Firebase authenticated:",
+          user.email
+        );
+
+        firebaseDbConnection.goOnline();
+        setFirebaseAuthMessage("");
+        showFirebaseApplication(user);
+
+      } else {
+        console.log(
+          "Firebase: user is not authenticated"
+        );
+
+        firebaseDbConnection.goOffline();
+        showFirebaseLogin();
+      }
+    },
+
+    error => {
+      console.error(
+        "Firebase Auth observer error:",
+        error
+      );
+
+      firebaseDbConnection.goOffline();
+      showFirebaseLogin();
+
+      setFirebaseAuthMessage(
+        firebaseAuthErrorText(error)
+      );
+    }
+  );
 }
 
+// -----------------------------------------------------
+// START
+// -----------------------------------------------------
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initFirebaseAuth);
+  document.addEventListener(
+    "DOMContentLoaded",
+    initFirebaseAuth
+  );
 } else {
   initFirebaseAuth();
 }
 
-
+// =====================================================
+// END FIREBASE AUTHENTICATION
+// =====================================================
 
 var setpoint = "25";
 var hyst_now = "0.1";
@@ -572,14 +720,14 @@ const voiceCommands = [
   {
     match: (text) => text.includes("включи лампу на кухне"),
     action: async () => {
-      firebase.database().ref().child("Kitchen/Lamp/Lamp_power").set("1");
+      firebase.database().ref().child("Kitchen/Lamp/power").set("1");
       await speak("Окей, включаю.");
     }
   },
   {
     match: (text) => text.includes("выключи лампу на кухне"),
     action: async () => {
-      firebase.database().ref().child("Kitchen/Lamp/Lamp_power").set("0");
+      firebase.database().ref().child("Kitchen/Lamp/power").set("0");
       await speak("Окей, выключаю.");
     }
   },
@@ -1005,6 +1153,7 @@ function updateFire(withVoice = true) {
 $(document).ready(function () {
 
   const db = firebase.database();
+  const state = {};
 
   // -----------------------------
   // КЭШ DOM ЭЛЕМЕНТОВ
@@ -1056,6 +1205,15 @@ $(document).ready(function () {
     return db.ref(path).set(value);
   }
 
+  function toggleFirebase(path, currentValue, onText, offText) {
+    const newValue = currentValue === "1" ? "0" : "1";
+    firebaseSet(path, newValue);
+    state[path] = newValue;
+    if (sound_voice === true) {
+      speak(newValue === "1" ? onText : offText);
+    }
+  }
+
   function showInfoMessage(message, isError = false) {
     el.info.innerHTML = message;
     el.info.style.backgroundColor = isError ? "red" : "#4CAF50";
@@ -1083,6 +1241,7 @@ $(document).ready(function () {
   // -----------------------------
   db.ref().on("value", (snap) => {
     const data = snap.val() || {};
+    Object.assign(state, data);
 
     // ---------------- LAMPS ----------------
     setChecked(el.relay1, data.Bedroom_One?.Lamp?.Lamp_power);
@@ -1091,8 +1250,8 @@ $(document).ready(function () {
     setChecked(el.relay2, data.Bedroom_Two?.Lamp?.Lamp_power);
     setLamp(el.lamp2, data.Bedroom_Two?.Lamp?.Lamp_stat);
 
-    setChecked(el.relay3, data.Kitchen?.Lamp?.Lamp_power);
-    setLamp(el.lamp3, data.Kitchen?.Lamp?.Lamp_stat);
+    setChecked(el.relay3, data.Kitchen?.Lamp?.power);
+    setLamp(el.lamp3, data.Kitchen?.Lamp?.status);
 
     // ---------------- SECURITY ----------------
     setChecked(el.secur1, data.Bedroom_One?.Secur?.Secur_power);
@@ -1123,55 +1282,61 @@ $(document).ready(function () {
   // -----------------------------
   // RELAYS
   // -----------------------------
-  $("#relay1").change(function () {
-    const value = this.checked ? "1" : "0";
-    firebaseSet("Bedroom_One/Lamp/Lamp_power", value);
-    if (sound_voice) {
-      speak(value === "1" ? "Лампа включена" : "Лампа выключена");
-    }
+  $("#relay1").click(() => {
+    toggleFirebase(
+      "Bedroom_One/Lamp/Lamp_power",
+      state.Bedroom_One?.Lamp?.Lamp_power,
+      "Лампа включена",
+      "Лампа выключена"
+    );
   });
 
-  $("#relay2").change(function () {
-    const value = this.checked ? "1" : "0";
-    firebaseSet("Bedroom_Two/Lamp/Lamp_power", value);
-    if (sound_voice) {
-      speak(value === "1" ? "Лампа у Насти включена" : "Лампа у Насти выключена");
-    }
+  $("#relay2").click(() => {
+    toggleFirebase(
+      "Bedroom_Two/Lamp/Lamp_power",
+      state.Bedroom_Two?.Lamp?.Lamp_power,
+      "Лампа у Насти включена",
+      "Лампа у Насти выключена"
+    );
   });
 
-  $("#relay3").change(function () {
-    const value = this.checked ? "1" : "0";
-    firebaseSet("Kitchen/Lamp/Lamp_power", value);
-    if (sound_voice) {
-      speak(value === "1" ? "Лампа на кухне включена" : "Лампа на кухне выключена");
-    }
+  $("#relay3").click(() => {
+    toggleFirebase(
+      "Kitchen/Lamp/power",
+      state.Kitchen?.Lamp?.power,
+      "Лампа на кухне включена",
+      "Лампа на кухне выключена"
+    );
   });
   // -----------------------------
   // SECURITY
   // -----------------------------
 
-  $("#secur1").change(function () {
-    const value = this.checked ? "1" : "0";
-    firebaseSet("Bedroom_One/Secur/Secur_power", value);
-    if (sound_voice) {
-      speak(value === "1" ? "Охрана в спальне включена" : "Охрана в спальне выключена");
-    }
+  $("#secur1").click(() => {
+    toggleFirebase(
+      "Bedroom_One/Secur/Secur_power",
+      state.Bedroom_One?.Secur?.Secur_power,
+      "Охрана в спальне включена",
+      "Охрана в спальне выключена"
+    );
   });
 
-  $("#secur2").change(function () {
-    const value = this.checked ? "1" : "0";
-    firebaseSet("Bedroom_Two/Secur/Secur_power", value);
-    if (sound_voice) {
-      speak(value === "1" ? "Охрана у Насти включена" : "Охрана у Насти выключена");
-    }
+  $("#secur2").click(() => {
+    toggleFirebase(
+      "Bedroom_Two/Secur/Secur_power",
+      state.Bedroom_Two?.Secur?.Secur_power,
+      "Охрана у Насти включена",
+      "Охрана у Насти выключена"
+    );
   });
 
-  $("#secur3").change(function () {
-    const value = this.checked ? "1" : "0";
-    firebaseSet("Kitchen/Secur/Secur_power", value);
-    if (sound_voice) {
-      speak(value === "1" ? "Охрана на кухне включена" : "Охрана на кухне выключена");
-    }
+  $("#secur3").click(() => {
+    toggleFirebase(
+      "Kitchen/Secur/Secur_power",
+      state.Kitchen?.Secur?.Secur_power,
+      "Охрана на кухне включена",
+      "Охрана на кухне выключена"
+    );
   });
 
   // -----------------------------
@@ -1213,17 +1378,25 @@ $(document).ready(function () {
   // -----------------------------
   function selectTempSensor(activeKey, voiceText) {
 
-    const values = {
-      Dev_temp: activeKey === "Dev_temp" ? "1" : "0",
-      Bedroom_One_temp: activeKey === "Bedroom_One_temp" ? "1" : "0",
-      Bedroom_Two_temp: activeKey === "Bedroom_Two_temp" ? "1" : "0",
-      Kitchen_temp: activeKey === "Kitchen_temp" ? "1" : "0"
-    };
+    const sensors = [
+      "Dev_temp",
+      "Bedroom_One_temp",
+      "Bedroom_Two_temp",
+      "Kitchen_temp"
+    ];
 
-    firebase.database()
-      .ref("Boiler/Sensor")
-      .update(values)
-      .catch(err => console.log("Firebase error:", err));
+    sensors.forEach(sensor => {
+
+      const value = (sensor === activeKey) ? "1" : "0";
+
+      firebase.database()
+        .ref(`Boiler/Sensor/${sensor}`)
+        .set(value, err => {
+          if (err) console.log("Firebase error:", err);
+        });
+
+      state[sensor] = value;
+    });
 
     if (sound_voice) {
       speak(voiceText);
@@ -1499,9 +1672,9 @@ firebase.database().ref().on("value", (snap) => {
 
   const data = snap.val() || {};
 
-  const bedroom = data.Bedroom_One?.Lamp?.Lamp_stat == "1";
-  const leaving = data.Bedroom_Two?.Lamp?.Lamp_stat == "1";
-  const kitchen = data.Kitchen?.Lamp?.Lamp_stat == "1";
+  const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
+  const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
+  const kitchen = data.Kitchen?.Lamp?.power == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 
@@ -1524,9 +1697,9 @@ all_lights.addEventListener("click", async () => {
   const snap = await firebase.database().ref().once("value");
   const data = snap.val() || {};
 
-  const bedroom = data.Bedroom_One?.Lamp?.Lamp_stat == "1";
-  const leaving = data.Bedroom_Two?.Lamp?.Lamp_stat == "1";
-  const kitchen = data.Kitchen?.Lamp?.Lamp_stat == "1";
+  const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
+  const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
+  const kitchen = data.Kitchen?.Lamp?.power == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 
@@ -1535,7 +1708,7 @@ all_lights.addEventListener("click", async () => {
     firebase.database().ref().update({
       "Bedroom_One/Lamp/Lamp_power": "0",
       "Bedroom_Two/Lamp/Lamp_power": "0",
-      "Kitchen/Lamp/Lamp_power": "0"
+      "Kitchen/Lamp/power": "0"
     });
 
   } else {
@@ -1543,7 +1716,7 @@ all_lights.addEventListener("click", async () => {
     firebase.database().ref().update({
       "Bedroom_One/Lamp/Lamp_power": "1",
       "Bedroom_Two/Lamp/Lamp_power": "1",
-      "Kitchen/Lamp/Lamp_power": "1"
+      "Kitchen/Lamp/power": "1"
     });
 
   }

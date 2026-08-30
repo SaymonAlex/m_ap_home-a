@@ -1551,3 +1551,263 @@ footer {
   bottom: 5px;
   border-top: 2px solid #fff;
 }
+
+
+/* =====================================================
+   FIREBASE AUTHENTICATION
+===================================================== */
+
+#firebaseAuthOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(0, 255, 213, .10), transparent 30%),
+    radial-gradient(circle at center, #081922 0%, #03090d 58%, #010305 100%);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#firebaseAuthOverlay.auth-hidden {
+  display: none;
+}
+
+.firebase-auth-box {
+  width: min(380px, 100%);
+  padding: 34px 28px 28px;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 255, 213, .35);
+  border-radius: 18px;
+  background: rgba(5, 15, 22, .96);
+  box-shadow:
+    0 0 45px rgba(0, 255, 213, .13),
+    inset 0 0 25px rgba(0, 255, 213, .035);
+  backdrop-filter: blur(15px);
+}
+
+.firebase-auth-logo {
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(0, 255, 213, .45);
+  border-radius: 50%;
+  color: #00ffd5;
+  font-size: 30px;
+  box-shadow:
+    0 0 18px rgba(0, 255, 213, .18),
+    inset 0 0 18px rgba(0, 255, 213, .08);
+}
+
+.firebase-auth-title {
+  text-align: center;
+  color: #eaffff;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.firebase-auth-subtitle {
+  margin: 7px 0 25px;
+  text-align: center;
+  color: #5e8d94;
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+
+.firebase-auth-input {
+  display: block;
+  width: 100%;
+  height: 48px;
+  margin-top: 12px;
+  padding: 0 15px;
+  box-sizing: border-box;
+  outline: none;
+  border: 1px solid #173a43;
+  border-radius: 9px;
+  background: #071219;
+  color: #eaffff;
+  font-size: 15px;
+  transition:
+    border-color .2s,
+    box-shadow .2s;
+}
+
+.firebase-auth-input:focus {
+  border-color: #00ffd5;
+  box-shadow: 0 0 14px rgba(0, 255, 213, .14);
+}
+
+.firebase-auth-input:disabled {
+  opacity: .55;
+}
+
+#firebaseAuthLogin {
+  width: 100%;
+  height: 48px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  color: #001712;
+  background: linear-gradient(90deg, #00cfae, #00ffd5);
+  font-weight: 800;
+  letter-spacing: 2px;
+  transition:
+    transform .15s,
+    box-shadow .15s,
+    opacity .15s;
+}
+
+#firebaseAuthLogin:not(:disabled):active {
+  transform: scale(.98);
+}
+
+#firebaseAuthLogin:not(:disabled):hover {
+  box-shadow: 0 0 22px rgba(0, 255, 213, .28);
+}
+
+#firebaseAuthLogin:disabled,
+#firebaseAuthReset:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+#firebaseAuthReset {
+  display: block;
+  margin: 17px auto 0;
+  padding: 5px;
+  border: none;
+  background: transparent;
+  color: #6d9ca5;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#firebaseAuthReset:not(:disabled):hover {
+  color: #00ffd5;
+}
+
+#firebaseAuthMessage {
+  min-height: 18px;
+  margin-top: 15px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.auth-message-error {
+  color: #ff6464;
+}
+
+.auth-message-success {
+  color: #00eeb0;
+}
+
+
+/* =====================================================
+   USER ACCOUNT INSIDE MENU
+===================================================== */
+
+.menu-auth {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-left: auto;
+  padding: 7px 10px;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 255, 213, .25);
+  border-radius: 10px;
+  background: rgba(4, 15, 20, .90);
+  color: #7bd8c9;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.menu-auth.auth-visible {
+  display: flex;
+  margin-right: 50px;
+}
+
+.firebaseUserEmail {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #7bd8c9;
+}
+
+.firebaseLogoutButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+  color: #7bd8c9;
+
+  cursor: pointer;
+  font-size: 18px;
+
+  transition:
+    color .2s,
+    text-shadow .2s,
+    transform .15s;
+}
+
+.firebaseLogoutButton:hover {
+  color: #ff5f5f;
+  text-shadow:
+    0 0 5px rgba(255, 95, 95, .8),
+    0 0 12px rgba(255, 95, 95, .5);
+}
+
+.firebaseLogoutButton:active {
+  transform: scale(.85);
+}
+
+
+/* =====================================================
+   MOBILE MENU AUTH
+===================================================== */
+
+@media screen and (max-width: 600px) {
+
+  .menu-auth {
+    margin: 25px 0 0;
+    padding: 12px 18px;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 12px;
+  }
+
+  .menu-auth.auth-visible {
+    display: flex;
+    margin: 0 auto;
+  }
+
+  .firebaseUserEmail {
+    max-width: 260px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .firebaseLogoutButton {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+}

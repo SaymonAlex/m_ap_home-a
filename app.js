@@ -720,14 +720,14 @@ const voiceCommands = [
   {
     match: (text) => text.includes("включи лампу на кухне"),
     action: async () => {
-      firebase.database().ref().child("Kitchen/Lamp/power").set("1");
+      firebase.database().ref().child("Kitchen/Lamp/Lamp_power").set("1");
       await speak("Окей, включаю.");
     }
   },
   {
     match: (text) => text.includes("выключи лампу на кухне"),
     action: async () => {
-      firebase.database().ref().child("Kitchen/Lamp/power").set("0");
+      firebase.database().ref().child("Kitchen/Lamp/Lamp_power").set("0");
       await speak("Окей, выключаю.");
     }
   },
@@ -1250,8 +1250,8 @@ $(document).ready(function () {
     setChecked(el.relay2, data.Bedroom_Two?.Lamp?.Lamp_power);
     setLamp(el.lamp2, data.Bedroom_Two?.Lamp?.Lamp_stat);
 
-    setChecked(el.relay3, data.Kitchen?.Lamp?.power);
-    setLamp(el.lamp3, data.Kitchen?.Lamp?.status);
+    setChecked(el.relay3, data.Kitchen?.Lamp?.Lamp_power);
+    setLamp(el.lamp3, data.Kitchen?.Lamp?.Lamp_stat);
 
     // ---------------- SECURITY ----------------
     setChecked(el.secur1, data.Bedroom_One?.Secur?.Secur_power);
@@ -1302,8 +1302,8 @@ $(document).ready(function () {
 
   $("#relay3").click(() => {
     toggleFirebase(
-      "Kitchen/Lamp/power",
-      state.Kitchen?.Lamp?.power,
+      "Kitchen/Lamp/Lamp_power",
+      state.Kitchen?.Lamp?.Lamp_power,
       "Лампа на кухне включена",
       "Лампа на кухне выключена"
     );
@@ -1674,7 +1674,7 @@ firebase.database().ref().on("value", (snap) => {
 
   const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
   const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
-  const kitchen = data.Kitchen?.Lamp?.power == "1";
+  const kitchen = data.Kitchen?.Lamp?.Lamp_power == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 
@@ -1699,7 +1699,7 @@ all_lights.addEventListener("click", async () => {
 
   const bedroom = data.Bedroom_One?.Lamp?.Lamp_power == "1";
   const leaving = data.Bedroom_Two?.Lamp?.Lamp_power == "1";
-  const kitchen = data.Kitchen?.Lamp?.power == "1";
+  const kitchen = data.Kitchen?.Lamp?.Lamp_power == "1";
 
   const anyLightOn = bedroom || leaving || kitchen;
 
@@ -1708,7 +1708,7 @@ all_lights.addEventListener("click", async () => {
     firebase.database().ref().update({
       "Bedroom_One/Lamp/Lamp_power": "0",
       "Bedroom_Two/Lamp/Lamp_power": "0",
-      "Kitchen/Lamp/power": "0"
+      "Kitchen/Lamp/Lamp_power": "0"
     });
 
   } else {
@@ -1716,7 +1716,7 @@ all_lights.addEventListener("click", async () => {
     firebase.database().ref().update({
       "Bedroom_One/Lamp/Lamp_power": "1",
       "Bedroom_Two/Lamp/Lamp_power": "1",
-      "Kitchen/Lamp/power": "1"
+      "Kitchen/Lamp/Lamp_power": "1"
     });
 
   }

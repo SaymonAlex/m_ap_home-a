@@ -13,6 +13,16 @@
   let aiRef = null;
   let lastStatus = "idle";
 
+  // ---------------------------------------------------
+  // AI PROMPT VOICE INPUT
+  // Hold microphone -> speak -> release -> save + analyze.
+  // ---------------------------------------------------
+  let aiVoiceRecognition = null;
+  let aiVoicePressed = false;
+  let aiVoiceEnded = true;
+  let aiVoiceTranscript = "";
+  let aiVoiceFinalizing = false;
+
   const getEl = (id) => document.getElementById(id);
 
   function normalizeString(value, fallback = "") {
@@ -147,7 +157,12 @@
     }
 
     const prompt = getEl("aiPrompt");
-    if (prompt && document.activeElement !== prompt) {
+    if (
+      prompt &&
+      !aiVoicePressed &&
+      !aiVoiceFinalizing &&
+      document.activeElement !== prompt
+    ) {
       prompt.value = normalizeString(value.Prompt, "");
     }
 
@@ -178,12 +193,220 @@
     return aiRef.child(child).set(value);
   }
 
+  function getSpeechRecognitionConstructor() {
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  }
+
+  async function savePromptAndStartAnalysis(text) {
+    const prompt = getEl("aiPrompt");
+    const analyze = getEl("aiAnalyzeNow");
+    const cleanText = normalizeString(text, "").trim();
+
+    if (!cleanText) {
+      setSaveState("Команда не распознана", true);
+      return;
+    }
+
+    aiVoiceFinalizing = true;
+
+    if (prompt) prompt.value = cleanText;
+
+    try {
+      setSaveState("Отправляю голосовую команду...");
+      await writeAIChild("Prompt", cleanText);
+      await writeAIChild("AnalyzeNow", 1);
+
+      if (analyze) {
+        analyze.disabled = true;
+        analyze.classList.add("is-busy");
+      }
+
+      const buttonText = getEl("aiAnalyzeButtonText");
+      if (buttonText) buttonText.textContent = "АНАЛИЗ...";
+
+      setSaveState("Голосовая команда отправлена AI");
+    } catch (error) {
+      console.error("AI voice command error:", error);
+      setSaveState("Ошибка отправки голосовой команды", true);
+    } finally {
+      aiVoiceFinalizing = false;
+    }
+  }
+
+  function resetVoiceButton() {
+    const button = getEl("aiVoicePrompt");
+    if (!button) return;
+    button.classList.remove("is-listening");
+    button.removeAttribute("aria-pressed");
+  }
+
+  async function finalizeVoiceCommand() {
+    if (aiVoiceFinalizing) return;
+
+    const text = aiVoiceTranscript.trim();
+    aiVoicePressed = false;
+    resetVoiceButton();
+
+    if (!text) {
+      setSaveState("Не удалось распознать речь", true);
+      return;
+    }
+
+    await savePromptAndStartAnalysis(text);
+  }
+
+  function createVoiceRecognition() {
+    const Recognition = getSpeechRecognitionConstructor();
+    if (!Recognition) return null;
+
+    const recognition = new Recognition();
+    recognition.lang = "ru-RU";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      aiVoiceEnded = false;
+      setSaveState("Говорите...");
+    };
+
+    recognition.onresult = (event) => {
+      let finalText = "";
+      let interimText = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const piece = event.results[i][0]?.transcript || "";
+        if (event.results[i].isFinal) finalText += piece + " ";
+        else interimText += piece + " ";
+      }
+
+      if (finalText.trim()) {
+        aiVoiceTranscript = (aiVoiceTranscript + " " + finalText).trim();
+      }
+
+      const prompt = getEl("aiPrompt");
+      if (prompt) {
+        prompt.value = (aiVoiceTranscript + " " + interimText).trim();
+      }
+    };
+
+    recognition.onerror = (event) => {
+      const error = event?.error || "unknown";
+      console.warn("AI voice recognition error:", error);
+
+      if (error === "not-allowed" || error === "service-not-allowed") {
+        setSaveState("Разрешите доступ к микрофону в браузере", true);
+      } else if (error === "no-speech") {
+        setSaveState("Речь не распознана", true);
+      } else if (error !== "aborted") {
+        setSaveState("Ошибка распознавания речи", true);
+      }
+    };
+
+    recognition.onend = async () => {
+      aiVoiceEnded = true;
+      if (!aiVoicePressed) await finalizeVoiceCommand();
+    };
+
+    return recognition;
+  }
+
+  function startVoicePrompt(event) {
+    const button = getEl("aiVoicePrompt");
+    const prompt = getEl("aiPrompt");
+
+    if (!button || aiVoicePressed || aiVoiceFinalizing) return;
+
+    const Recognition = getSpeechRecognitionConstructor();
+    if (!Recognition) {
+      setSaveState("Голосовой ввод не поддерживается этим браузером", true);
+      return;
+    }
+
+    event?.preventDefault?.();
+
+    // Every new press starts a new command and clears the previous prompt.
+    aiVoiceTranscript = "";
+    if (prompt) prompt.value = "";
+
+    aiVoicePressed = true;
+    aiVoiceEnded = false;
+    button.classList.add("is-listening");
+    button.setAttribute("aria-pressed", "true");
+
+    try {
+      if (event?.pointerId !== undefined && button.setPointerCapture) {
+        button.setPointerCapture(event.pointerId);
+      }
+    } catch (_) {}
+
+    try {
+      aiVoiceRecognition = createVoiceRecognition();
+      aiVoiceRecognition.start();
+    } catch (error) {
+      console.error("AI voice start error:", error);
+      aiVoicePressed = false;
+      aiVoiceEnded = true;
+      resetVoiceButton();
+      setSaveState("Не удалось включить микрофон", true);
+    }
+  }
+
+  async function stopVoicePrompt(event) {
+    if (!aiVoicePressed) return;
+
+    event?.preventDefault?.();
+    aiVoicePressed = false;
+    resetVoiceButton();
+
+    try {
+      if (aiVoiceRecognition && !aiVoiceEnded) {
+        aiVoiceRecognition.stop();
+        return;
+      }
+    } catch (error) {
+      console.warn("AI voice stop error:", error);
+    }
+
+    await finalizeVoiceCommand();
+  }
+
+  function bindVoicePrompt() {
+    const button = getEl("aiVoicePrompt");
+    if (!button) return;
+
+    if (!getSpeechRecognitionConstructor()) {
+      button.disabled = true;
+      button.title = "Голосовой ввод не поддерживается этим браузером";
+      return;
+    }
+
+    button.addEventListener("pointerdown", startVoicePrompt);
+    button.addEventListener("pointerup", stopVoicePrompt);
+    button.addEventListener("pointercancel", stopVoicePrompt);
+    button.addEventListener("contextmenu", (event) => event.preventDefault());
+
+    button.addEventListener("keydown", (event) => {
+      if ((event.code === "Space" || event.code === "Enter") && !event.repeat) {
+        startVoicePrompt(event);
+      }
+    });
+
+    button.addEventListener("keyup", (event) => {
+      if (event.code === "Space" || event.code === "Enter") {
+        stopVoicePrompt(event);
+      }
+    });
+  }
+
   function bindUI() {
     const enabled = getEl("aiEnabled");
     const mode = getEl("aiMode");
     const save = getEl("aiSavePrompt");
     const analyze = getEl("aiAnalyzeNow");
     const prompt = getEl("aiPrompt");
+
+    bindVoicePrompt();
 
     enabled?.addEventListener("change", async () => {
       const value = enabled.checked ? "1" : "0";

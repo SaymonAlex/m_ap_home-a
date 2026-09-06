@@ -271,22 +271,19 @@
     };
 
     recognition.onresult = (event) => {
-      let finalText = "";
-      let interimText = "";
+      let fullText = "";
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      for (let i = 0; i < event.results.length; i++) {
         const piece = event.results[i][0]?.transcript || "";
-        if (event.results[i].isFinal) finalText += piece + " ";
-        else interimText += piece + " ";
+        fullText += piece + " ";
       }
 
-      if (finalText.trim()) {
-        aiVoiceTranscript = (aiVoiceTranscript + " " + finalText).trim();
-      }
+      aiVoiceTranscript = fullText.trim();
 
       const prompt = getEl("aiPrompt");
+
       if (prompt) {
-        prompt.value = (aiVoiceTranscript + " " + interimText).trim();
+        prompt.value = aiVoiceTranscript;
       }
     };
 

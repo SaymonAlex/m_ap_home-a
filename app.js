@@ -1189,14 +1189,14 @@ $(document).ready(function () {
   // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
   // -----------------------------
   function setChecked(element, value) {
-    const checked = value === "1";
+    const checked = String(value ?? "0") === "1";
     if (element.checked !== checked) {
       element.checked = checked;
     }
   }
 
   function setLamp(element, value) {
-    const on = value === "1";
+    const on = String(value ?? "0") === "1";
     element.classList.toggle('lamp_on', on);
     element.classList.toggle('lamp_off', !on);
   }
@@ -1206,7 +1206,8 @@ $(document).ready(function () {
   }
 
   function toggleFirebase(path, currentValue, onText, offText) {
-    const newValue = currentValue === "1" ? "0" : "1";
+    const isCurrentlyOn = String(currentValue ?? "0") === "1";
+    const newValue = isCurrentlyOn ? "0" : "1";
     firebaseSet(path, newValue);
     state[path] = newValue;
     if (sound_voice === true) {

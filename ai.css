@@ -1,0 +1,655 @@
+/* =====================================================
+   AI HOME CONTROL v5
+   Aligned with the main style.css responsive system.
+   Main site breakpoint: max-width: 600px.
+   ===================================================== */
+
+#ai_control,
+#ai_control * {
+  box-sizing: border-box;
+}
+
+/* ---------- SECTION BASE ---------- */
+#ai_control.hero {
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  min-height: 650px;
+  padding: 1em;
+  overflow: hidden;
+}
+
+#ai_control > .hero-inner {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 3em 2.5em;
+  overflow: hidden;
+}
+
+/* Keep the same decoration as the rest of the site on desktop. */
+#ai_control .ai-title-wrap {
+  position: relative;
+  width: min(1120px, calc(100% - 70px));
+  max-width: 1120px;
+  min-width: 0;
+  margin: 72px auto 0;
+  z-index: 2;
+}
+
+#ai_control .ai-title-wrap > h1 {
+  display: block;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 0;
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.05;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* ---------- MAIN PANEL ---------- */
+#ai_control .ai-panel {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(0, 198, 255, .60);
+  border-radius: 15px;
+  background: rgba(4, 12, 20, .88);
+  box-shadow:
+    0 0 20px rgba(0, 198, 255, .14),
+    inset 0 0 24px rgba(0, 198, 255, .04);
+  overflow: hidden;
+}
+
+#ai_control .ai-top-grid,
+#ai_control .ai-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  gap: 12px;
+}
+
+#ai_control .ai-top-grid {
+  margin-bottom: 12px;
+}
+
+#ai_control .ai-bottom-grid {
+  margin-top: 12px;
+  grid-template-columns: .8fr 1.1fr 1.1fr;
+}
+
+#ai_control .ai-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(0, 198, 255, .38);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, .30);
+  overflow: hidden;
+}
+
+#ai_control .ai-label {
+  display: block;
+  width: 100%;
+  margin: 0 0 7px;
+  color: #a3f321;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 1px;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* ---------- STATUS ---------- */
+#ai_control .ai-status-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+  color: #eafaff;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+#ai_control #aiStatusText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#ai_control .ai-status-dot {
+  flex: 0 0 11px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #7b8790;
+  box-shadow: 0 0 8px rgba(123, 135, 144, .8);
+}
+
+#ai_control .ai-status-dot.online {
+  background: #a3f321;
+  box-shadow: 0 0 10px rgba(163, 243, 33, .9);
+}
+
+#ai_control .ai-status-dot.error {
+  background: #ff3b3b;
+  box-shadow: 0 0 10px rgba(255, 59, 59, .9);
+}
+
+#ai_control .ai-status-dot.busy {
+  background: #ffaa00;
+  box-shadow: 0 0 10px rgba(255, 170, 0, .9);
+  animation: aiBusyPulse .9s ease-in-out infinite alternate;
+}
+
+@keyframes aiBusyPulse {
+  from { opacity: .45; transform: scale(.85); }
+  to   { opacity: 1; transform: scale(1.18); }
+}
+
+/* ---------- SWITCH ---------- */
+#ai_control .ai-switch {
+  position: relative;
+  display: inline-block;
+  width: 62px;
+  height: 30px;
+  vertical-align: middle;
+}
+
+#ai_control .ai-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+#ai_control .ai-slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  border: 1px solid rgba(0, 198, 255, .6);
+  border-radius: 999px;
+  background: rgba(90, 100, 110, .35);
+  transition: .25s ease;
+}
+
+#ai_control .ai-slider::before {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: #d9e3e8;
+  box-shadow: 0 0 8px rgba(255, 255, 255, .3);
+  transition: .25s ease;
+}
+
+#ai_control .ai-switch input:checked + .ai-slider {
+  border-color: #a3f321;
+  background: rgba(163, 243, 33, .18);
+  box-shadow: 0 0 12px rgba(163, 243, 33, .25);
+}
+
+#ai_control .ai-switch input:checked + .ai-slider::before {
+  transform: translateX(32px);
+  background: #a3f321;
+  box-shadow: 0 0 10px rgba(163, 243, 33, .85);
+}
+
+#ai_control .ai-small-text {
+  display: inline-block;
+  max-width: calc(100% - 82px);
+  margin-left: 9px;
+  color: #cfdce2;
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+/* ---------- FORM ---------- */
+#ai_control .ai-select,
+#ai_control .ai-prompt {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  color: #eafaff;
+  border: 1px solid rgba(0, 198, 255, .50);
+  background: rgba(0, 7, 12, .82);
+  outline: none;
+}
+
+#ai_control .ai-select {
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+#ai_control .ai-prompt-card {
+  margin: 0;
+}
+
+#ai_control .ai-prompt {
+  min-height: 120px;
+  height: 145px;
+  max-height: 220px;
+  padding: 11px;
+  resize: vertical;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+#ai_control .ai-prompt:focus,
+#ai_control .ai-select:focus {
+  border-color: #00c6ff;
+  box-shadow: 0 0 10px rgba(0, 198, 255, .2);
+}
+
+/* ---------- ACTIONS ---------- */
+#ai_control .ai-actions {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+#ai_control .ai-save-button,
+#ai_control .ai-analyze-button {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  color: #eafaff;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+#ai_control .ai-save-button {
+  border: 1px solid #00c6ff;
+  background: rgba(0, 198, 255, .12);
+}
+
+#ai_control .ai-analyze-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(163, 243, 33, .85);
+  background: linear-gradient(135deg, rgba(163, 243, 33, .15), rgba(0, 198, 255, .10));
+}
+
+#ai_control .ai-save-button:disabled,
+#ai_control .ai-analyze-button:disabled {
+  opacity: .48;
+  cursor: default;
+}
+
+#ai_control .ai-analyze-button.is-busy .ai-analyze-icon {
+  animation: aiAnalyzeSpin .9s linear infinite;
+}
+
+@keyframes aiAnalyzeSpin {
+  to { transform: rotate(360deg); }
+}
+
+#ai_control .ai-save-state {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 14px;
+  color: #a3f321;
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+#ai_control .ai-save-state.error {
+  color: #ff6b6b;
+}
+
+/* ---------- VALUES ---------- */
+#ai_control .ai-value {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  color: #eafaff;
+  font-size: 13px;
+  line-height: 1.38;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+#ai_control .ai-value-wrap {
+  min-height: 42px;
+  max-height: 105px;
+  padding-right: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+#ai_control .ai-value-wrap::-webkit-scrollbar,
+#ai_control .ai-prompt::-webkit-scrollbar {
+  width: 6px;
+}
+
+#ai_control .ai-value-wrap::-webkit-scrollbar-thumb,
+#ai_control .ai-prompt::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: rgba(0, 198, 255, .35);
+}
+
+/* Footer follows the same absolute positioning as the main site on desktop. */
+#ai_control footer {
+  position: absolute;
+  left: 0;
+  bottom: 5px;
+  width: 100%;
+  height: 30px;
+}
+
+/* =====================================================
+   INTERMEDIATE WIDTH
+   Prevent the desktop layout becoming cramped before mobile.
+   ===================================================== */
+@media screen and (max-width: 900px) {
+  #ai_control .ai-title-wrap {
+    width: min(100%, calc(100% - 45px));
+    margin-top: 76px;
+  }
+
+  #ai_control .ai-title-wrap > h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+
+  #ai_control .ai-top-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #ai_control .ai-top-grid .ai-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  #ai_control .ai-bottom-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #ai_control .ai-bottom-grid .ai-card:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* =====================================================
+   MOBILE — SAME BREAKPOINT AS style.css
+   ===================================================== */
+@media screen and (max-width: 600px) {
+  /* Main style.css changes .hero-inner to 95% height on mobile.
+     AI content needs natural height instead, otherwise cards are clipped. */
+  #ai_control.hero {
+    height: auto !important;
+    min-height: 100vh !important;
+    padding: 1em !important;
+    overflow: visible !important;
+  }
+
+  #ai_control > .hero-inner {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    padding: 1em 12px 50px !important;
+    overflow: visible !important;
+  }
+
+  /* Decorative side pieces are useful on desktop, but on narrow screens
+     they occupy real content width. Hide only for AI mobile view. */
+  #ai_control .trapezoid,
+  #ai_control .t-top,
+  #ai_control .t-left,
+  #ai_control .t-right {
+    display: none !important;
+  }
+
+  #ai_control .ai-title-wrap {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 78px auto 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  #ai_control .ai-title-wrap > h1 {
+    width: 100% !important;
+    margin: 0 0 14px !important;
+    padding: 0 4px !important;
+    font-size: clamp(1.55rem, 8vw, 2.15rem) !important;
+    line-height: 1.05 !important;
+    letter-spacing: .5px !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  #ai_control .ai-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
+
+  #ai_control .ai-top-grid,
+  #ai_control .ai-bottom-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  #ai_control .ai-top-grid .ai-card:last-child,
+  #ai_control .ai-bottom-grid .ai-card:first-child {
+    grid-column: auto !important;
+  }
+
+  #ai_control .ai-top-grid {
+    margin-bottom: 8px !important;
+  }
+
+  #ai_control .ai-bottom-grid {
+    margin-top: 8px !important;
+  }
+
+  #ai_control .ai-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 10px !important;
+    overflow: hidden !important;
+  }
+
+  #ai_control .ai-label {
+    font-size: 11px !important;
+  }
+
+  #ai_control .ai-status-row {
+    font-size: 14px !important;
+  }
+
+  #ai_control .ai-select {
+    width: 100% !important;
+    height: 40px !important;
+    font-size: 13px !important;
+  }
+
+  #ai_control .ai-prompt {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 120px !important;
+    min-height: 110px !important;
+    max-height: 180px !important;
+    padding: 10px !important;
+    font-size: 13px !important;
+  }
+
+  #ai_control .ai-actions {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  #ai_control .ai-save-state {
+    grid-column: auto !important;
+  }
+
+  #ai_control .ai-save-button,
+  #ai_control .ai-analyze-button {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 8px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+
+  #ai_control .ai-value {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
+  #ai_control .ai-value-wrap {
+    min-height: 52px !important;
+    max-height: 105px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  /* Main footer is absolute; for AI mobile it must follow growing content. */
+  #ai_control footer {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    height: 30px !important;
+    margin-top: 10px !important;
+  }
+}
+
+/* Very narrow phones */
+@media screen and (max-width: 360px) {
+  #ai_control > .hero-inner {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  #ai_control .ai-title-wrap {
+    margin-top: 74px !important;
+  }
+
+  #ai_control .ai-title-wrap > h1 {
+    font-size: 1.45rem !important;
+  }
+
+  #ai_control .ai-panel {
+    padding: 6px !important;
+  }
+
+  #ai_control .ai-card {
+    padding: 8px !important;
+  }
+
+  #ai_control .ai-prompt {
+    height: 110px !important;
+  }
+}
+
+
+/* =====================================================
+   MOBILE NAV HARD FIX v7
+   Menu is a real viewport overlay and is fully removed
+   from interaction/visibility after closing.
+   ===================================================== */
+@media screen and (max-width: 600px) {
+  nav {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    padding: 1.5em 3em !important;
+    background-color: #1c191c !important;
+    z-index: 900 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+
+    transform: translateY(-110%) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: transform 600ms ease-out, opacity 250ms ease !important;
+  }
+
+  nav.nav-open {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .menu-btn {
+    position: absolute !important;
+    z-index: 1000 !important;
+  }
+
+  .menu-btn.active {
+    position: fixed !important;
+  }
+
+  nav .links,
+  nav > div {
+    margin-bottom: 0 !important;
+  }
+}

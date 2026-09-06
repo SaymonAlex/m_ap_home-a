@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="loader.css">
   <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="ai.css">
   <link rel="manifest" href="manifest.json">
 </head>
 
@@ -127,6 +128,7 @@
         <nav>
           <div class="links">
             <a href="#home" class="active">Главная</a>
+            <a href="#ai_control">AI Control</a>
             <a href="#heater">Отопление</a>
             <a href="#sun_bedroom">Спальня</a>
             <a href="#dot_bedroom">Доця спальня</a>
@@ -345,6 +347,119 @@
         <div class="trapezoid t-left"></div>
         <div class="trapezoid t-right"></div>
         <div class="trapezoid t-top"></div>
+      </div>
+    </section>
+
+    <section id="ai_control" class="hero ai-hero">
+      <div class="hero-inner">
+        <button class="menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav>
+          <div class="links">
+            <a href="#home">Главная</a>
+            <a href="#ai_control" class="active">AI Control</a>
+            <a href="#heater">Отопление</a>
+            <a href="#sun_bedroom">Спальня</a>
+            <a href="#dot_bedroom">Доця спальня</a>
+            <a href="#leavingroom">Гостинная</a>
+          </div>
+          <div class="menu-auth">
+            <span class="firebaseUserEmail"></span>
+            <button class="firebaseLogoutButton" type="button" title="Выйти" aria-label="Выйти">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        </nav>
+
+        <div class="earth">
+          <div class="earth__sphere">
+            <div class="earth__mapWrap">
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+              <svg class="earth__map" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 44">
+                <path
+                  d="M22.026 37.678c-.244 2.958-.838 4.653.787 5.849.297.532.89 1.06.89-1.08 0-2.675 4.77-6.065 6.028-8.973 1.258-2.908-2.097-3.34-4.298-4.587-2.201-1.246-4.642.898-5.38-1.429-.739-2.326 1.38-4.42 4.49-6.181 3.109-1.762-.368-5.002 2.62-5.002 2.987 0 4.542-4.985 5.258-9.14.716-4.154-5.678-7.544-10.395-7.095C17.31.489 11.405 9.744 11.23 11.29c-.175 1.545-2.568 1.013-6.394 1.18-3.826.166-.35 6.364 2.393 4.885s4.647 1.08 5.067 4.77c.419 3.688 5.608 6.363 6.638 6.363 1.031 0 2.376 1.13 2.08 3.008-.298 1.878 1.257 3.224 1.012 6.182ZM40.614 17.479c0 2.234-2.75 1.63-2.68 5.035-2.321 3.876-1.107 6.294.858 6.896 1.965.603 3.036 1.277 4.197 5.94 1.16 4.663 4.34 1.4 5.376-1.029 1.036-2.428.982-9.697 4.215-7.747 3.232 1.95 7.126 1.028 9.823 1.028s5.911-5.815 6.161-7.092c.25-1.276 2.733-4.716 5.858-5.567 3.126-.85 2.322-2.553 0-3.811-2.322-1.26-9.465.602-10.68-2.802-1.214-3.404-4.947-2.11-7.572.62-2.626 2.731-4.876 3.086-10.056 2.182-5.179-.905-5.5 4.113-5.5 6.347Z"
+                  fill="currentColor"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="brand">Умный Дом</div>
+        <div class="ai-title-wrap">
+          <h1>AI HOME CONTROL</h1>
+
+          <div class="ai-panel">
+            <div class="ai-top-grid">
+              <div class="ai-card ai-status-card">
+                <div class="ai-label">STATUS</div>
+                <div class="ai-status-row">
+                  <span id="aiStatusDot" class="ai-status-dot"></span>
+                  <span id="aiStatusText">IDLE</span>
+                </div>
+              </div>
+
+              <div class="ai-card">
+                <div class="ai-label">AI CONTROL</div>
+                <label class="ai-switch">
+                  <input type="checkbox" id="aiEnabled">
+                  <span class="ai-slider"></span>
+                </label>
+                <div id="aiEnabledText" class="ai-small-text">OFF</div>
+              </div>
+
+              <div class="ai-card">
+                <label class="ai-label" for="aiMode">MODE</label>
+                <select id="aiMode" class="ai-select">
+                  <option value="advisor">ADVISOR</option>
+                  <option value="auto">AUTO</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="ai-card ai-prompt-card">
+              <label class="ai-label" for="aiPrompt">AI PROMPT</label>
+              <textarea id="aiPrompt" class="ai-prompt" placeholder="Напишите правила и задачи для AI..."></textarea>
+              <div class="ai-actions">
+                <button id="aiSavePrompt" type="button" class="ai-save-button">SAVE PROMPT</button>
+                <button id="aiAnalyzeNow" type="button" class="ai-analyze-button">
+                  <span class="ai-analyze-icon" aria-hidden="true">◉</span>
+                  <span id="aiAnalyzeButtonText">АНАЛИЗИРОВАТЬ СЕЙЧАС</span>
+                </button>
+                <span id="aiSaveState" class="ai-save-state" aria-live="polite"></span>
+              </div>
+            </div>
+
+            <div class="ai-bottom-grid">
+              <div class="ai-card">
+                <div class="ai-label">LAST CHECK</div>
+                <div id="aiLastCheck" class="ai-value">---</div>
+              </div>
+              <div class="ai-card">
+                <div class="ai-label">LAST DECISION</div>
+                <div id="aiLastDecision" class="ai-value ai-value-wrap">---</div>
+              </div>
+              <div class="ai-card">
+                <div class="ai-label">REASON</div>
+                <div id="aiLastReason" class="ai-value ai-value-wrap">---</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer>
+          <small>ESP Smart Control © 2026</small>
+        </footer>
+        <div class="trapezoid t-left"></div>
+        <div class="trapezoid t-right"></div>
+        <div class="trapezoid t-top"></div>
+      </div>
     </section>
 
     <section id="heater" class="hero">
@@ -357,6 +472,7 @@
         <nav>
           <div class="links">
             <a href="#home" class="active">Главная</a>
+            <a href="#ai_control">AI Control</a>
             <a href="#heater">Отопление</a>
             <a href="#sun_bedroom">Спальня</a>
             <a href="#dot_bedroom">Доця спальня</a>
@@ -473,6 +589,7 @@
         <nav>
           <div class="links">
             <a href="#home" class="active">Главная</a>
+            <a href="#ai_control">AI Control</a>
             <a href="#heater">Отопление</a>
             <a href="#sun_bedroom">Спальня</a>
             <a href="#dot_bedroom">Доця спальня</a>
@@ -565,6 +682,7 @@
         <nav>
           <div class="links">
             <a href="#home" class="active">Главная</a>
+            <a href="#ai_control">AI Control</a>
             <a href="#heater">Отопление</a>
             <a href="#sun_bedroom">Спальня</a>
             <a href="#dot_bedroom">Доця спальня</a>
@@ -659,6 +777,7 @@
         <nav>
           <div class="links">
             <a href="#home" class="active">Главная</a>
+            <a href="#ai_control">AI Control</a>
             <a href="#heater">Отопление</a>
             <a href="#sun_bedroom">Спальня</a>
             <a href="#dot_bedroom">Доця спальня</a>
@@ -781,6 +900,7 @@
 
   </div>
   <script src="app.js" defer></script>
+  <script src="ai.js" defer></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');

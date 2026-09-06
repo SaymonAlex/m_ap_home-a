@@ -271,14 +271,20 @@
     };
 
     recognition.onresult = (event) => {
-      let fullText = "";
+
+      let bestText = "";
 
       for (let i = 0; i < event.results.length; i++) {
-        const piece = event.results[i][0]?.transcript || "";
-        fullText += piece + " ";
+
+        const text =
+          event.results[i][0]?.transcript?.trim() || "";
+
+        if (text.length > bestText.length) {
+          bestText = text;
+        }
       }
 
-      aiVoiceTranscript = fullText.trim();
+      aiVoiceTranscript = bestText;
 
       const prompt = getEl("aiPrompt");
 

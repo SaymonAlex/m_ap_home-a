@@ -468,9 +468,23 @@
             </div>
 
             <div class="ai-card ai-prompt-card">
-              <label class="ai-label" for="aiPrompt">AI PROMPT</label>
+              <label class="ai-label" for="aiPrompt">AI INSTRUCTIONS</label>
+              <textarea id="aiPrompt" class="ai-prompt"
+                placeholder="Постоянные правила для AI, например: следи за температурой, Wi-Fi не анализируй..."></textarea>
+              <div class="ai-actions">
+                <button id="aiSavePrompt" type="button" class="ai-save-button">SAVE INSTRUCTIONS</button>
+                <button id="aiAnalyzeNow" type="button" class="ai-analyze-button">
+                  <span class="ai-analyze-icon" aria-hidden="true">◉</span>
+                  <span id="aiAnalyzeButtonText">АНАЛИЗИРОВАТЬ СЕЙЧАС</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="ai-card ai-prompt-card ai-command-card">
+              <label class="ai-label" for="aiCommand">AI COMMAND</label>
               <div class="ai-prompt-voice-wrap">
-                <textarea id="aiPrompt" class="ai-prompt" placeholder="Напишите правила и задачи для AI..."></textarea>
+                <textarea id="aiCommand" class="ai-prompt"
+                  placeholder="Напишите команду или удерживайте микрофон и скажите её..."></textarea>
                 <button id="aiVoicePrompt" type="button" class="ai-voice-button"
                   title="Удерживайте для голосовой команды"
                   aria-label="Удерживайте для голосовой команды">
@@ -478,11 +492,7 @@
                 </button>
               </div>
               <div class="ai-actions">
-                <button id="aiSavePrompt" type="button" class="ai-save-button">SAVE PROMPT</button>
-                <button id="aiAnalyzeNow" type="button" class="ai-analyze-button">
-                  <span class="ai-analyze-icon" aria-hidden="true">◉</span>
-                  <span id="aiAnalyzeButtonText">АНАЛИЗИРОВАТЬ СЕЙЧАС</span>
-                </button>
+                <button id="aiSendCommand" type="button" class="ai-save-button">ОТПРАВИТЬ КОМАНДУ</button>
                 <span id="aiSaveState" class="ai-save-state" aria-live="polite"></span>
               </div>
             </div>

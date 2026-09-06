@@ -157,13 +157,21 @@
     }
 
     const prompt = getEl("aiPrompt");
+    if (prompt && document.activeElement !== prompt) {
+      prompt.value = normalizeString(
+        value.Instructions ?? value.Prompt,
+        ""
+      );
+    }
+
+    const command = getEl("aiCommand");
     if (
-      prompt &&
+      command &&
       !aiVoicePressed &&
       !aiVoiceFinalizing &&
-      document.activeElement !== prompt
+      document.activeElement !== command
     ) {
-      prompt.value = normalizeString(value.Prompt, "");
+      command.value = normalizeString(value.Command, "");
     }
 
     const lastCheck = getEl("aiLastCheck");
@@ -198,7 +206,7 @@
   }
 
   async function savePromptAndStartAnalysis(text) {
-    const prompt = getEl("aiPrompt");
+    const prompt = getEl("aiCommand");
     const analyze = getEl("aiAnalyzeNow");
     const cleanText = normalizeString(text, "").trim();
 
@@ -213,7 +221,7 @@
 
     try {
       setSaveState("Отправляю голосовую команду...");
-      await writeAIChild("Prompt", cleanText);
+      await writeAIChild("Command", cleanText);
       await writeAIChild("AnalyzeNow", 1);
 
       if (analyze) {
@@ -271,11 +279,9 @@
     };
 
     recognition.onresult = (event) => {
-
       let bestText = "";
 
       for (let i = 0; i < event.results.length; i++) {
-
         const text =
           event.results[i][0]?.transcript?.trim() || "";
 
@@ -286,8 +292,7 @@
 
       aiVoiceTranscript = bestText;
 
-      const prompt = getEl("aiPrompt");
-
+      const prompt = getEl("aiCommand");
       if (prompt) {
         prompt.value = aiVoiceTranscript;
       }
@@ -316,7 +321,7 @@
 
   function startVoicePrompt(event) {
     const button = getEl("aiVoicePrompt");
-    const prompt = getEl("aiPrompt");
+    const prompt = getEl("aiCommand");
 
     if (!button || aiVoicePressed || aiVoiceFinalizing) return;
 
@@ -408,6 +413,8 @@
     const save = getEl("aiSavePrompt");
     const analyze = getEl("aiAnalyzeNow");
     const prompt = getEl("aiPrompt");
+    const command = getEl("aiCommand");
+    const sendCommand = getEl("aiSendCommand");
 
     bindVoicePrompt();
 
@@ -453,16 +460,40 @@
       const text = prompt?.value ?? "";
 
       save.disabled = true;
-      setSaveState("Сохранение промпта...");
+      setSaveState("Сохранение инструкций...");
 
       try {
-        await writeAIChild("Prompt", text);
-        setSaveState("PROMPT сохранён");
+        await writeAIChild("Instructions", text);
+        setSaveState("INSTRUCTIONS сохранены");
       } catch (error) {
         console.error("AI Prompt write error:", error);
         setSaveState("Ошибка сохранения Prompt", true);
       } finally {
         save.disabled = false;
+      }
+    });
+
+    sendCommand?.addEventListener("click", async () => {
+      const text = normalizeString(command?.value, "").trim();
+
+      if (!text) {
+        setSaveState("Введите команду", true);
+        command?.focus();
+        return;
+      }
+
+      sendCommand.disabled = true;
+      setSaveState("Отправляю команду...");
+
+      try {
+        await writeAIChild("Command", text);
+        await writeAIChild("AnalyzeNow", 1);
+        setSaveState("Команда отправлена AI");
+      } catch (error) {
+        console.error("AI Command write error:", error);
+        setSaveState("Ошибка отправки команды", true);
+      } finally {
+        sendCommand.disabled = false;
       }
     });
 
@@ -481,12 +512,17 @@
       setSaveState("Запускаю AI-анализ...");
 
       try {
+        // Analyze the permanent instructions only.
+        // Save current text first, and clear any one-shot command.
+        await writeAIChild("Instructions", prompt?.value ?? "");
+        await writeAIChild("Command", "");
+
         // Cloud Function aiAnalyzeNow listens for 0 -> 1
         // and resets this value back to 0 after completion.
         await writeAIChild("AnalyzeNow", 1);
 
         setSaveState(
-          "Запрос отправлен. Ожидаю результат..."
+          "Инструкции отправлены на анализ..."
         );
       } catch (error) {
         console.error("AI AnalyzeNow write error:", error);

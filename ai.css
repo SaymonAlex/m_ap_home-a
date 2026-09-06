@@ -13,19 +13,19 @@
 #ai_control.hero {
   width: 100%;
   max-width: 100%;
-  height: 100vh;
-  min-height: 650px;
+  height: auto;
+  min-height: 100vh;
   padding: 1em;
-  overflow: hidden;
+  overflow: visible;
 }
 
-#ai_control > .hero-inner {
+#ai_control>.hero-inner {
   width: 100%;
   max-width: 100%;
-  height: 100%;
-  min-height: 0;
-  padding: 3em 2.5em;
-  overflow: hidden;
+  height: auto;
+  min-height: 100vh;
+  padding: 3em 2.5em 60px;
+  overflow: visible;
 }
 
 /* Keep the same decoration as the rest of the site on desktop. */
@@ -38,7 +38,7 @@
   z-index: 2;
 }
 
-#ai_control .ai-title-wrap > h1 {
+#ai_control .ai-title-wrap>h1 {
   display: block;
   width: 100%;
   margin: 0 0 18px;
@@ -154,8 +154,15 @@
 }
 
 @keyframes aiBusyPulse {
-  from { opacity: .45; transform: scale(.85); }
-  to   { opacity: 1; transform: scale(1.18); }
+  from {
+    opacity: .45;
+    transform: scale(.85);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.18);
+  }
 }
 
 /* ---------- SWITCH ---------- */
@@ -196,13 +203,13 @@
   transition: .25s ease;
 }
 
-#ai_control .ai-switch input:checked + .ai-slider {
+#ai_control .ai-switch input:checked+.ai-slider {
   border-color: #a3f321;
   background: rgba(163, 243, 33, .18);
   box-shadow: 0 0 12px rgba(163, 243, 33, .25);
 }
 
-#ai_control .ai-switch input:checked + .ai-slider::before {
+#ai_control .ai-switch input:checked+.ai-slider::before {
   transform: translateX(32px);
   background: #a3f321;
   box-shadow: 0 0 10px rgba(163, 243, 33, .85);
@@ -319,7 +326,9 @@
 }
 
 @keyframes aiAnalyzeSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 #ai_control .ai-save-state {
@@ -375,11 +384,13 @@
 
 /* Footer follows the same absolute positioning as the main site on desktop. */
 #ai_control footer {
-  position: absolute;
-  left: 0;
-  bottom: 5px;
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
   width: 100%;
   height: 30px;
+  margin-top: 12px;
 }
 
 /* =====================================================
@@ -392,7 +403,7 @@
     margin-top: 76px;
   }
 
-  #ai_control .ai-title-wrap > h1 {
+  #ai_control .ai-title-wrap>h1 {
     font-size: clamp(2rem, 6vw, 3rem);
   }
 
@@ -417,6 +428,7 @@
    MOBILE — SAME BREAKPOINT AS style.css
    ===================================================== */
 @media screen and (max-width: 600px) {
+
   /* Main style.css changes .hero-inner to 95% height on mobile.
      AI content needs natural height instead, otherwise cards are clipped. */
   #ai_control.hero {
@@ -426,7 +438,7 @@
     overflow: visible !important;
   }
 
-  #ai_control > .hero-inner {
+  #ai_control>.hero-inner {
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
@@ -454,7 +466,7 @@
     overflow: visible !important;
   }
 
-  #ai_control .ai-title-wrap > h1 {
+  #ai_control .ai-title-wrap>h1 {
     width: 100% !important;
     margin: 0 0 14px !important;
     padding: 0 4px !important;
@@ -577,7 +589,7 @@
 
 /* Very narrow phones */
 @media screen and (max-width: 360px) {
-  #ai_control > .hero-inner {
+  #ai_control>.hero-inner {
     padding-left: 8px !important;
     padding-right: 8px !important;
   }
@@ -586,7 +598,7 @@
     margin-top: 74px !important;
   }
 
-  #ai_control .ai-title-wrap > h1 {
+  #ai_control .ai-title-wrap>h1 {
     font-size: 1.45rem !important;
   }
 
@@ -649,7 +661,63 @@
   }
 
   nav .links,
-  nav > div {
+  nav>div {
     margin-bottom: 0 !important;
+  }
+}
+
+/* ===== FIX AI COMMAND CONTAINER ===== */
+
+#ai_control .ai-prompt-card,
+#ai_control .ai-command-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#ai_control .ai-prompt-voice-wrap {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  gap: 8px;
+  align-items: stretch;
+}
+
+#ai_control .ai-prompt-voice-wrap .ai-prompt {
+  flex: 1 1 auto;
+  width: 0;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#ai_control .ai-voice-button {
+  flex: 0 0 52px;
+  width: 52px;
+  min-width: 52px;
+  box-sizing: border-box;
+}
+
+/* Телефон */
+@media (max-width: 600px) {
+
+  #ai_control .ai-prompt-voice-wrap {
+    gap: 6px;
+  }
+
+  #ai_control .ai-voice-button {
+    flex-basis: 46px;
+    width: 46px;
+    min-width: 46px;
+  }
+
+  #ai_control .ai-command-card .ai-actions {
+    width: 100%;
+  }
+
+  #ai_control #aiSendCommand {
+    width: 100%;
   }
 }

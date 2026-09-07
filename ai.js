@@ -23,6 +23,53 @@
   let aiVoiceTranscript = "";
   let aiVoiceFinalizing = false;
 
+  // ---------------------------------------------------
+  // AI VOICE REPLY
+  // Speak only a NEW reply created after this page opened.
+  // Old Firebase replies are never spoken on page load.
+  // ---------------------------------------------------
+  let aiVoiceReplyInitialized = false;
+  let lastSpokenVoiceReplyId = "";
+
+  function speakAiReply(text) {
+    const cleanText = normalizeString(text, "").trim();
+    if (!cleanText) return;
+
+    // Prefer the smart-home's existing speak() function.
+    if (typeof window.speak === "function") {
+      window.speak(cleanText);
+      return;
+    }
+
+    // Fallback if the main speak() function is unavailable.
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = "ru-RU";
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  function handleAiVoiceReply(value) {
+    const reply = normalizeString(value?.VoiceReply, "").trim();
+    const replyId = normalizeString(value?.VoiceReplyId, "").trim();
+
+    // First Firebase snapshot only initializes the guard.
+    // This prevents an old reply from being spoken after reload.
+    if (!aiVoiceReplyInitialized) {
+      aiVoiceReplyInitialized = true;
+      lastSpokenVoiceReplyId = replyId;
+      return;
+    }
+
+    if (!reply || !replyId || replyId === lastSpokenVoiceReplyId) return;
+
+    lastSpokenVoiceReplyId = replyId;
+    speakAiReply(reply);
+  }
+
   const getEl = (id) => document.getElementById(id);
 
   function normalizeString(value, fallback = "") {
@@ -142,6 +189,8 @@
 
   function renderAI(data) {
     const value = data || {};
+
+    handleAiVoiceReply(value);
 
     renderEnabled(value.Enabled ?? "0");
     renderStatus(value.Status ?? "idle");

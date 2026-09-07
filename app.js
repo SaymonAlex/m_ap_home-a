@@ -433,10 +433,41 @@ setTimeout(() => {
 }, 6000);
 // -------------------------
 
+// JARVIS voice: prefer a Russian male voice when the device provides one.
+let jarvisVoice = null;
+
+function selectJarvisVoice() {
+  const voices = speechSynthesis.getVoices();
+  if (!voices || !voices.length) return null;
+
+  const russian = voices.filter(v => /^ru(?:-|_)/i.test(v.lang || ""));
+  const maleHints = [
+    "yuri", "yury", "maxim", "maksim", "pavel", "dmitry", "dmitri",
+    "alexander", "aleksandr", "mikhail", "nikolai", "male", "муж"
+  ];
+
+  jarvisVoice = russian.find(v =>
+    maleHints.some(h => (v.name || "").toLowerCase().includes(h))
+  ) || russian[0] || voices.find(v => /^ru/i.test(v.lang || "")) || null;
+
+  return jarvisVoice;
+}
+
+selectJarvisVoice();
+if ("speechSynthesis" in window) {
+  speechSynthesis.addEventListener?.("voiceschanged", selectJarvisVoice);
+  speechSynthesis.onvoiceschanged = selectJarvisVoice;
+}
+
 function speak(text) {
-  if (!sound_voice) return;
+  if (!sound_voice || !text) return;
   speechSynthesis.cancel();
   utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "ru-RU";
+  utterance.rate = 0.95;
+  utterance.pitch = 0.72;
+  const voice = jarvisVoice || selectJarvisVoice();
+  if (voice) utterance.voice = voice;
   speechSynthesis.speak(utterance);
 }
 
@@ -757,42 +788,90 @@ const voiceCommands = [
 ];
 // -----------------------------------------------
 
-// Инициализация распознавания речи
+// Инициализация распознавания речи — JARVIS wake word
+async function sendJarvisAICommand(text) {
+  const clean = String(text || "").trim();
+  if (!clean) return;
+  await firebase.database().ref("AI/Command").set(clean);
+  await firebase.database().ref("AI/AnalyzeNow").set(1);
+}
+
+function isJarvisWake(text) {
+  return /(?:^|\s)(джарвис|жарвис|jarvis)(?:\s|$|[,.!?])/i.test(text);
+}
+
+function stripJarvisWake(text) {
+  return String(text || "")
+    .replace(/(?:^|\s)(джарвис|жарвис|jarvis)(?=\s|$|[,.!?])/ig, " ")
+    .replace(/^[\s,.:;!?-]+|[\s]+$/g, "")
+    .trim();
+}
+
 function initRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SpeechRecognition();
   recognition.lang = 'ru-RU';
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
+
   recognition.onresult = async function (event) {
     const transcript = event.results[0][0].transcript.trim().toLowerCase();
+
+    // Wake phrase and command may be spoken in ONE sentence:
+    // "Джарвис, включи свет на кухне".
     if (!waitingForCommand) {
-      if (transcript.includes("алиса")) {
-        await speak("Слушаю вас.");
+      if (!isJarvisWake(transcript)) {
+        restartRecognition();
+        return;
+      }
+
+      const afterWake = stripJarvisWake(transcript);
+
+      if (!afterWake) {
+        await speak("Слушаю.");
         waitingForCommand = true;
         restartRecognition();
-      } else {
-        restartRecognition();
+        return;
       }
+
+      if (/^(ты\s+тут|ты\s+здесь|на\s+связи|слышишь\s+меня)/i.test(afterWake)) {
+        await speak("Да, я здесь.");
+        waitingForCommand = false;
+        restartRecognition();
+        return;
+      }
+
+      // Everything after "Jarvis" goes through the AI assistant.
+      try {
+        await sendJarvisAICommand(afterWake);
+      } catch (error) {
+        console.error("JARVIS AI command error:", error);
+        await speak("Не удалось отправить команду.");
+      }
+      waitingForCommand = false;
+      restartRecognition();
       return;
     }
-    let handled = false;
-    for (const command of voiceCommands) {
-      if (command.match(transcript)) {
-        await command.action(transcript);
-        handled = true;
-        break;
+
+    // After "Джарвис" -> "Слушаю", the next phrase is the command/question.
+    if (/^(ты\s+тут|ты\s+здесь|на\s+связи|слышишь\s+меня)/i.test(transcript)) {
+      await speak("Да, я здесь.");
+    } else {
+      try {
+        await sendJarvisAICommand(stripJarvisWake(transcript));
+      } catch (error) {
+        console.error("JARVIS AI command error:", error);
+        await speak("Не удалось отправить команду.");
       }
     }
-    if (!handled) {
-      await speak("Извините, я не поняла ваш запрос.");
-    }
+
     waitingForCommand = false;
     restartRecognition();
   };
+
   recognition.onend = function () {
     if (isListening) {
-      recognition.start();
+      try { recognition.start(); } catch (_) {}
     }
   };
 }

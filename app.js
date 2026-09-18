@@ -464,8 +464,8 @@ function speak(text) {
   speechSynthesis.cancel();
   utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "ru-RU";
-  utterance.rate = 0.95;
-  utterance.pitch = 0.72;
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
   const voice = jarvisVoice || selectJarvisVoice();
   if (voice) utterance.voice = voice;
   speechSynthesis.speak(utterance);
@@ -686,245 +686,191 @@ mic_icon.addEventListener('click', () => {
 });
 // -----------------------------------------------------
 
-// ================== Основные команды ====================
-const voiceCommands = [
-  {
-    match: (text) => /(установи(ть)?|поставь|задай|измени|поставить)\s+(температуру на\s*)?(\d+[.,]?\d*)/.test(text),
-    action: async (text) => {
-      const match = text.match(/(установи(ть)?|поставь|задай|измени|поставить)\s+(температуру на\s*)?(\d+[.,]?\d*)/);
-      if (!match) return;
+// =====================================================
+// JARVIS PUSH-TO-TALK ON THE HOME PAGE
+// Hold the microphone -> speak -> release -> send command to AI.
+// Works the same way as the microphone in AI Control.
+// =====================================================
 
-      let temp = match[4].replace(",", ".");
-      temp = parseFloat(temp);
+let mainVoiceRecognition = null;
+let mainVoicePressed = false;
+let mainVoiceEnded = true;
+let mainVoiceTranscript = "";
+let mainVoiceFinalizing = false;
 
-      // === Ограничения температуры ===
-      if (temp < 18) {
-        await speak("Температура не может быть ниже 18 градусов.");
-        return;
-      }
-
-      if (temp > 30) {
-        await speak("Температура не может быть выше 30 градусов.");
-        return;
-      }
-
-      const roundedTemp = temp.toFixed(1);
-      firebase.database().ref().child("Boiler/Temp/Setpoint").set(roundedTemp);
-      await speak(`Температура установлена на ${roundedTemp} градусов.`);
-    }
-
-  },
-  {
-    match: (text) => text.includes("как дела"),
-    action: async () => {
-      await speak("Отлично, жду ваших указаний.");
-    }
-  },
-  {
-    match: (text) => text.includes("включи лампу в спальне"),
-    action: async () => {
-      firebase.database().ref().child("Bedroom_One/Lamp/Lamp_power").set("1");
-      await speak("Окей, включаю.");
-    }
-  },
-  {
-    match: (text) => text.includes("выключи лампу в спальне"),
-    action: async () => {
-      firebase.database().ref().child("Bedroom_One/Lamp/Lamp_power").set("0");
-      await speak("Окей, выключаю.");
-    }
-  },
-  {
-    match: (text) => text.includes("включи лампу у насти"),
-    action: async () => {
-      firebase.database().ref().child("Bedroom_Two/Lamp/Lamp_power").set("1");
-      await speak("Окей, включаю.");
-    }
-  },
-  {
-    match: (text) => text.includes("выключи лампу у насти"),
-    action: async () => {
-      firebase.database().ref().child("Bedroom_Two/Lamp/Lamp_power").set("0");
-      await speak("Окей, выключаю.");
-    }
-  },
-  {
-    match: (text) => text.includes("включи лампу на кухне"),
-    action: async () => {
-      firebase.database().ref().child("Kitchen/Lamp/Lamp_power").set("1");
-      await speak("Окей, включаю.");
-    }
-  },
-  {
-    match: (text) => text.includes("выключи лампу на кухне"),
-    action: async () => {
-      firebase.database().ref().child("Kitchen/Lamp/Lamp_power").set("0");
-      await speak("Окей, выключаю.");
-    }
-  },
-  {
-    match: (text) => text.includes("какая температура на улице"),
-    action: async () => {
-      await speak("На улице сейчас " + formatTemperature(out_temp));
-    }
-  },
-  {
-    match: (text) => text.includes("какая температура в доме"),
-    action: async () => {
-      await speak("средняя температура в доме," + formatTemperature(temp_at_home));
-    }
-  },
-  {
-    match: (text) => text.includes("выключи микрофон"),
-    action: async () => {
-      await speak("Окей, выключаю микрофон.");
-      isListening = false;
-      recognition.stop();
-      mic_State = "off";
-      localStorage.setItem("mic_State", mic_State);
-      togglemic(mic_State);
-    }
-  }
-];
-// -----------------------------------------------
-
-// Инициализация распознавания речи — JARVIS wake word
 async function sendJarvisAICommand(text) {
   const clean = String(text || "").trim();
   if (!clean) return;
+
   await firebase.database().ref("AI/Command").set(clean);
   await firebase.database().ref("AI/AnalyzeNow").set(1);
 }
 
-function isJarvisWake(text) {
-  return /(?:^|\s)(джарвис|жарвис|jarvis)(?:\s|$|[,.!?])/i.test(text);
+function getMainSpeechRecognitionConstructor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
-function stripJarvisWake(text) {
-  return String(text || "")
-    .replace(/(?:^|\s)(джарвис|жарвис|jarvis)(?=\s|$|[,.!?])/ig, " ")
-    .replace(/^[\s,.:;!?-]+|[\s]+$/g, "")
-    .trim();
+function resetMainVoiceButton() {
+  if (!mic_but || !mic_icon) return;
+  mic_but.classList.remove("btn-pressed", "is-listening");
+  mic_but.removeAttribute("aria-pressed");
+  mic_icon.classList.remove("fa-microphone-slash");
+  mic_icon.classList.add("fa-microphone");
 }
 
-function initRecognition() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.lang = 'ru-RU';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
+async function finalizeMainVoiceCommand() {
+  if (mainVoiceFinalizing) return;
 
-  recognition.onresult = async function (event) {
-    const transcript = event.results[0][0].transcript.trim().toLowerCase();
+  const text = mainVoiceTranscript.trim();
+  mainVoicePressed = false;
+  resetMainVoiceButton();
 
-    // Wake phrase and command may be spoken in ONE sentence:
-    // "Джарвис, включи свет на кухне".
-    if (!waitingForCommand) {
-      if (!isJarvisWake(transcript)) {
-        restartRecognition();
-        return;
-      }
+  if (!text) {
+    if (sound_voice) speak("Команда не распознана");
+    return;
+  }
 
-      const afterWake = stripJarvisWake(transcript);
+  mainVoiceFinalizing = true;
 
-      if (!afterWake) {
-        await speak("Слушаю.");
-        waitingForCommand = true;
-        restartRecognition();
-        return;
-      }
+  try {
+    await sendJarvisAICommand(text);
+    console.log("JARVIS command sent to AI:", text);
+  } catch (error) {
+    console.error("JARVIS AI command error:", error);
+    if (sound_voice) speak("Не удалось отправить команду");
+  } finally {
+    mainVoiceFinalizing = false;
+  }
+}
 
-      if (/^(ты\s+тут|ты\s+здесь|на\s+связи|слышишь\s+меня)/i.test(afterWake)) {
-        await speak("Да, я здесь.");
-        waitingForCommand = false;
-        restartRecognition();
-        return;
-      }
+function createMainVoiceRecognition() {
+  const Recognition = getMainSpeechRecognitionConstructor();
+  if (!Recognition) return null;
 
-      // Everything after "Jarvis" goes through the AI assistant.
-      try {
-        await sendJarvisAICommand(afterWake);
-      } catch (error) {
-        console.error("JARVIS AI command error:", error);
-        await speak("Не удалось отправить команду.");
-      }
-      waitingForCommand = false;
-      restartRecognition();
+  const rec = new Recognition();
+  rec.lang = "ru-RU";
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+
+  rec.onstart = () => {
+    mainVoiceEnded = false;
+  };
+
+  rec.onresult = (event) => {
+    let bestText = "";
+
+    for (let i = 0; i < event.results.length; i++) {
+      const text = event.results[i][0]?.transcript?.trim() || "";
+      if (text.length > bestText.length) bestText = text;
+    }
+
+    mainVoiceTranscript = bestText;
+  };
+
+  rec.onerror = (event) => {
+    const error = event?.error || "unknown";
+    console.warn("JARVIS voice recognition error:", error);
+
+    if (error === "not-allowed" || error === "service-not-allowed") {
+      if (sound_voice) speak("Разрешите доступ к микрофону");
+    } else if (error !== "aborted" && error !== "no-speech") {
+      if (sound_voice) speak("Ошибка распознавания речи");
+    }
+  };
+
+  rec.onend = async () => {
+    mainVoiceEnded = true;
+    if (!mainVoicePressed) await finalizeMainVoiceCommand();
+  };
+
+  return rec;
+}
+
+function startMainVoicePrompt(event) {
+  if (!mic_but || mainVoicePressed || mainVoiceFinalizing) return;
+
+  const Recognition = getMainSpeechRecognitionConstructor();
+  if (!Recognition) {
+    if (sound_voice) speak("Голосовой ввод не поддерживается этим браузером");
+    return;
+  }
+
+  event?.preventDefault?.();
+
+  mainVoiceTranscript = "";
+  mainVoicePressed = true;
+  mainVoiceEnded = false;
+
+  mic_but.classList.add("btn-pressed", "is-listening");
+  mic_but.setAttribute("aria-pressed", "true");
+  mic_icon.classList.remove("fa-microphone-slash");
+  mic_icon.classList.add("fa-microphone");
+
+  try {
+    if (event?.pointerId !== undefined && mic_but.setPointerCapture) {
+      mic_but.setPointerCapture(event.pointerId);
+    }
+  } catch (_) {}
+
+  try {
+    mainVoiceRecognition = createMainVoiceRecognition();
+    mainVoiceRecognition.start();
+  } catch (error) {
+    console.error("JARVIS voice start error:", error);
+    mainVoicePressed = false;
+    mainVoiceEnded = true;
+    resetMainVoiceButton();
+    if (sound_voice) speak("Не удалось включить микрофон");
+  }
+}
+
+async function stopMainVoicePrompt(event) {
+  if (!mainVoicePressed) return;
+
+  event?.preventDefault?.();
+  mainVoicePressed = false;
+  resetMainVoiceButton();
+
+  try {
+    if (mainVoiceRecognition && !mainVoiceEnded) {
+      mainVoiceRecognition.stop();
       return;
     }
+  } catch (error) {
+    console.warn("JARVIS voice stop error:", error);
+  }
 
-    // After "Джарвис" -> "Слушаю", the next phrase is the command/question.
-    if (/^(ты\s+тут|ты\s+здесь|на\s+связи|слышишь\s+меня)/i.test(transcript)) {
-      await speak("Да, я здесь.");
-    } else {
-      try {
-        await sendJarvisAICommand(stripJarvisWake(transcript));
-      } catch (error) {
-        console.error("JARVIS AI command error:", error);
-        await speak("Не удалось отправить команду.");
+  await finalizeMainVoiceCommand();
+}
+
+const mic_but = document.getElementById("mic_but");
+
+if (mic_but && mic_icon) {
+  resetMainVoiceButton();
+
+  if (!getMainSpeechRecognitionConstructor()) {
+    mic_but.disabled = true;
+    mic_but.title = "Голосовой ввод не поддерживается этим браузером";
+  } else {
+    mic_but.addEventListener("pointerdown", startMainVoicePrompt);
+    mic_but.addEventListener("pointerup", stopMainVoicePrompt);
+    mic_but.addEventListener("pointercancel", stopMainVoicePrompt);
+    mic_but.addEventListener("contextmenu", (event) => event.preventDefault());
+
+    mic_but.addEventListener("keydown", (event) => {
+      if ((event.code === "Space" || event.code === "Enter") && !event.repeat) {
+        startMainVoicePrompt(event);
       }
-    }
+    });
 
-    waitingForCommand = false;
-    restartRecognition();
-  };
-
-  recognition.onend = function () {
-    if (isListening) {
-      try { recognition.start(); } catch (_) {}
-    }
-  };
-}
-// --------------------------------
-
-// Перезапуск распознавания
-function restartRecognition() {
-  if (!recognition) return;
-  recognition.abort();
-  setTimeout(() => {
-    if (isListening) recognition.start();
-  }, 300);
-}
-// -------------------------
-
-// -----------Кнопка управления--------------
-const mic_but = document.getElementById('mic_but');
-function togglemic(state) {
-  if (state === "on") {
-    mic_but.classList.add("btn-pressed");
-    mic_icon.classList.remove("fa-microphone-slash");
-    mic_icon.classList.add("fa-microphone");
-    if (!recognition) initRecognition();
-    isListening = true;
-    waitingForCommand = false;
-    recognition.start();
-  } else {
-    mic_but.classList.remove("btn-pressed");
-    mic_icon.classList.remove("fa-microphone");
-    mic_icon.classList.add("fa-microphone-slash");
-    isListening = false;
-    if (recognition) recognition.stop(); // <-- Только если уже инициализирован
+    mic_but.addEventListener("keyup", (event) => {
+      if (event.code === "Space" || event.code === "Enter") {
+        stopMainVoicePrompt(event);
+      }
+    });
   }
-};
-
-let mic_State = localStorage.getItem("mic_State") || "off";
-togglemic(mic_State);
-
-mic_icon.addEventListener("click", () => {
-  mic_State = mic_State === "off" ? "on" : "off";
-  localStorage.setItem("mic_State", mic_State);
-  togglemic(mic_State);
-
-  if (mic_State === "on") {
-    if (sound_voice == true) {
-      speak("Управление с микрофона включено");
-    }
-  } else {
-    if (sound_voice == true) {
-      speak("Управление с микрофона выключено");
-    }
-  }
-});
+}
 // ----------------------------------------------
 
 // ------Управление звуковым сопровождением------

@@ -1,10 +1,13 @@
-const CACHE_NAME = 'esp-ui-v51';
+const CACHE_NAME = 'esp-ui-v52';
 
 const FILES_TO_CACHE = [
   './',
   './index.html',
   './loader.css',
   './style.css',
+  './fonts.css',
+  './ai.css',
+  './ai.js',
   './app.js',
   './manifest.json',
   './icons/icon-192.png',

@@ -25,7 +25,7 @@ body {
   align-items: center;
   min-height: 100vh;
   font-family: "Lato", sans-serif;
-  background-color: aqua;
+  background-color: var(--background-color);
   user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -438,34 +438,11 @@ h1 {
 .hero-inner > * {
   z-index: 1;
 }
-.trapezoid {
-  position: absolute;
-  height: 0;
-}
-.t-top {
-  border-top: 50px solid aqua;
-  border-left: 55px solid transparent;
-  border-right: 55px solid transparent;
-  width: 30%;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.t-left, .t-right {
-  border-top: 55px solid transparent;
-  border-bottom: 55px solid transparent;
-  height: 40%;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.t-left {
-  border-left: 50px solid aqua;
-  left: 0;
-}
-.t-right {
-  border-right: 50px solid aqua;
-  right: 0;
-}
+
+
+
+
+
 .hero video {
   position: absolute;
   top: 0;
@@ -1508,35 +1485,13 @@ a {
   transform: translateY(-8px) rotate(-45deg);
 }
 
-/* FIGERE T-SHAPE */
-.t-top {
-    border-top: 30px solid aqua;
-    border-left: 55px solid transparent;
-    border-right: 55px solid transparent;
-    width: 35%;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-  }
 
-.t-left,
-.t-right {
-    border-top: 45px solid transparent;
-    border-bottom: 45px solid transparent;
-    height: 40%;
-    top: 50%;
-    transform: translateY(-50%);
-  }
 
-  .t-left {
-    border-left: 30px solid aqua;
-    left: 0;
-  }
 
-  .t-right {
-    border-right: 30px solid aqua;
-    right: 0;
-  }
+
+  
+
+  
 }
 
 /* FOOTER */
@@ -1931,8 +1886,7 @@ body {
     linear-gradient(155deg, #101e30 0%, #090f1d 48%, #070c17 100%);
   background-attachment: fixed;
 }
-/* Hide old aqua cutouts without removing HTML nodes. */
-.trapezoid, .t-left, .t-right, .t-top { display: none !important; }
+
 /* Keep existing dimensions, content flow and mobile footer fixes. */
 .hero-inner {
   background: linear-gradient(145deg, #152b43 0%, #101e32 42%, #0b1424 100%);
@@ -2495,8 +2449,8 @@ body {height:auto !important;min-height:100% !important;overflow-x:clip !importa
 .jarvis-light-panel:not(.is-expanded) .jarvis-controls-body{display:none}
 .jarvis-light-panel.is-expanded .jarvis-lock-row{margin-bottom:0}
 .jarvis-settings-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;color:#a8cddd;font-size:10px;font-weight:700;letter-spacing:.7px}
-.jarvis-settings-close{border:1px solid #526e80;border-radius:11px;background:#23394b;color:#d8f1fc;padding:7px 11px;font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
-.jarvis-settings-close:focus-visible{outline:2px solid #63d8e5;outline-offset:2px}
+
+
 @media(max-width:420px){.jarvis-light-panel .jarvis-controls-body{padding:12px 13px;max-height:65dvh}}
 
 /* JARVIS: stable full-height room login card, independent of floating settings. */
@@ -2587,20 +2541,7 @@ body {height:auto !important;min-height:100% !important;overflow-x:clip !importa
   background: transparent;
   z-index: 3;
 }
-.jarvis-light-panel .jarvis-settings-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 23px;
-  padding: 0;
-  border: 0;
-  border-radius: 0 0 10px 10px;
-  background: rgba(49,83,101,.5);
-  color: #a8fff0;
-  font-size: 25px;
-  line-height: 1;
-}
+
 @media(max-width:420px) {
   .jarvis-light-panel .jarvis-controls-body {padding:25px 13px 12px;}
   .jarvis-light-panel .jarvis-settings-top {top:-25px;}
@@ -2609,40 +2550,26 @@ body {height:auto !important;min-height:100% !important;overflow-x:clip !importa
 /* Compact chevron in the decorative-lighting header. */
 .jarvis-light-panel .jarvis-light-heading {display:flex;align-items:center;justify-content:space-between;gap:6px;}
 .jarvis-heading-actions {display:inline-flex;align-items:center;gap:7px;flex-shrink:0;}
-.jarvis-light-panel .jarvis-light-heading .jarvis-settings-close {display:none;position:static;width:25px;height:25px;min-width:25px;margin:0;padding:0;border:0;border-radius:7px;background:rgba(49,83,101,.55);color:#a8fff0;font-size:22px;line-height:1;cursor:pointer;}
-.jarvis-light-panel.is-expanded .jarvis-light-heading .jarvis-settings-close {display:inline-flex;align-items:center;justify-content:center;}
+
+
 .jarvis-light-panel .jarvis-controls-body {padding-top:10px;}
 @media(max-width:420px){.jarvis-light-panel .jarvis-controls-body{padding-top:10px;}}
 
-/* Chevron between safety caption and unlock button, same row. */
-.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close {
-  display:none; position:static; flex:0 0 25px; width:25px; height:25px;
-  min-width:25px; padding:0; margin:0; border:0; border-radius:7px;
-  background:rgba(49,83,101,.55); color:#a8fff0; font-size:22px;
-  line-height:1; cursor:pointer; align-items:center; justify-content:center;
-}
-.jarvis-light-panel.is-expanded .jarvis-lock-row .jarvis-settings-close {display:inline-flex;}
+
+
 .jarvis-light-panel .jarvis-lock-row .jarvis-lock-caption {flex:1; min-width:0;}
 
 /* X + Скрыть on the left; unlock button remains anchored on the right. */
 .jarvis-light-panel .jarvis-lock-row { justify-content:space-between; }
-.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close {
-  position:static; flex:0 0 auto; width:auto; min-width:0; height:30px;
-  padding:0 3px; margin:0; border:0; border-radius:0; background:transparent;
-  color:#a8fff0; font-size:12px; font-weight:600; line-height:1;
-  align-items:center; justify-content:flex-start; gap:5px; cursor:pointer;
-}
-.jarvis-light-panel:not(.is-expanded) .jarvis-lock-row .jarvis-settings-close {visibility:hidden; display:inline-flex;}
-.jarvis-light-panel.is-expanded .jarvis-lock-row .jarvis-settings-close {visibility:visible; display:inline-flex;}
-.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close svg {display:block;flex:none;}
+
+
+
+
 .jarvis-light-panel .jarvis-lock-row .jarvis-lock-button {margin-left:auto; flex-shrink:0;}
 
 /* Compact decor control row: close icon / original LED switch / unlock. */
 .jarvis-light-panel .jarvis-lock-row {display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:34px;}
-.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close {
-  flex:0 0 28px;width:28px;min-width:28px;height:30px;padding:0;
-  justify-content:flex-start;
-}
+
 .jarvis-light-panel .jarvis-decor-switch {flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-width:54px;}
 .jarvis-light-panel .jarvis-decor-switch .checkboxGreen+label {margin:0;}
 .jarvis-light-panel .jarvis-lock-row .jarvis-lock-button {flex:0 0 auto;margin-left:0;}
@@ -2661,18 +2588,9 @@ body {height:auto !important;min-height:100% !important;overflow-x:clip !importa
   display:flex; justify-content:flex-start; align-items:center;
   min-width:0; width:100%;
 }
-.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close {
-  grid-column:2; grid-row:1;
-  display:inline-flex; align-items:center; justify-content:center;
-  width:30px; min-width:30px; height:32px; padding:0; margin:0;
-  background:transparent; border:0; border-radius:0;
-}
-.jarvis-light-panel:not(.is-expanded) .jarvis-lock-row .jarvis-settings-close {
-  display:inline-flex; visibility:hidden; pointer-events:none;
-}
-.jarvis-light-panel.is-expanded .jarvis-lock-row .jarvis-settings-close {
-  display:inline-flex; visibility:visible; pointer-events:auto;
-}
+
+
+
 .jarvis-light-panel .jarvis-lock-row .jarvis-lock-button {
   grid-column:3; grid-row:1; justify-self:end;
   margin:0; white-space:nowrap;

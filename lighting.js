@@ -46,7 +46,7 @@
       input.addEventListener('pointerup', () => dragging[field] = false);
       input.addEventListener('pointercancel', () => dragging[field] = false);
       input.addEventListener('input', () => { if (!unlocked || !values.enabled) return; resetLockTimer(); values[field] = Number(input.value); render(); saveLocal(); clearTimeout(timers[field]); timers[field] = setTimeout(() => { delete timers[field]; write(field); }, 320); });
-      input.addEventListener('change', () => { dragging[field] = false; if (!unlocked || !values.enabled) return; resetLockTimer(); clearTimeout(timers[field]); write(field); });
+      input.addEventListener('change', () => { dragging[field] = false; if (!unlocked || !values.enabled) return; resetLockTimer(); clearTimeout(timers[field]); delete timers[field]; values[field] = Number(input.value); render(); saveLocal(); write(field); });
     });
     effectSelect?.addEventListener('change', () => { if (!unlocked || !values.enabled) return; resetLockTimer(); values.effect = Number(effectSelect.value); render(); saveLocal(); write('effect'); });
     // LED count is a rarely changed configuration: commit only on Save.

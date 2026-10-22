@@ -1811,3 +1811,875 @@ footer {
     font-size: 20px;
   }
 }
+/* JARVIS | Neon lighting sliders */
+.jarvis-light-panel{--lamp-color:#00ffff;--lamp-bright:.65;max-width:410px;width:min(100%,410px);margin:18px auto 6px;padding:18px 19px 15px;border:1px solid rgba(97,191,218,.21);border-radius:22px;background:linear-gradient(140deg,rgba(28,47,66,.88),rgba(7,16,32,.93));box-shadow:inset 1px 1px 1px #ffffff12,0 12px 28px #0005;color:#e5f5ff;font-family:inherit}
+.jarvis-light-heading,.jarvis-control-row,.jarvis-light-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.jarvis-light-heading{font-size:10px;font-weight:800;letter-spacing:1.5px;color:#8ea9bc;margin-bottom:17px}
+.jarvis-light-status{color:#59ddc5;font-size:9px;letter-spacing:.6px}.jarvis-light-status.pending{color:#ffcb70}.jarvis-light-status.error{color:#ff7777}
+.jarvis-control-row{font-size:14px;font-weight:600;margin-bottom:12px}.jarvis-control-row output{font:700 15px 'Orbitron',monospace;color:#ffe09a;text-shadow:0 0 12px #ffd46b50}.jarvis-color-heading{margin-top:22px}.jarvis-color-heading output{color:var(--lamp-color);text-shadow:0 0 12px var(--lamp-color);font-size:12px}
+.jarvis-slider-shell{position:relative;height:45px;border-radius:30px;background:linear-gradient(160deg,#172235,#3b3439);border:2px solid #263649;box-shadow:inset 4px 5px 10px #0009,inset -1px -1px 3px #ffffff17,0 0 10px #0006;isolation:isolate}
+.jarvis-slider-shell::before{content:'';position:absolute;inset:-3px;border-radius:inherit;pointer-events:none;border:1px solid var(--lamp-color);box-shadow:0 0 calc(3px + 15px * var(--lamp-bright)) var(--lamp-color),inset 0 0 6px var(--lamp-color);opacity:calc(.3 + var(--lamp-bright) * .55)}
+.jarvis-slider-track{position:absolute;left:7px;right:7px;top:7px;bottom:7px;border-radius:30px;pointer-events:none;background:linear-gradient(to right,var(--lamp-color) 0%,var(--lamp-color) var(--fill),transparent var(--fill),transparent 100%);opacity:.36;filter:drop-shadow(0 0 7px var(--lamp-color))}
+.jarvis-hue-shell .jarvis-slider-track{background:linear-gradient(90deg,#ff3030,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff3030);opacity:.5}
+.jarvis-slider-shell input{position:absolute;z-index:2;inset:0;width:100%;height:100%;margin:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;touch-action:pan-y}
+.jarvis-slider-shell input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:38px;height:38px;border-radius:50%;border:2px solid #797a7d;background:radial-gradient(circle at 50% 50%,var(--lamp-color) 0 4px,#d6c8c4 5px,#b4a8a8 52%,#666773 86%);box-shadow:inset 2px 2px 4px #fff7,inset -3px -4px 6px #0008,2px 3px 6px #0009,0 0 11px var(--lamp-color)}
+.jarvis-slider-shell input::-moz-range-thumb{width:34px;height:34px;border-radius:50%;border:2px solid #797a7d;background:radial-gradient(circle at 50% 50%,var(--lamp-color) 0 4px,#d6c8c4 5px,#b4a8a8 52%,#666773 86%);box-shadow:2px 3px 6px #0009,0 0 11px var(--lamp-color)}
+.jarvis-light-bottom{margin-top:15px;color:#71899e;font-size:10px;letter-spacing:.4px}.jarvis-light-preview{display:flex;align-items:center;gap:6px;font-size:9px}.jarvis-light-preview i{width:13px;height:13px;border-radius:50%;background:var(--lamp-color);opacity:calc(.2 + var(--lamp-bright)*.8);box-shadow:0 0 calc(3px + 15px * var(--lamp-bright)) var(--lamp-color)}
+@media(max-width:420px){.jarvis-light-panel{padding:15px 13px}.jarvis-light-heading{font-size:9px}}
+
+/* Separate decorative light switch: existing relay styles and behavior are untouched. */
+.jarvis-decor-indicator{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;color:#637382;font-size:23px;transition:color .25s,text-shadow .25s,transform .25s}
+.jarvis-decor-row.is-on .jarvis-decor-indicator{color:#00f3dc;text-shadow:0 0 8px #00ffe9,0 0 20px #00ffe980;transform:scale(1.07)}
+.jarvis-light-panel.is-off .jarvis-slider-shell{opacity:.42;filter:saturate(.3)}
+.jarvis-light-panel.is-off .jarvis-light-preview i{opacity:.12;box-shadow:none}
+.jarvis-light-panel.is-off .jarvis-control-row output{opacity:.6}
+.jarvis-light-panel.is-off .jarvis-slider-shell input{cursor:not-allowed}
+.jarvis-light-panel.is-off .jarvis-light-heading{opacity:.75}
+
+/* V3: touch-safe slider lock; no changes to original switch styling */
+.jarvis-lock-row{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:-4px 0 17px}
+.jarvis-lock-caption{font-size:10px;color:#8ea9bc;line-height:1.4}
+.jarvis-lock-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:34px;padding:6px 11px;border:1px solid #536678;border-radius:20px;background:linear-gradient(155deg,#283a4d,#111c2b);color:#d3e6f4;font:700 10px inherit;letter-spacing:.3px;cursor:pointer;white-space:nowrap;box-shadow:inset 1px 1px 2px #ffffff16,0 3px 8px #0006}
+.jarvis-lock-button.is-unlocked{border-color:#00dfc0;color:#75ffe4;box-shadow:0 0 12px #00dfc044,inset 0 0 8px #00dfc01a}
+.jarvis-lock-button:focus-visible{outline:2px solid #00ffe0;outline-offset:3px}
+.jarvis-light-panel.is-locked .jarvis-slider-shell{opacity:.75}
+.jarvis-light-panel.is-locked .jarvis-slider-shell input{cursor:default;touch-action:pan-y}
+@media(max-width:370px){.jarvis-lock-caption{font-size:9px}.jarvis-lock-button{padding:6px 8px;font-size:9px}}
+
+/* V4: compact decorative controls and prevent overlap with section footer */
+#sun_bedroom .login, #dot_bedroom .login, #leavingroom .login {
+  height: auto;
+  min-height: 0;
+  padding-bottom: 14px;
+}
+#sun_bedroom .hero-inner, #dot_bedroom .hero-inner, #leavingroom .hero-inner {
+  padding-bottom: 52px;
+}
+.jarvis-light-panel {
+  margin: 10px auto 3px;
+  padding: 12px 14px 10px;
+  border-radius: 20px;
+}
+.jarvis-light-heading { margin-bottom: 9px; letter-spacing: 1px; gap: 5px; }
+.jarvis-lock-row { margin: 0 0 10px; gap: 6px; }
+.jarvis-lock-button { min-height: 30px; padding: 4px 9px; }
+.jarvis-control-row { margin-bottom: 7px; }
+.jarvis-color-heading { margin-top: 12px; }
+.jarvis-slider-shell { height: 39px; }
+.jarvis-slider-shell input::-webkit-slider-thumb { width: 34px; height: 34px; }
+.jarvis-slider-shell input::-moz-range-thumb { width: 30px; height: 30px; }
+.jarvis-slider-track { top: 6px; bottom: 6px; }
+.jarvis-light-bottom { margin-top: 9px; }
+@media (max-width: 600px) {
+  #sun_bedroom, #dot_bedroom, #leavingroom { height: auto; min-height: 100dvh; }
+  #sun_bedroom .hero-inner, #dot_bedroom .hero-inner, #leavingroom .hero-inner {
+    height: auto; min-height: calc(100dvh - 2em);
+    justify-content: flex-start;
+    padding: 54px 12px 55px;
+    overflow: hidden;
+  }
+  #sun_bedroom .title, #dot_bedroom .title, #leavingroom .title { width: 100%; }
+  #sun_bedroom .login, #dot_bedroom .login, #leavingroom .login {
+    width: min(100%, 400px);
+    padding: 12px 10px;
+  }
+  .jarvis-light-panel { padding: 11px 12px 9px; }
+  .jarvis-light-heading { font-size: 9px; }
+  .jarvis-lock-caption { font-size: 9px; }
+}
+
+/* V5: footer participates in layout, never overlays decorative controls. */
+#sun_bedroom .hero-inner, #dot_bedroom .hero-inner, #leavingroom .hero-inner {
+  height: auto;
+  min-height: calc(100dvh - 2em);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: visible;
+  padding-bottom: 16px;
+}
+#sun_bedroom .title, #dot_bedroom .title, #leavingroom .title {
+  flex: 0 0 auto;
+  width: 100%;
+}
+#sun_bedroom footer, #dot_bedroom footer, #leavingroom footer {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  margin-top: 18px;
+  height: 34px;
+  width: 100%;
+}
+@media (max-width:600px) {
+  #sun_bedroom .hero-inner, #dot_bedroom .hero-inner, #leavingroom .hero-inner {
+    padding: 54px 12px 16px;
+  }
+  #sun_bedroom footer, #dot_bedroom footer, #leavingroom footer { margin-top: 16px; }
+}
+
+
+/* =============================================================
+   JARVIS DARK TITANIUM V6 — BACKGROUND ONLY
+   No changes to controls, Firebase, layout or JavaScript.
+   ============================================================= */
+html { background-color: #080f1d; }
+body {
+  background-color: #080f1d;
+  background-image:
+    radial-gradient(ellipse 90% 38% at 82% 6%, rgba(26,91,127,.24), transparent 75%),
+    radial-gradient(ellipse 75% 45% at 5% 70%, rgba(26,56,106,.19), transparent 78%),
+    linear-gradient(155deg, #101e30 0%, #090f1d 48%, #070c17 100%);
+  background-attachment: fixed;
+}
+/* Hide old aqua cutouts without removing HTML nodes. */
+.trapezoid, .t-left, .t-right, .t-top { display: none !important; }
+/* Keep existing dimensions, content flow and mobile footer fixes. */
+.hero-inner {
+  background: linear-gradient(145deg, #152b43 0%, #101e32 42%, #0b1424 100%);
+  border: 1px solid rgba(104, 184, 219, .22);
+  box-shadow:
+    0 14px 34px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(191,234,255,.08);
+  border-radius: 24px;
+}
+/* Restrained cyan edge lighting, independent of controls. */
+.hero-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 85% 28% at 50% 0%, rgba(36,148,190,.09), transparent 85%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+
+/* JARVIS V7 — targeted typography and stable footers only */
+/* Make the brand readable on the dark titanium background. */
+.hero .brand { color: #e5f5ff; text-shadow: 0 1px 8px rgba(48,177,224,.25); }
+/* V5 set the room titles to 100% width, but did not center their contents. */
+#sun_bedroom .title, #dot_bedroom .title, #leavingroom .title {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+#sun_bedroom .title > h1, #dot_bedroom .title > h1, #leavingroom .title > h1 {
+  text-align: center;
+  justify-content: center;
+  width: 100%;
+}
+#sun_bedroom .title .login, #dot_bedroom .title .login, #leavingroom .title .login {
+  margin-left: auto;
+  margin-right: auto;
+}
+/* All section footers follow the same layout rule; no absolute jumping. */
+.hero .hero-inner { display: flex; flex-direction: column; }
+.hero .hero-inner > footer {
+  position: relative;
+  inset: auto;
+  top: auto;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  flex: 0 0 auto;
+  margin: auto 0 0;
+  padding-top: 8px;
+  min-height: 38px;
+  height: auto;
+  width: 100%;
+  transform: none;
+}
+/* For content-heavy rooms, reserve footer space after the full control card. */
+#sun_bedroom .hero-inner > footer,
+#dot_bedroom .hero-inner > footer,
+#leavingroom .hero-inner > footer { margin-top: 18px; }
+@media (max-width: 600px) {
+  .hero .brand { color: #e5f5ff; }
+  #sun_bedroom .title > h1, #dot_bedroom .title > h1, #leavingroom .title > h1 {
+    text-align: center;
+    margin-inline: auto;
+  }
+}
+
+/* JARVIS V8 — anchor room footers to the bottom without overlays.
+   Keep existing controls, title alignment, and visual styling untouched. */
+#sun_bedroom, #dot_bedroom, #leavingroom {
+  height: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+#sun_bedroom > .hero-inner,
+#dot_bedroom > .hero-inner,
+#leavingroom > .hero-inner {
+  height: auto;
+  min-height: calc(100vh - 2em);
+  min-height: calc(100dvh - 2em);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+#sun_bedroom > .hero-inner > footer,
+#dot_bedroom > .hero-inner > footer,
+#leavingroom > .hero-inner > footer {
+  position: relative;
+  top: auto; bottom: auto; left: auto; right: auto;
+  margin: auto 0 0;
+  padding-top: 12px;
+  flex-shrink: 0;
+  transform: none;
+}
+@media (max-width: 600px) {
+  #sun_bedroom > .hero-inner,
+  #dot_bedroom > .hero-inner,
+  #leavingroom > .hero-inner { min-height: calc(100dvh - 2em); }
+}
+
+
+/* ==========================================================
+   JARVIS DARK TITANIUM V9 — responsive layout corrections
+   Presentation only: no control, animation or JS changes.
+   ========================================================== */
+html, body { max-width: 100%; overflow-x: clip; }
+.hero { height: auto; min-height: 100vh; min-height: 100dvh; padding: clamp(10px, 1.5vw, 22px); }
+.hero > .hero-inner {
+  height: auto; min-height: calc(100vh - 44px); min-height: calc(100dvh - 44px);
+  width: 100%; max-width: 1440px; margin-inline: auto;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-start;
+  padding: 118px clamp(14px, 3vw, 48px) 24px;
+  overflow: visible;
+}
+.hero > .hero-inner > .title { width: 100%; max-width: 100%; flex: 0 0 auto; text-align: center; margin: 0 auto; min-width: 0; }
+.hero > .hero-inner > .title > h1 {
+  display: block; width: 100%; max-width: 100%; margin: 0 auto 12px;
+  padding: 0; text-align: center; font-size: clamp(1.65rem, 3.5vw, 3.6rem);
+  line-height: 1.15; overflow-wrap: anywhere;
+}
+.hero .login { max-width: 100%; margin-inline: auto; }
+.hero > .hero-inner > footer {
+  position: static; inset: auto; transform: none;
+  margin: auto 0 0 !important; padding-top: 12px;
+  min-height: 48px; height: auto; width: 100%;
+  flex-shrink: 0; text-align: center;
+}
+.hero .brand { position: absolute; top: 17px; left: 50%; transform: translateX(-50%); z-index: 3; color: #e5f5ff; white-space: nowrap; }
+/* Desktop: navigation has its own row; it cannot cover the page title. */
+@media (min-width: 1001px) {
+  .hero nav { position: absolute; top: 55px; left: 0; width: 100%; height: auto;
+    padding: 10px clamp(14px, 3vw, 40px); display: flex;
+    flex-direction: row; justify-content: center; align-items: center;
+    gap: 18px; z-index: 8; background: transparent; }
+  .hero nav > div, .hero nav .links { display: flex; flex-direction: row;
+    justify-content: center; align-items: center; flex-wrap: wrap;
+    gap: clamp(5px, 1.1vw, 18px); margin: 0; }
+  .hero nav .links a { padding: 4px 6px; white-space: nowrap; font-size: clamp(12px, 1.05vw, 16px); }
+  .hero nav .menu-auth { position: absolute; right: 16px; top: 9px; }
+  .hero > .hero-inner { padding-top: 135px; }
+}
+/* Tablet: use existing hamburger navigation rather than squeezing links over title. */
+@media (min-width: 601px) and (max-width: 1000px) {
+  .hero .menu-btn { display: block; position: absolute; left: 24px; top: 63px;
+    width: 32px; height: 25px; z-index: 11; }
+  .hero nav { position: absolute; top: -110%; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 55px 20px; background: #101b2d; z-index: 10;
+    transition: top .45s ease; }
+  .hero .nav-open { top: 0; }
+  .hero nav > div, .hero nav .links { display: flex; flex-direction: column;
+    justify-content: center; align-items: center; gap: 15px; margin: 0; }
+  .hero > .hero-inner { padding-top: 120px; }
+}
+@media (max-width: 600px) {
+  .hero > .hero-inner { min-height: calc(100dvh - 20px); padding: 108px 12px 22px; }
+  .hero .brand { top: 18px; left: 22px; transform: none; font-size: 1.1rem; }
+  .hero .menu-btn { z-index: 11; }
+  .hero > .hero-inner > .title > h1 { font-size: clamp(1.4rem, 6vw, 2.1rem); }
+  .hero .login { width: min(100%, 400px); }
+  .hero > .hero-inner > footer { margin-top: 26px !important; }
+}
+/* The fixed-size room panels must never push outside a narrow tablet. */
+#sun_bedroom .login, #dot_bedroom .login, #leavingroom .login {
+  width: min(100%, 440px); height: auto; min-height: 0;
+}
+.jarvis-light-panel { max-width: 100%; }
+
+
+/* ============================================================
+   JARVIS DARK TITANIUM V10 — CONSOLIDATED RESPONSIVE PATCH
+   CSS only. Existing functional controls remain unchanged.
+   ============================================================ */
+html { overflow-x: hidden; }
+body { overflow-x: hidden; }
+.hero {
+  height: auto !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: clamp(10px, 1.5vw, 20px);
+}
+.hero > .hero-inner {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1440px;
+  height: auto !important;
+  min-height: calc(100vh - 40px);
+  min-height: calc(100dvh - 40px);
+  margin-inline: auto;
+  padding: 118px clamp(14px, 2.6vw, 40px) 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+}
+.hero > .hero-inner > .title { flex: 0 0 auto; width: 100%; max-width: 100%; margin-inline: auto; text-align: center; }
+.hero > .hero-inner > .title > h1 { font-size: clamp(1.6rem, 3.2vw, 3rem); text-align: center; line-height: 1.15; }
+.hero > .hero-inner > footer {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 100%;
+  height: auto;
+  min-height: 48px;
+  margin: auto 0 0 !important;
+  padding: 12px 0 0;
+  text-align: center;
+}
+.hero .brand { color: #e5f5ff; }
+/* Keep the real controls at a usable size on wide screens. */
+#home .login { width: min(100%, 620px); max-width: 100%; }
+#sun_bedroom .login, #dot_bedroom .login, #leavingroom .login { width: min(100%, 580px); max-width: 100%; }
+
+/* Phone + tablet: same hamburger behavior, never an exposed nav column. */
+@media (max-width: 1000px) {
+  .hero > .hero-inner { padding-top: 110px; }
+  .hero .brand { top: 18px; left: 24px; transform: none; z-index: 3; }
+  .hero .menu-btn {
+    display: block !important;
+    position: absolute;
+    top: 63px;
+    left: 24px;
+    width: 32px;
+    height: 25px;
+    z-index: 1000;
+    background: transparent;
+    border: 0;
+  }
+  .hero nav {
+    position: absolute !important;
+    top: -110% !important;
+    left: 0 !important;
+    right: 0;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 76px 20px 28px !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 18px;
+    background: #101b2d;
+    z-index: 900;
+    transition: top .35s ease;
+    overflow-y: auto;
+  }
+  .hero nav.nav-open { top: 0 !important; }
+  .hero nav > div, .hero nav .links {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    margin: 0 !important;
+    flex-wrap: nowrap;
+  }
+  .hero nav .links a { white-space: normal; text-align: center; }
+  .hero nav .menu-auth { position: static; }
+  .hero .login { max-width: 100%; }
+}
+@media (min-width: 1001px) {
+  .hero > .hero-inner { padding-top: 142px; }
+  .hero .menu-btn { display: none !important; }
+  .hero nav {
+    position: absolute !important;
+    top: 54px !important;
+    left: 0 !important;
+    width: 100%;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 12px 20px !important;
+    margin: 0 !important;
+    background: transparent;
+  }
+  .hero nav > div, .hero nav .links {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    margin: 0 !important;
+    gap: clamp(6px, 1.1vw, 18px) !important;
+  }
+  .hero nav .menu-auth { position: absolute; right: 16px; top: 8px; }
+  .hero nav .links { max-width: calc(100% - 200px); }
+}
+@media (min-width: 1001px) and (max-width: 1250px) {
+  .hero nav { justify-content: flex-start !important; padding-left: 24px !important; }
+  .hero nav .links { max-width: calc(100% - 215px); }
+}
+@media (max-width: 600px) {
+  .hero { padding: 10px; }
+  .hero > .hero-inner { min-height: calc(100dvh - 20px); padding: 108px 12px 20px; }
+  .hero .brand { top: 18px; left: 22px; }
+  .hero .menu-btn { left: 24px; top: 64px; }
+  .hero > .hero-inner > .title > h1 { font-size: clamp(1.4rem, 6vw, 2.1rem); }
+  #home .login, #sun_bedroom .login, #dot_bedroom .login, #leavingroom .login { max-width: 100%; }
+}
+
+
+/* V11: Tablet navigation isolation. Never move a full-height menu with top:-110%:
+   its offset was calculated against varying section heights and leaked on screen. */
+@media (max-width: 1000px) {
+  .hero > .hero-inner { isolation: isolate; }
+  .hero .menu-btn {
+    position: absolute !important;
+    z-index: 1102 !important;
+    display: block !important;
+    left: 24px !important;
+    top: 63px !important;
+    background: transparent !important;
+  }
+  .hero nav {
+    position: absolute !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 105px 20px 32px !important;
+    z-index: 1100 !important;
+    background: #101b2d !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 18px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    transform: translateX(-105%) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: transform .28s ease, opacity .28s ease, visibility .28s !important;
+  }
+  .hero nav.nav-open {
+    transform: translateX(0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+  .hero nav .links, .hero nav > div {
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 18px !important;
+  }
+  .hero nav .menu-auth.auth-visible {
+    display: flex !important;
+    position: static !important;
+    width: auto !important;
+    max-width: calc(100% - 20px) !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    margin: 22px auto 0 !important;
+    gap: 10px !important;
+  }
+  .hero nav .firebaseUserEmail { max-width: min(220px, 55vw); }
+}
+
+
+/* V12 — compact header and logout placement; no control styling changes. */
+@media (max-width: 1000px) {
+  .hero > .hero-inner {
+    padding-top: 78px !important;
+  }
+  .hero .brand { top: 14px !important; }
+  .hero .menu-btn { top: 48px !important; }
+  .hero > .hero-inner > .title { margin-top: 0 !important; }
+  .hero > .hero-inner > .title > h1 {
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+    padding-bottom: 0 !important;
+  }
+  .hero nav { padding-top: 95px !important; }
+  .hero nav .menu-auth.auth-visible {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    margin: 14px auto 0 !important;
+    z-index: auto !important;
+  }
+}
+@media (max-width: 600px) {
+  .hero > .hero-inner { padding-top: 80px !important; }
+  .hero .menu-btn { top: 48px !important; }
+}
+@media (min-width: 1001px) {
+  /* Auth box lives below the globe, rather than across it. */
+  .hero nav .menu-auth.auth-visible {
+    position: absolute !important;
+    top: 54px !important;
+    right: 12px !important;
+    left: auto !important;
+    margin: 0 !important;
+    max-width: min(220px, 22vw) !important;
+    z-index: 9 !important;
+  }
+  .hero nav .firebaseUserEmail { max-width: min(130px, 12vw); }
+}
+
+
+/* V13 — mobile-only layout correction. Desktop remains V12. */
+@media (max-width:1000px) {
+  .hero { height:auto !important; min-height:100svh !important; overflow:visible !important; }
+  .hero > .hero-inner { min-height:calc(100svh - 20px) !important; height:auto !important; padding:72px 12px 16px !important; position:relative !important; }
+  .hero .brand { top:12px !important; left:18px !important; color:#e5f5ff !important; }
+  .hero .menu-btn { top:47px !important; left:20px !important; }
+  .hero > .hero-inner > .title > h1 { margin:0 0 9px !important; line-height:1.12 !important; }
+  .hero > .hero-inner > footer { position:static !important; margin:auto 0 0 !important; padding:14px 0 8px !important; transform:none !important; }
+  .hero nav { position:absolute !important; inset:0 0 auto 0 !important; width:100% !important; height:auto !important; min-height:100% !important; max-height:none !important; padding:94px 16px 30px !important; transform:translateY(-105%) !important; overflow:visible !important; visibility:hidden !important; opacity:0 !important; pointer-events:none !important; transition:transform .28s ease,opacity .28s ease,visibility .28s !important; }
+  .hero nav.nav-open { transform:translateY(0) !important; visibility:visible !important; opacity:1 !important; pointer-events:auto !important; }
+  .hero nav .links { gap:14px !important; }
+  .hero nav .menu-auth.auth-visible { position:relative !important; inset:auto !important; margin:18px auto 0 !important; max-width:min(100%,330px) !important; width:fit-content !important; box-sizing:border-box !important; justify-content:center !important; }
+  .hero nav .firebaseUserEmail { max-width:min(210px,58vw) !important; }
+  .hero .menu-btn { z-index:1102 !important; }
+}
+@media (max-width:600px) {
+  .hero > .hero-inner { padding-top:72px !important; }
+  .hero > .hero-inner > .title > h1 { font-size:clamp(1.2rem,5.2vw,1.8rem) !important; }
+  #home .login { width:min(100%,400px) !important; }
+}
+
+/* V14: compact footer and single-row mobile page heading. */
+@media (max-width: 1000px) {
+  .hero > .hero-inner {
+    padding-top: 47px !important;
+    padding-bottom: 3px !important;
+    min-height: calc(100svh - 20px) !important;
+  }
+  .hero .menu-btn { top: 47px !important; left: 16px !important; }
+  .hero > .hero-inner > .title > h1 {
+    box-sizing: border-box !important;
+    min-height: 42px !important;
+    padding: 0 8px 0 55px !important;
+    margin: 0 0 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: clamp(1.1rem, 3.7vw, 2rem) !important;
+  }
+  .hero > .hero-inner > footer {
+    box-sizing: border-box !important;
+    min-height: 0 !important;
+    height: auto !important;
+    flex: 0 0 auto !important;
+    margin: auto 0 0 !important;
+    padding: 3px 0 2px !important;
+    line-height: 1.1 !important;
+  }
+  .hero > .hero-inner > footer small {
+    font-size: clamp(9px, 1.5vw, 12px) !important;
+    line-height: 1.1 !important;
+  }
+}
+@media (max-width: 600px) {
+  .hero > .hero-inner > .title > h1 {
+    font-size: clamp(1rem, 4.1vw, 1.45rem) !important;
+  }
+}
+
+/* V17 — native continuous scrolling across ALL sections.
+   Menu links are normal #anchors; no navigation-fix.js needed. */
+html {height:auto !important;overflow-x:hidden !important;overflow-y:auto !important;scroll-snap-type:none !important;scroll-padding-top:0 !important;}
+body {height:auto !important;min-height:100% !important;overflow-x:clip !important;overflow-y:visible !important;scroll-snap-type:none !important;}
+#content {height:auto !important;overflow:visible !important;scroll-snap-type:none !important;}
+#content > section.hero {display:block !important;visibility:visible !important;height:auto !important;min-height:100svh !important;overflow:visible !important;scroll-snap-align:none !important;scroll-margin-top:0 !important;}
+#content > section.hero > .hero-inner {height:auto !important;min-height:calc(100svh - 20px) !important;}
+#content > section.hero[hidden] {display:block !important;}
+#content > section.hero > .hero-inner > .title {width:100% !important;text-align:center !important;margin-inline:auto !important;}
+#content > section.hero > .hero-inner > .title > h1 {width:100% !important;text-align:center !important;font-size:clamp(1.4rem,3.5vw,2.6rem) !important;}
+@media(max-width:600px){#content > section.hero > .hero-inner > .title > h1{font-size:clamp(1.2rem,4.4vw,1.7rem) !important;}}
+
+/* V17.1 — section headings only; preserve navigation, scrolling and footer. */
+#content > section.hero > .hero-inner > .title {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+  text-align: center !important;
+}
+#content > section.hero > .hero-inner > .title > h1 {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  font-size: clamp(1.8rem, 3.8vw, 3rem) !important;
+}
+@media (max-width: 600px) {
+  #content > section.hero > .hero-inner > .title > h1 {
+    font-size: clamp(1.55rem, 5.2vw, 2rem) !important;
+  }
+}
+
+/* JARVIS — rounded mobile dropdown menu (visual change only) */
+@media (max-width: 1000px) {
+  .hero nav,
+  .hero nav.nav-open {
+    border-radius: 24px !important;
+    background-clip: padding-box;
+  }
+}
+
+/* Jarvis decorative LED effects / count */
+.jarvis-extra-controls{margin-top:15px;padding-top:13px;border-top:1px solid rgba(145,196,220,.18)}
+.jarvis-extra-controls .jarvis-control-row{margin-bottom:9px}
+.jarvis-effect-select{width:100%;min-height:43px;box-sizing:border-box;border:1px solid rgba(112,192,223,.35);border-radius:13px;padding:9px 12px;background:#18283a;color:#e5f5ff;font:inherit;font-size:13px;outline:none;cursor:pointer}
+.jarvis-effect-select:focus-visible{border-color:#63d8e5;box-shadow:0 0 0 2px #63d8e533}
+.jarvis-effect-select option{background:#18283a;color:#e5f5ff}
+.jarvis-led-count-heading{margin-top:16px}
+.jarvis-count-shell{--fill:2.34%}
+.jarvis-count-shell .jarvis-slider-track{background:linear-gradient(to right,var(--lamp-color) 0%,var(--lamp-color) var(--fill),transparent var(--fill),transparent 100%)}
+.jarvis-light-panel.is-locked .jarvis-effect-select,.jarvis-light-panel.is-off .jarvis-effect-select{opacity:.55;cursor:not-allowed}
+@media(max-width:420px){.jarvis-effect-select{font-size:12px}.jarvis-extra-controls{margin-top:12px}}
+
+/* VNext: compact panel, expand settings on unlock, auto-collapse after inactivity */
+.jarvis-light-panel .jarvis-controls-body{display:grid;grid-template-rows:1fr;opacity:1;transition:opacity .22s ease,transform .22s ease;transform:translateY(0);min-width:0}
+.jarvis-light-panel:not(.is-expanded) .jarvis-controls-body{display:none}
+.jarvis-light-panel.is-expanded .jarvis-controls-body{animation:jarvisControlsReveal .25s ease both}
+@keyframes jarvisControlsReveal{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+.jarvis-light-panel .jarvis-lock-row{margin-bottom:0}
+.jarvis-light-panel.is-expanded .jarvis-lock-row{margin-bottom:15px}
+.jarvis-led-config{margin-top:16px;padding-top:12px;border-top:1px solid rgba(145,196,220,.15)}
+.jarvis-led-count-heading{margin-top:0}
+.jarvis-count-edit{display:flex;align-items:stretch;gap:9px}
+.jarvis-count-edit input{min-width:0;flex:1;width:90px;min-height:41px;padding:7px 11px;border:1px solid rgba(112,192,223,.35);border-radius:12px;background:#18283a;color:#e5f5ff;font:inherit;font-size:15px;box-sizing:border-box}
+.jarvis-count-edit input:focus{outline:2px solid #63d8e588;outline-offset:1px}
+.jarvis-count-save{padding:7px 13px;border:1px solid #399d98;border-radius:12px;background:#173b43;color:#a6fff0;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.jarvis-count-save:disabled,.jarvis-count-edit input:disabled{opacity:.5;cursor:not-allowed}
+.jarvis-count-hint{font-size:10px;color:#829cae;margin-top:7px;line-height:1.4}
+@media(prefers-reduced-motion:reduce){.jarvis-light-panel.is-expanded .jarvis-controls-body{animation:none}}
+
+/* Floating LED settings: no reflow or section height changes when opened. */
+.jarvis-light-panel{position:relative;z-index:2}
+.jarvis-light-panel.is-expanded{z-index:30}
+.jarvis-light-panel .jarvis-controls-body{
+  position:absolute;top:calc(100% + 7px);left:0;right:0;
+  z-index:35;display:block;box-sizing:border-box;
+  max-height:min(68dvh,550px);overflow-y:auto;overscroll-behavior:contain;
+  padding:15px 16px 17px;border:1px solid rgba(97,191,218,.38);
+  border-radius:18px;background:linear-gradient(145deg,#1b3044,#0a1729);
+  box-shadow:0 18px 45px #000b, inset 0 1px #ffffff12;
+}
+.jarvis-light-panel:not(.is-expanded) .jarvis-controls-body{display:none}
+.jarvis-light-panel.is-expanded .jarvis-lock-row{margin-bottom:0}
+.jarvis-settings-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;color:#a8cddd;font-size:10px;font-weight:700;letter-spacing:.7px}
+.jarvis-settings-close{border:1px solid #526e80;border-radius:11px;background:#23394b;color:#d8f1fc;padding:7px 11px;font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.jarvis-settings-close:focus-visible{outline:2px solid #63d8e5;outline-offset:2px}
+@media(max-width:420px){.jarvis-light-panel .jarvis-controls-body{padding:12px 13px;max-height:65dvh}}
+
+/* JARVIS: stable full-height room login card, independent of floating settings. */
+#sun_bedroom > .hero-inner,
+#dot_bedroom > .hero-inner,
+#leavingroom > .hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#sun_bedroom > .hero-inner > .title,
+#dot_bedroom > .hero-inner > .title,
+#leavingroom > .hero-inner > .title {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+}
+#sun_bedroom > .hero-inner > .title > h1,
+#dot_bedroom > .hero-inner > .title > h1,
+#leavingroom > .hero-inner > .title > h1 {
+  flex: 0 0 auto;
+}
+#sun_bedroom .title > .login,
+#dot_bedroom .title > .login,
+#leavingroom .title > .login {
+  flex: 1 0 auto;
+  height: auto !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Compact integrated settings: scroll inside login without changing its height. */
+.jarvis-light-panel .jarvis-controls-body {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: var(--jarvis-settings-height, 260px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #4a8898 transparent;
+}
+.jarvis-light-panel .jarvis-settings-top {
+  position: sticky;
+  top: -15px;
+  z-index: 2;
+  padding: 9px 0;
+  background: #1b3044;
+  border-radius: 8px;
+}
+@media (max-width: 420px) {
+  .jarvis-light-panel .jarvis-settings-top {top: -12px;}
+}
+
+
+/* Unified decorative lighting card: one surface, scrollable controls. */
+.jarvis-light-panel.is-expanded {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+.jarvis-light-panel .jarvis-controls-body {
+  top: calc(100% - 1px);
+  left: -1px;
+  right: -1px;
+  border-top: 0;
+  border-color: rgba(97,191,218,.21);
+  border-radius: 0 0 22px 22px;
+  background: linear-gradient(140deg,rgba(28,47,66,.98),rgba(7,16,32,.99));
+  box-shadow: 0 12px 28px #0005;
+  padding: 25px 19px 15px;
+  box-sizing: border-box;
+}
+.jarvis-light-panel .jarvis-settings-top {
+  position: sticky;
+  top: -25px;
+  display: flex;
+  justify-content: center;
+  margin: -23px 0 8px;
+  padding: 0;
+  height: 24px;
+  background: transparent;
+  z-index: 3;
+}
+.jarvis-light-panel .jarvis-settings-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 23px;
+  padding: 0;
+  border: 0;
+  border-radius: 0 0 10px 10px;
+  background: rgba(49,83,101,.5);
+  color: #a8fff0;
+  font-size: 25px;
+  line-height: 1;
+}
+@media(max-width:420px) {
+  .jarvis-light-panel .jarvis-controls-body {padding:25px 13px 12px;}
+  .jarvis-light-panel .jarvis-settings-top {top:-25px;}
+}
+
+/* Compact chevron in the decorative-lighting header. */
+.jarvis-light-panel .jarvis-light-heading {display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.jarvis-heading-actions {display:inline-flex;align-items:center;gap:7px;flex-shrink:0;}
+.jarvis-light-panel .jarvis-light-heading .jarvis-settings-close {display:none;position:static;width:25px;height:25px;min-width:25px;margin:0;padding:0;border:0;border-radius:7px;background:rgba(49,83,101,.55);color:#a8fff0;font-size:22px;line-height:1;cursor:pointer;}
+.jarvis-light-panel.is-expanded .jarvis-light-heading .jarvis-settings-close {display:inline-flex;align-items:center;justify-content:center;}
+.jarvis-light-panel .jarvis-controls-body {padding-top:10px;}
+@media(max-width:420px){.jarvis-light-panel .jarvis-controls-body{padding-top:10px;}}
+
+/* Chevron between safety caption and unlock button, same row. */
+.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close {
+  display:none; position:static; flex:0 0 25px; width:25px; height:25px;
+  min-width:25px; padding:0; margin:0; border:0; border-radius:7px;
+  background:rgba(49,83,101,.55); color:#a8fff0; font-size:22px;
+  line-height:1; cursor:pointer; align-items:center; justify-content:center;
+}
+.jarvis-light-panel.is-expanded .jarvis-lock-row .jarvis-settings-close {display:inline-flex;}
+.jarvis-light-panel .jarvis-lock-row .jarvis-lock-caption {flex:1; min-width:0;}
+
+/* X + Скрыть on the left; unlock button remains anchored on the right. */
+.jarvis-light-panel .jarvis-lock-row { justify-content:space-between; }
+.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close {
+  position:static; flex:0 0 auto; width:auto; min-width:0; height:30px;
+  padding:0 3px; margin:0; border:0; border-radius:0; background:transparent;
+  color:#a8fff0; font-size:12px; font-weight:600; line-height:1;
+  align-items:center; justify-content:flex-start; gap:5px; cursor:pointer;
+}
+.jarvis-light-panel:not(.is-expanded) .jarvis-lock-row .jarvis-settings-close {visibility:hidden; display:inline-flex;}
+.jarvis-light-panel.is-expanded .jarvis-lock-row .jarvis-settings-close {visibility:visible; display:inline-flex;}
+.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close svg {display:block;flex:none;}
+.jarvis-light-panel .jarvis-lock-row .jarvis-lock-button {margin-left:auto; flex-shrink:0;}
+
+/* Compact decor control row: close icon / original LED switch / unlock. */
+.jarvis-light-panel .jarvis-lock-row {display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:34px;}
+.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close {
+  flex:0 0 28px;width:28px;min-width:28px;height:30px;padding:0;
+  justify-content:flex-start;
+}
+.jarvis-light-panel .jarvis-decor-switch {flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-width:54px;}
+.jarvis-light-panel .jarvis-decor-switch .checkboxGreen+label {margin:0;}
+.jarvis-light-panel .jarvis-lock-row .jarvis-lock-button {flex:0 0 auto;margin-left:0;}
+
+/* Stable 3-column layout: decor toggle LEFT, X CENTER, unlock RIGHT.
+   Reserve the X slot even while collapsed, so nothing shifts. */
+.jarvis-light-panel .jarvis-lock-row {
+  display:grid;
+  grid-template-columns:minmax(58px,1fr) 30px minmax(0,1fr);
+  align-items:center;
+  column-gap:8px;
+  justify-content:normal;
+}
+.jarvis-light-panel .jarvis-decor-switch {
+  grid-column:1; grid-row:1;
+  display:flex; justify-content:flex-start; align-items:center;
+  min-width:0; width:100%;
+}
+.jarvis-light-panel .jarvis-lock-row .jarvis-settings-close {
+  grid-column:2; grid-row:1;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:30px; min-width:30px; height:32px; padding:0; margin:0;
+  background:transparent; border:0; border-radius:0;
+}
+.jarvis-light-panel:not(.is-expanded) .jarvis-lock-row .jarvis-settings-close {
+  display:inline-flex; visibility:hidden; pointer-events:none;
+}
+.jarvis-light-panel.is-expanded .jarvis-lock-row .jarvis-settings-close {
+  display:inline-flex; visibility:visible; pointer-events:auto;
+}
+.jarvis-light-panel .jarvis-lock-row .jarvis-lock-button {
+  grid-column:3; grid-row:1; justify-self:end;
+  margin:0; white-space:nowrap;
+}
+
+/* Align decor switch with slider controls; keep X and unlock fixed. */
+.jarvis-light-panel .jarvis-lock-row .jarvis-decor-switch {
+  padding-left: 18px;
+  box-sizing: border-box;
+}

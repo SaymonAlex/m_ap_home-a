@@ -689,27 +689,37 @@ mic_icon.addEventListener('click', () => {
 // -----------------------------------------------------
 
 // =====================================================
-// JARVIS PUSH-TO-TALK ON THE HOME PAGE
-// Hold the microphone -> speak -> release -> send command to AI.
-// Works the same way as the microphone in AI Control.
+// JARVIS ONE-TAP VOICE CONTROL (all page microphones)
+// Tap once -> speak -> auto-send after ~1.5 s of silence.
+// Tap again -> cancel without sending.
 // =====================================================
 
 let mainVoiceRecognition = null;
 let mainVoicePressed = false;
-let mainVoiceEnded = true;
 let mainVoiceTranscript = "";
 let mainVoiceFinalizing = false;
+let mainVoiceSilenceTimer = null;
+let mainVoiceLimitTimer = null;
+let mainVoiceSession = 0;
+let mainVoiceHasSpeech = false;
+let mainVoiceCancelled = false;
 
 async function sendJarvisAICommand(text) {
   const clean = String(text || "").trim();
   if (!clean) return;
-
   await firebase.database().ref("AI/Command").set(clean);
   await firebase.database().ref("AI/AnalyzeNow").set(1);
 }
 
 function getMainSpeechRecognitionConstructor() {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function clearMainVoiceTimers() {
+  clearTimeout(mainVoiceSilenceTimer);
+  clearTimeout(mainVoiceLimitTimer);
+  mainVoiceSilenceTimer = null;
+  mainVoiceLimitTimer = null;
 }
 
 function resetMainVoiceButton() {
@@ -724,20 +734,18 @@ function resetMainVoiceButton() {
   }
 }
 
-async function finalizeMainVoiceCommand() {
-  if (mainVoiceFinalizing) return;
-
-  const text = mainVoiceTranscript.trim();
+async function finalizeMainVoiceCommand(session) {
+  if (session !== mainVoiceSession || mainVoiceFinalizing || mainVoiceCancelled) return;
+  mainVoiceFinalizing = true;
   mainVoicePressed = false;
+  clearMainVoiceTimers();
   resetMainVoiceButton();
-
+  const text = mainVoiceTranscript.trim();
   if (!text) {
     if (sound_voice) speak("Команда не распознана");
+    mainVoiceFinalizing = false;
     return;
   }
-
-  mainVoiceFinalizing = true;
-
   try {
     await sendJarvisAICommand(text);
     console.log("JARVIS command sent to AI:", text);
@@ -749,35 +757,65 @@ async function finalizeMainVoiceCommand() {
   }
 }
 
-function createMainVoiceRecognition() {
+function finishMainVoiceListening(session) {
+  if (session !== mainVoiceSession || !mainVoicePressed || mainVoiceCancelled) return;
+  mainVoicePressed = false;
+  clearMainVoiceTimers();
+  // Stop recognition; its onend will send the final recognized transcript.
+  try {
+    if (mainVoiceRecognition) {
+      mainVoiceRecognition.stop();
+      return;
+    }
+  } catch (error) {
+    console.warn("JARVIS voice stop error:", error);
+  }
+  finalizeMainVoiceCommand(session);
+}
+
+function scheduleMainVoiceSilence(session) {
+  clearTimeout(mainVoiceSilenceTimer);
+  mainVoiceSilenceTimer = setTimeout(() => {
+    if (session === mainVoiceSession && mainVoiceHasSpeech) {
+      finishMainVoiceListening(session);
+    }
+  }, 1500);
+}
+
+function createMainVoiceRecognition(session) {
   const Recognition = getMainSpeechRecognitionConstructor();
   if (!Recognition) return null;
-
   const rec = new Recognition();
   rec.lang = "ru-RU";
   rec.continuous = true;
   rec.interimResults = true;
   rec.maxAlternatives = 1;
 
-  rec.onstart = () => {
-    mainVoiceEnded = false;
-  };
-
-  rec.onresult = (event) => {
-    let bestText = "";
-
+  rec.onresult = event => {
+    if (session !== mainVoiceSession || mainVoiceCancelled || !mainVoicePressed) return;
+    const pieces = [];
     for (let i = 0; i < event.results.length; i++) {
-      const text = event.results[i][0]?.transcript?.trim() || "";
-      if (text.length > bestText.length) bestText = text;
+      const part = event.results[i][0]?.transcript?.trim();
+      if (part) pieces.push(part);
     }
-
-    mainVoiceTranscript = bestText;
+    if (pieces.length) {
+      mainVoiceTranscript = pieces.join(" ").trim();
+      mainVoiceHasSpeech = true;
+      // Restart silence timer as partial/final recognition arrives.
+      scheduleMainVoiceSilence(session);
+    }
   };
 
-  rec.onerror = (event) => {
+  rec.onspeechend = () => {
+    if (session === mainVoiceSession && mainVoiceHasSpeech && mainVoicePressed) {
+      scheduleMainVoiceSilence(session);
+    }
+  };
+
+  rec.onerror = event => {
+    if (session !== mainVoiceSession || mainVoiceCancelled) return;
     const error = event?.error || "unknown";
     console.warn("JARVIS voice recognition error:", error);
-
     if (error === "not-allowed" || error === "service-not-allowed") {
       if (sound_voice) speak("Разрешите доступ к микрофону");
     } else if (error !== "aborted" && error !== "no-speech") {
@@ -785,78 +823,61 @@ function createMainVoiceRecognition() {
     }
   };
 
-  rec.onend = async () => {
-    mainVoiceEnded = true;
-    if (!mainVoicePressed) await finalizeMainVoiceCommand();
+  rec.onend = () => {
+    if (session !== mainVoiceSession || mainVoiceCancelled) return;
+    // Some mobile browsers end recognition themselves before the silence timer.
+    finalizeMainVoiceCommand(session);
   };
-
   return rec;
 }
 
-function startMainVoicePrompt(event) {
-  if (mainVoicePressed || mainVoiceFinalizing) return;
+function cancelMainVoiceListening() {
+  mainVoiceCancelled = true;
+  mainVoicePressed = false;
+  mainVoiceSession++;
+  clearMainVoiceTimers();
+  const rec = mainVoiceRecognition;
+  mainVoiceRecognition = null;
+  resetMainVoiceButton();
+  try { rec?.abort(); } catch (_) {}
+}
+
+function toggleMainVoicePrompt(event) {
+  event?.preventDefault?.();
+  if (mainVoiceFinalizing) return;
+  if (mainVoicePressed) {
+    cancelMainVoiceListening();
+    return;
+  }
   const voiceButton = event?.currentTarget;
   if (!voiceButton) return;
-
-  const Recognition = getMainSpeechRecognitionConstructor();
-  if (!Recognition) {
+  if (!getMainSpeechRecognitionConstructor()) {
     if (sound_voice) speak("Голосовой ввод не поддерживается этим браузером");
     return;
   }
 
-  event?.preventDefault?.();
-
+  const session = ++mainVoiceSession;
   mainVoiceTranscript = "";
+  mainVoiceHasSpeech = false;
+  mainVoiceCancelled = false;
   mainVoicePressed = true;
-  mainVoiceEnded = false;
-
   activeJarvisVoiceButton = voiceButton;
   voiceButton.classList.add("btn-pressed", "is-listening");
   voiceButton.setAttribute("aria-pressed", "true");
-  if (mic_icon) {
-    mic_icon.classList.remove("fa-microphone-slash");
-    mic_icon.classList.add("fa-microphone");
-  }
 
   try {
-    if (event?.pointerId !== undefined && voiceButton.setPointerCapture) {
-      voiceButton.setPointerCapture(event.pointerId);
-    }
-  } catch (_) {}
-
-  try {
-    mainVoiceRecognition = createMainVoiceRecognition();
+    mainVoiceRecognition = createMainVoiceRecognition(session);
     mainVoiceRecognition.start();
+    // Prevent a forgotten microphone from staying active indefinitely.
+    mainVoiceLimitTimer = setTimeout(() => finishMainVoiceListening(session), 20000);
   } catch (error) {
     console.error("JARVIS voice start error:", error);
-    mainVoicePressed = false;
-    mainVoiceEnded = true;
-    resetMainVoiceButton();
+    cancelMainVoiceListening();
     if (sound_voice) speak("Не удалось включить микрофон");
   }
 }
 
-async function stopMainVoicePrompt(event) {
-  if (!mainVoicePressed) return;
-
-  event?.preventDefault?.();
-  mainVoicePressed = false;
-  resetMainVoiceButton();
-
-  try {
-    if (mainVoiceRecognition && !mainVoiceEnded) {
-      mainVoiceRecognition.stop();
-      return;
-    }
-  } catch (error) {
-    console.warn("JARVIS voice stop error:", error);
-  }
-
-  await finalizeMainVoiceCommand();
-}
-
 const mic_but = document.getElementById("mic_but");
-
 if (jarvisVoiceButtons.length) {
   resetMainVoiceButton();
   jarvisVoiceButtons.forEach(button => {
@@ -865,18 +886,9 @@ if (jarvisVoiceButtons.length) {
       button.title = "Голосовой ввод не поддерживается этим браузером";
       return;
     }
-    button.addEventListener("pointerdown", startMainVoicePrompt);
-    button.addEventListener("pointerup", stopMainVoicePrompt);
-    button.addEventListener("pointercancel", stopMainVoicePrompt);
+    button.title = "Нажмите, произнесите команду. Повторное нажатие отменяет";
+    button.addEventListener("click", toggleMainVoicePrompt);
     button.addEventListener("contextmenu", event => event.preventDefault());
-    button.addEventListener("keydown", event => {
-      if ((event.code === "Space" || event.code === "Enter") && !event.repeat) {
-        startMainVoicePrompt(event);
-      }
-    });
-    button.addEventListener("keyup", event => {
-      if (event.code === "Space" || event.code === "Enter") stopMainVoicePrompt(event);
-    });
   });
 }
 // ----------------------------------------------

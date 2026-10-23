@@ -817,7 +817,9 @@ function createMainVoiceRecognition(session) {
     const error = event?.error || "unknown";
     console.warn("JARVIS voice recognition error:", error);
     if (error === "not-allowed" || error === "service-not-allowed") {
-      if (sound_voice) speak("Разрешите доступ к микрофону");
+      // Release the button and allow another attempt; do not leave it red.
+      cancelMainVoiceListening();
+      if (sound_voice) speak("Браузер не разрешил распознавание речи");
     } else if (error !== "aborted" && error !== "no-speech") {
       if (sound_voice) speak("Ошибка распознавания речи");
     }
@@ -887,7 +889,18 @@ if (jarvisVoiceButtons.length) {
       return;
     }
     button.title = "Нажмите, произнесите команду. Повторное нажатие отменяет";
-    button.addEventListener("click", toggleMainVoicePrompt);
+    // Start recognition directly in pointerdown, like the previously working
+    // hold-to-talk mode. Releasing the finger does NOT stop recognition.
+    // This also avoids a delayed synthetic click on some mobile browsers.
+    button.addEventListener("pointerdown", event => {
+      if (event.button !== 0) return;
+      toggleMainVoicePrompt(event);
+    });
+    // Keyboard accessibility: Enter/Space generate click with detail === 0.
+    // Ignore pointer-generated click so it cannot immediately cancel listening.
+    button.addEventListener("click", event => {
+      if (event.detail === 0) toggleMainVoicePrompt(event);
+    });
     button.addEventListener("contextmenu", event => event.preventDefault());
   });
 }

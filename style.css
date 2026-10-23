@@ -200,6 +200,7 @@ body {
 }
 
 .login {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2600,4 +2601,40 @@ body {height:auto !important;min-height:100% !important;overflow-x:clip !importa
 .jarvis-light-panel .jarvis-lock-row .jarvis-decor-switch {
   padding-left: 18px;
   box-sizing: border-box;
+}
+
+/* JARVIS: microphone centered at bottom inside login */
+.jarvis-page-mic {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  z-index: 12;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(0,198,255,.65);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #153b59, #07111f);
+  color: #00c6ff;
+  font-size: 22px;
+  box-shadow: 0 0 12px rgba(0,198,255,.3), inset 0 0 10px rgba(0,198,255,.1);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: box-shadow .15s ease, background .15s ease, transform .15s ease;
+}
+.jarvis-page-mic.is-listening {
+  color: #fff;
+  border-color: #ff6060;
+  background: linear-gradient(145deg, #74202a, #280e17);
+  box-shadow: 0 0 20px rgba(255,65,80,.8);
+  transform: translateX(-50%) scale(.95);
+}
+.jarvis-page-mic:disabled { opacity: .45; cursor: not-allowed; }
+.jarvis-page-mic:focus-visible { outline: 2px solid #00c6ff; outline-offset: 4px; }
+@media (max-width: 520px) {
+  .jarvis-page-mic { bottom: 10px; width: 46px; height: 46px; font-size: 20px; }
 }

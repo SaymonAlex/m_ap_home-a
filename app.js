@@ -637,6 +637,8 @@ const set_but = document.querySelectorAll('.set_but');
 const clickSound = document.getElementById('clickSound');
 const clickButton = document.getElementById('clickButton');
 const mic_icon = document.getElementById('mic_icon');
+const jarvisVoiceButtons = [...document.querySelectorAll("#mic_but, .jarvis-page-mic")];
+let activeJarvisVoiceButton = null;
 
 checkboxes.forEach(checkbox => {
   checkbox.addEventListener('change', () => {
@@ -711,11 +713,15 @@ function getMainSpeechRecognitionConstructor() {
 }
 
 function resetMainVoiceButton() {
-  if (!mic_but || !mic_icon) return;
-  mic_but.classList.remove("btn-pressed", "is-listening");
-  mic_but.removeAttribute("aria-pressed");
-  mic_icon.classList.remove("fa-microphone-slash");
-  mic_icon.classList.add("fa-microphone");
+  jarvisVoiceButtons.forEach(button => {
+    button.classList.remove("btn-pressed", "is-listening");
+    button.removeAttribute("aria-pressed");
+  });
+  activeJarvisVoiceButton = null;
+  if (mic_icon) {
+    mic_icon.classList.remove("fa-microphone-slash");
+    mic_icon.classList.add("fa-microphone");
+  }
 }
 
 async function finalizeMainVoiceCommand() {
@@ -788,7 +794,9 @@ function createMainVoiceRecognition() {
 }
 
 function startMainVoicePrompt(event) {
-  if (!mic_but || mainVoicePressed || mainVoiceFinalizing) return;
+  if (mainVoicePressed || mainVoiceFinalizing) return;
+  const voiceButton = event?.currentTarget;
+  if (!voiceButton) return;
 
   const Recognition = getMainSpeechRecognitionConstructor();
   if (!Recognition) {
@@ -802,14 +810,17 @@ function startMainVoicePrompt(event) {
   mainVoicePressed = true;
   mainVoiceEnded = false;
 
-  mic_but.classList.add("btn-pressed", "is-listening");
-  mic_but.setAttribute("aria-pressed", "true");
-  mic_icon.classList.remove("fa-microphone-slash");
-  mic_icon.classList.add("fa-microphone");
+  activeJarvisVoiceButton = voiceButton;
+  voiceButton.classList.add("btn-pressed", "is-listening");
+  voiceButton.setAttribute("aria-pressed", "true");
+  if (mic_icon) {
+    mic_icon.classList.remove("fa-microphone-slash");
+    mic_icon.classList.add("fa-microphone");
+  }
 
   try {
-    if (event?.pointerId !== undefined && mic_but.setPointerCapture) {
-      mic_but.setPointerCapture(event.pointerId);
+    if (event?.pointerId !== undefined && voiceButton.setPointerCapture) {
+      voiceButton.setPointerCapture(event.pointerId);
     }
   } catch (_) {}
 
@@ -846,30 +857,27 @@ async function stopMainVoicePrompt(event) {
 
 const mic_but = document.getElementById("mic_but");
 
-if (mic_but && mic_icon) {
+if (jarvisVoiceButtons.length) {
   resetMainVoiceButton();
-
-  if (!getMainSpeechRecognitionConstructor()) {
-    mic_but.disabled = true;
-    mic_but.title = "Голосовой ввод не поддерживается этим браузером";
-  } else {
-    mic_but.addEventListener("pointerdown", startMainVoicePrompt);
-    mic_but.addEventListener("pointerup", stopMainVoicePrompt);
-    mic_but.addEventListener("pointercancel", stopMainVoicePrompt);
-    mic_but.addEventListener("contextmenu", (event) => event.preventDefault());
-
-    mic_but.addEventListener("keydown", (event) => {
+  jarvisVoiceButtons.forEach(button => {
+    if (!getMainSpeechRecognitionConstructor()) {
+      button.disabled = true;
+      button.title = "Голосовой ввод не поддерживается этим браузером";
+      return;
+    }
+    button.addEventListener("pointerdown", startMainVoicePrompt);
+    button.addEventListener("pointerup", stopMainVoicePrompt);
+    button.addEventListener("pointercancel", stopMainVoicePrompt);
+    button.addEventListener("contextmenu", event => event.preventDefault());
+    button.addEventListener("keydown", event => {
       if ((event.code === "Space" || event.code === "Enter") && !event.repeat) {
         startMainVoicePrompt(event);
       }
     });
-
-    mic_but.addEventListener("keyup", (event) => {
-      if (event.code === "Space" || event.code === "Enter") {
-        stopMainVoicePrompt(event);
-      }
+    button.addEventListener("keyup", event => {
+      if (event.code === "Space" || event.code === "Enter") stopMainVoicePrompt(event);
     });
-  }
+  });
 }
 // ----------------------------------------------
 
